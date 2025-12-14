@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,6 +26,26 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _showStyledSnack(BuildContext context, String message, {Color bg = bleuProfon}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.montserrat(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2,
+          ),
+        ),
+        backgroundColor: bg,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 6,
+      ),
+    );
   }
 
   @override
@@ -58,37 +79,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Logo
-                      RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Tikiya',
-                                style: TextStyle(
-                                  color: bleuProfon,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 28,
-                                  letterSpacing: 0.04,
-                                  fontFamily: 'Montserrat',
-                                ),
+                        Text.rich(
+                          TextSpan(children: [
+                            TextSpan(
+                              text: 'Tikiya',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1A237E),
+                                letterSpacing: 0.8,
                               ),
-                              TextSpan(
-                                text: '!',
-                                style: TextStyle(
-                                  color: bleuCyan,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 28,
-                                  fontFamily: 'Montserrat',
-                                  shadows: [
-                                    Shadow(
-                                      color: Color.fromRGBO(0, 172, 193, 0.10),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 8,
-                                    )
-                                  ],
-                                ),
+                            ),
+                            TextSpan(
+                              text: '!',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF00ACC1),
+                                letterSpacing: 0.8,
                               ),
-                            ],
-                          ),
+                            ),
+                          ]),
+                          textAlign: TextAlign.center,
                         ),
                       const Text(
                         'Se connecter',
@@ -145,22 +157,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   onPressed: () async {
                                     if (!_formKey.currentState!.validate()) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Connexion...')),
-                                    );
+                                    _showStyledSnack(context, 'Connexion...');
                                     try {
                                       final res = await _auth.login(
                                         email: _emailController.text.trim(),
                                         password: _passwordController.text,
                                       );
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Connecté')),
-                                      );
+                                      _showStyledSnack(context, 'Connecté');
                                       Navigator.pushReplacementNamed(context, '/');
                                     } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Erreur: $e')),
-                                      );
+                                      _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
                                     }
                                   },
                                   child: const Text(
@@ -180,13 +186,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 18),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pushNamed('/register'),
-                        child: const Text(
-                          "Pas encore de compte ? S'inscrire",
+                        child: RichText(
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: bleuCyan,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                          text: const TextSpan(
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: "Pas encore de compte ? ",
+                                style: TextStyle(color: bleuProfon),
+                              ),
+                              TextSpan(
+                                text: "S'inscrire",
+                                style: TextStyle(color: bleuCyan),
+                              ),
+                            ],
                           ),
                         ),
                       ),

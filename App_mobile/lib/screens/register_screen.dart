@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -8,15 +9,12 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-enum UserRole { participant, organisateur }
-
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _auth = AuthService();
-  UserRole? _role = UserRole.participant;
   String? _error;
 
   static const Color bleuProfon = Color(0xFF1A237E);
@@ -26,10 +24,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _showStyledSnack(BuildContext context, String message, {Color bg = const Color(0xFF1A237E)}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.montserrat(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2,
+          ),
+        ),
+        backgroundColor: bg,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 6,
+      ),
+    );
   }
 
   @override
@@ -61,30 +79,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Tikiya',
-                              style: TextStyle(
-                                color: bleuProfon,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 28,
-                                letterSpacing: 0.04,
-                                fontFamily: 'Montserrat',
-                              ),
+                      Text.rich(
+                        TextSpan(children: [
+                          TextSpan(
+                            text: 'Tikiya',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF1A237E),
+                              letterSpacing: 0.8,
                             ),
-                            TextSpan(
-                              text: '!',
-                              style: TextStyle(
-                                color: bleuCyan,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 28,
-                                fontFamily: 'Montserrat',
-                              ),
+                          ),
+                          TextSpan(
+                            text: '!',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF00ACC1),
+                              letterSpacing: 0.8,
                             ),
-                          ],
-                        ),
+                          ),
+                        ]),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       const Text(
@@ -119,25 +135,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _label('Rôle'),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 14),
-                                child: _RoleToggle(
-                                  selected: _role,
-                                  onChanged: (role) => setState(() => _role = role),
-                                ),
-                              ),
-                              const SizedBox(height: 18),
-
-                              _label("Nom d'utilisateur"),
-                              _input(
-                                controller: _usernameController,
-                                validator: (v) => (v == null || v.isEmpty)
-                                    ? "Veuillez entrer un nom d'utilisateur"
-                                    : null,
-                              ),
-                              const SizedBox(height: 18),
-
                               _label('Adresse e-mail'),
                               _input(
                                 controller: _emailController,
@@ -155,6 +152,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 validator: (v) => (v == null || v.isEmpty)
                                     ? 'Veuillez entrer votre mot de passe'
                                     : null,
+                              ),
+                              const SizedBox(height: 18),
+                              _label('Confirmer le mot de passe'),
+                              _input(
+                                controller: _confirmPasswordController,
+                                obscureText: true,
+                                validator: (v) {
+                                  if (v == null || v.isEmpty) {
+                                    return 'Veuillez confirmer votre mot de passe';
+                                  }
+                                  if (v != _passwordController.text) {
+                                    return 'Les mots de passe ne correspondent pas';
+                                  }
+                                  return null;
+                                },
                               ),
                               const SizedBox(height: 16),
                               SizedBox(
@@ -175,22 +187,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       return;
                                     }
                                     setState(() => _error = null);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Inscription...')),
-                                    );
+                                    _showStyledSnack(context, 'Inscription...');
                                     try {
-                                      final res = await _auth.register(
+                                      await _auth.register(
                                         email: _emailController.text.trim(),
                                         password: _passwordController.text,
                                       );
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Inscrit, vous pouvez vous connecter')),
-                                      );
+                                      _showStyledSnack(context, 'Inscrit, vous pouvez vous connecter');
                                       Navigator.pushReplacementNamed(context, '/');
                                     } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Erreur: $e')),
-                                      );
+                                      _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
                                     }
                                   },
                                   child: const Text(
@@ -210,13 +216,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 18),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pushNamed('/login'),
-                        child: const Text(
-                          'Déjà un compte ? Se connecter',
+                        child: RichText(
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: bleuCyan,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                            children: const [
+                              TextSpan(
+                                text: 'Déjà un compte ? ',
+                                style: TextStyle(color: bleuProfon),
+                              ),
+                              TextSpan(
+                                text: 'Se connecter',
+                                style: TextStyle(color: bleuCyan),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -295,90 +311,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-class _RoleToggle extends StatelessWidget {
-  final UserRole? selected;
-  final ValueChanged<UserRole> onChanged;
-
-  static const Color bleuProfon = Color(0xFF1A237E);
-  static const Color bleuCyan = Color(0xFF00ACC1);
-  static const Color grisClair = Color(0xFFE0E0E0);
-
-  const _RoleToggle({
-    required this.selected,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F8FA),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: grisClair),
-      ),
-      padding: const EdgeInsets.all(6),
-      child: Row(
-        children: [
-          Expanded(
-            child: _RoleItem(
-              label: 'Participant',
-              selected: selected == UserRole.participant,
-              onTap: () => onChanged(UserRole.participant),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _RoleItem(
-              label: 'Organisateur',
-              selected: selected == UserRole.organisateur,
-              onTap: () => onChanged(UserRole.organisateur),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoleItem extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  static const Color bleuCyan = Color(0xFF00ACC1);
-  static const Color grisClair = Color(0xFFE0E0E0);
-  static const Color bleuProfon = Color(0xFF1A237E);
-
-  const _RoleItem({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        decoration: BoxDecoration(
-          color: selected ? bleuCyan : Colors.white,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: selected ? bleuCyan : grisClair, width: 1.5),
-          boxShadow: selected
-              ? const [BoxShadow(color: Color.fromRGBO(0, 172, 193, 0.12), blurRadius: 8, offset: Offset(0, 2))]
-              : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : bleuProfon,
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Role selection removed per request; registration uses only email and password.

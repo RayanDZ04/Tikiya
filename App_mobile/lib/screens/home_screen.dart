@@ -220,25 +220,96 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (_filtersOpen)
                           Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFDFDFE),
-                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(color: const Color(0xFFE3E8EF)),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromRGBO(26, 35, 126, 0.10),
+                                  blurRadius: 24,
+                                  offset: Offset(0, 6),
+                                ),
+                              ],
                             ),
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Wrap(spacing: 16, runSpacing: 8, children: [
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.tune, color: bleuCyan, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Filtres',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: bleuProfond,
+                                        letterSpacing: 0.2,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    TextButton(
+                                      onPressed: () => setState(() => _filtersOpen = false),
+                                      child: Text(
+                                        'Fermer',
+                                        style: GoogleFonts.montserrat(
+                                          color: bleuCyan,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                const Wrap(spacing: 12, runSpacing: 10, children: [
                                   FilterChipPlaceholder(label: 'Musique'),
                                   FilterChipPlaceholder(label: 'Culture'),
                                   FilterChipPlaceholder(label: 'Divertissement'),
                                 ]),
-                                SizedBox(height: 12),
-                                Row(children: [
-                                  Expanded(child: LabeledInput(label: 'Ville', hint: 'Ex: Paris')),
+                                const SizedBox(height: 14),
+                                const Row(children: [
+                                  Expanded(child: LabeledInput(label: 'Ville', hint: 'Ex: Alger')),
                                   SizedBox(width: 12),
                                   Expanded(child: LabeledInput(label: 'Date', hint: 'Choisir une date')),
                                 ]),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(color: bleuCyan),
+                                          foregroundColor: bleuCyan,
+                                          padding: const EdgeInsets.symmetric(vertical: 10),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        ),
+                                        onPressed: () {},
+                                        child: Text(
+                                          'Réinitialiser',
+                                          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: bleuCyan,
+                                          foregroundColor: Colors.white,
+                                          elevation: 2,
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        ),
+                                        onPressed: () {},
+                                        child: Text(
+                                          'Appliquer',
+                                          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
