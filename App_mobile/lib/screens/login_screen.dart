@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,6 +12,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _auth = AuthService();
 
   // Couleurs approximatives des variables CSS du proto
   static const Color bleuProfon = Color(0xFF1A237E);
@@ -141,11 +143,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                   ),
-                                  onPressed: () {
-                                    if (_formKey.currentState?.validate() ?? false) {
-                                      // TODO: Appel API Rust /login
+                                  onPressed: () async {
+                                    if (!_formKey.currentState!.validate()) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Connexion...')),
+                                    );
+                                    try {
+                                      final res = await _auth.login(
+                                        email: _emailController.text.trim(),
+                                        password: _passwordController.text,
+                                      );
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Connexion…')),);
+                                        const SnackBar(content: Text('Connecté')),
+                                      );
+                                      Navigator.pushReplacementNamed(context, '/');
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Erreur: $e')),
+                                      );
                                     }
                                   },
                                   child: const Text(

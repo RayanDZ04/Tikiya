@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -14,6 +15,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _auth = AuthService();
   UserRole? _role = UserRole.participant;
   String? _error;
 
@@ -80,15 +82,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 fontSize: 28,
                                 fontFamily: 'Montserrat',
                               ),
-                              // simple shadow proxy
-                              children: [],
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       const Text(
-                        'Créer un compte',
+                        "S'inscrire",
                         style: TextStyle(
                           color: bleuProfon,
                           fontWeight: FontWeight.w700,
@@ -96,9 +96,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           letterSpacing: 0.01,
                         ),
                       ),
-
                       if (_error != null) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Text(
                           _error!,
                           style: const TextStyle(
@@ -170,15 +169,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                   ),
-                                  onPressed: () {
-                                    if (_formKey.currentState?.validate() ?? false) {
-                                      // TODO: Appel API Rust /register
-                                      setState(() => _error = null);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text("Inscription…")),
-                                      );
-                                    } else {
+                                  onPressed: () async {
+                                    if (!(_formKey.currentState?.validate() ?? false)) {
                                       setState(() => _error = 'Veuillez corriger les champs');
+                                      return;
+                                    }
+                                    setState(() => _error = null);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Inscription...')),
+                                    );
+                                    try {
+                                      final res = await _auth.register(
+                                        email: _emailController.text.trim(),
+                                        password: _passwordController.text,
+                                      );
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Inscrit, vous pouvez vous connecter')),
+                                      );
+                                      Navigator.pushReplacementNamed(context, '/');
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Erreur: $e')),
+                                      );
                                     }
                                   },
                                   child: const Text(

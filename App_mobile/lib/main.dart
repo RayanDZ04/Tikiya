@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
-import 'screens/register_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 
 void main() {
-  // Barre de statut solide (bleu) et icônes claires
-  const Color statusBarColor = Color(0xFF1A237E);
+  const Color statusBarColor = Color(0xFF0D47A1);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: statusBarColor,
     statusBarIconBrightness: Brightness.light,
@@ -22,18 +22,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseTheme = ThemeData(
+      primaryColor: const Color(0xFF0D47A1),
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D47A1)),
+      scaffoldBackgroundColor: const Color(0xFF0D47A1),
+      textTheme: GoogleFonts.montserratTextTheme(),
+    );
+
     return MaterialApp(
-      title: 'App_mobile',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00ACC1)),
-        useMaterial3: true,
-        textTheme: GoogleFonts.montserratTextTheme(Theme.of(context).textTheme),
+      debugShowCheckedModeBanner: false,
+      title: 'Tikiya',
+      theme: baseTheme.copyWith(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0D47A1),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
       ),
+      initialRoute: '/',
       routes: {
-        '/login': (_) => const LoginScreen(),
-        '/register': (_) => const RegisterScreen(),
+        '/': (context) => const HomeScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
       },
-      home: const LoginScreen(),
     );
   }
 }
