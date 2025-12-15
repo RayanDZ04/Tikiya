@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _config_in_use = (&cfg.database_url, &cfg.jwt_secret);
 
     // Connect DB
-    let db = db::Db::connect(&cfg.database_url).await?;
+    let db = db::Db::connect_with_max(&cfg.database_url, cfg.database_pool_max).await?;
     tracing::info!("db.connected");
 
     tracing::info!(port = %cfg.port, origins = ?cfg.allowed_origins, "config.loaded");
@@ -29,15 +29,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let state = state::AppState {
         db,
         config: cfg.clone(),
+        failed_logins: std::sync::Arc::new(std::sync::Mutex::new(std::collections::HashMap::new())),
+        ip_failures: std::sync::Arc::new(std::sync::Mutex::new(std::collections::HashMap::new())),
     };
 
     let app = http::build_router(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], cfg.port));
     tracing::info!(%addr, "server.start");
+    println!("Server listening on http://localhost:{}", cfg.port);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app)
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())
         .with_graceful_shutdown(shutdown_signal())
         .await?;
     Ok(())

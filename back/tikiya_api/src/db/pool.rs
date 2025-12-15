@@ -6,9 +6,9 @@ pub struct Db {
 }
 
 impl Db {
-    pub async fn connect(database_url: &str) -> anyhow::Result<Self> {
+    pub async fn connect_with_max(database_url: &str, max: u32) -> anyhow::Result<Self> {
         let pool = PgPoolOptions::new()
-            .max_connections(10)
+            .max_connections(max)
             .connect(database_url)
             .await?;
         Ok(Self { pool })

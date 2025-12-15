@@ -34,6 +34,19 @@ class AuthService {
     return data;
   }
 
+  Future<Map<String, dynamic>> loginWithGoogleIdToken(String idToken) async {
+    final uri = Uri.parse('$_baseUrl/auth/google/mobile');
+    final res = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'id_token': idToken}),
+    );
+    _ensureOk(res);
+    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    _captureSession(data);
+    return data;
+  }
+
   void _ensureOk(http.Response res) {
     if (res.statusCode < 200 || res.statusCode >= 300) {
       throw HttpException('HTTP ${res.statusCode}: ${res.body}');

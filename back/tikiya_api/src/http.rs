@@ -4,11 +4,13 @@ use axum::{
     routing::get,
     Router,
 };
+use axum::middleware::{from_fn, Next};
 use std::time::Duration;
 use tower_http::{
     cors::{AllowOrigin, CorsLayer},
     trace::TraceLayer,
 };
+use axum::body::Body;
 
 use crate::routes;
 use crate::state::AppState;
@@ -27,9 +29,12 @@ pub fn build_router(state: AppState) -> Router {
         .route("/health", get(|| async { "OK" }))
         .route("/ready", get(ready))
         .merge(routes::auth::router())
+        .merge(routes::me::router())
+        .merge(routes::oauth::router())
         .with_state(state)
         .layer(trace)
         .layer(cors)
+        .layer(from_fn(security_headers))
 }
 
 fn build_cors(allowed_origins: &[String]) -> CorsLayer {
@@ -64,4 +69,36 @@ async fn ready(State(state): State<AppState>) -> (StatusCode, &'static str) {
         Ok(_) => (StatusCode::OK, "READY"),
         Err(_) => (StatusCode::SERVICE_UNAVAILABLE, "UNAVAILABLE"),
     }
+}
+
+async fn security_headers(req: Request<Body>, next: Next) -> impl axum::response::IntoResponse {
+    let mut resp = next.run(req).await;
+    let headers = resp.headers_mut();
+    headers.insert(
+        HeaderName::from_static("x-frame-options"),
+        HeaderValue::from_static("DENY"),
+    );
+    headers.insert(
+        HeaderName::from_static("x-content-type-options"),
+        HeaderValue::from_static("nosniff"),
+    );
+    headers.insert(
+        HeaderName::from_static("referrer-policy"),
+        HeaderValue::from_static("no-referrer"),
+    );
+    // Strict CSP compatible with modern web + mobile WebViews
+    // - default-src self
+    // - script-src self (no inline)
+    // - style-src self
+    // - img-src self data: https:
+    // - connect-src self https: (API calls, OAuth)
+    // - frame-ancestors none
+    // - base-uri self
+    headers.insert(
+        HeaderName::from_static("content-security-policy"),
+        HeaderValue::from_static(
+            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+        ),
+    );
+    resp
 }

@@ -11,4 +11,6 @@ pub struct User {
     pub oauth_provider: Option<String>,
     pub oauth_subject: Option<String>,
     pub created_at: DateTime<Utc>,
+    pub failed_attempts: i32,
+    pub lockout_until: Option<DateTime<Utc>>,
 }

@@ -13,7 +13,7 @@ pub struct RegisterRequest {
     pub password: String,
 }
 
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize, Validate, Clone)]
 pub struct LoginRequest {
     #[validate(email)]
     pub email: String,
@@ -32,6 +32,18 @@ pub struct UserResponse {
 #[derive(Debug, Serialize)]
 pub struct AuthTokens {
     pub access_token: String,
+    pub refresh_token: String,
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct RefreshRequest {
+    #[validate(length(min = 1))]
+    pub refresh_token: String,
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct LogoutRequest {
+    #[validate(length(min = 1))]
     pub refresh_token: String,
 }
 

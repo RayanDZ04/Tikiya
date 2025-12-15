@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -184,6 +185,50 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 18),
+                      // Google Sign-In button
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: bleuCyan),
+                            foregroundColor: bleuCyan,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                          ),
+                          icon: const Icon(Icons.g_mobiledata, size: 24),
+                          label: Text(
+                            'Se connecter avec Google',
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.01,
+                            ),
+                          ),
+                          onPressed: () async {
+                            try {
+                              final google = GoogleSignIn(
+                                scopes: const ['email', 'profile'],
+                                serverClientId:
+                                    '1095903953092-56rvogj8p1tlsm0rqmd4qp2ec5e3vt5v.apps.googleusercontent.com',
+                              );
+                              // Reset l'état pour éviter les erreurs de compte déjà attaché
+                              await google.signOut();
+                              final account = await google.signIn();
+                              final auth = await account?.authentication;
+                              final idToken = auth?.idToken;
+                              if (idToken == null) {
+                                _showStyledSnack(context, 'Échec Google', bg: const Color(0xFFB00020));
+                                return;
+                              }
+                              _showStyledSnack(context, 'Connexion Google...');
+                              final res = await _auth.loginWithGoogleIdToken(idToken);
+                              _showStyledSnack(context, 'Connecté');
+                              Navigator.pushReplacementNamed(context, '/');
+                            } catch (e) {
+                              _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
+                            }
+                          },
+                        ),
+                      ),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pushNamed('/register'),
                         child: RichText(

@@ -30,8 +30,13 @@ Create a `.env` file (or export variables) with:
 ```
 DATABASE_URL=postgres://user:pass@localhost:5432/ticketing
 JWT_SECRET=change_me
+JWT_ISSUER=tikiya-api
+JWT_AUDIENCE=tikiya-clients
 PORT=8080
 ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GOOGLE_REDIRECT_URI=http://localhost:3000/auth/callback
 ```
 Notes:
 - `PORT` defaults to 8080 if omitted
@@ -70,6 +75,11 @@ Structured logs are emitted in JSON (compatible with log collectors).
 - **Login**: `POST /login` with same payload structure
   - Verifies credentials
   - Issues an access token (JWT, 15 minutes) and a refresh token (random, stored hashed in `sessions` table`
+
+- **Google OAuth**
+  - Start: `GET /auth/google?state=optional&code_challenge=<pkce>&code_challenge_method=S256` → returns a Google consent URL.
+  - Callback: `GET /auth/google/callback?code=...&state=...` → exchanges the code, fetches profile (email, given_name, family_name), upserts the user, and returns `{ user, tokens }`.
+    - If PKCE used: include `code_verifier` → `GET /auth/google/callback?code=...&code_verifier=<pkce-verifier>`.
 
 JWT claims include `sub` (user UUID), `email`, `iat`, and `exp`. Refresh tokens are one-way hashed before storage.
 

@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="com.tikiya" />
     <application
-        android:label="App_mobile"
+        android:label="Tikiya"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
