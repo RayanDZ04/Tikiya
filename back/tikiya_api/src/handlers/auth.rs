@@ -76,8 +76,11 @@ pub struct GoogleMobileRequest {
 #[derive(serde::Deserialize)]
 struct TokenInfo {
     aud: String,
+    iss: Option<String>,
+    exp: Option<i64>,
     sub: String,
     email: Option<String>,
+    email_verified: Option<String>,
 }
 
 pub async fn google_mobile(
@@ -115,12 +118,40 @@ pub async fn google_mobile(
         tracing::warn!(expected = %state.config.google_client_id, got = %info.aud, "auth.google_mobile.audience_mismatch");
         return Err(ApiError::Unauthorized);
     }
+
+    if let Some(iss) = info.iss.as_deref() {
+        if iss != "https://accounts.google.com" && iss != "accounts.google.com" {
+            tracing::warn!(got = %iss, "auth.google_mobile.issuer_mismatch");
+            return Err(ApiError::Unauthorized);
+        }
+    }
+
+    if let Some(exp) = info.exp {
+        if exp <= chrono::Utc::now().timestamp() {
+            tracing::warn!("auth.google_mobile.token_expired");
+            return Err(ApiError::Unauthorized);
+        }
+    }
+
+    let email = info.email.clone().unwrap_or_default();
+    if email.trim().is_empty() {
+        tracing::warn!("auth.google_mobile.missing_email");
+        return Err(ApiError::Unauthorized);
+    }
+
+    if let Some(v) = info.email_verified.as_deref() {
+        // tokeninfo returns strings like "true"/"false"
+        if v != "true" {
+            tracing::warn!(got = %v, "auth.google_mobile.email_not_verified");
+            return Err(ApiError::Unauthorized);
+        }
+    }
     // Upsert user using OAuthService helper
     let oauth = OAuthService::new(state.clone());
     let user = oauth
         .upsert_oauth_user(&crate::services::oauth::GoogleUserInfo {
             sub: info.sub,
-            email: info.email.unwrap_or_default(),
+            email,
             _email_verified: true,
             _given_name: None,
             _family_name: None,

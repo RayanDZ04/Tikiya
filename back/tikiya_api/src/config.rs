@@ -9,6 +9,10 @@ pub struct AppConfig {
     pub http_request_timeout_secs: u64,
     pub http_concurrency_limit: usize,
     pub http_max_body_bytes: usize,
+    pub rate_limit_per_second: u32,
+    pub rate_limit_burst: u32,
+    pub trust_proxy_headers: bool,
+    pub http_hsts_enabled: bool,
     pub jwt_secret: String,
     pub jwt_issuer: String,
     pub jwt_audience: String,
@@ -61,7 +65,40 @@ impl AppConfig {
             .and_then(|v| v.parse().ok())
             .unwrap_or(1024 * 1024);
 
+        let rate_limit_per_second = env::var("RATE_LIMIT_PER_SECOND")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(20);
+
+        let rate_limit_burst = env::var("RATE_LIMIT_BURST")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(40);
+
+        let trust_proxy_headers = env::var("TRUST_PROXY_HEADERS")
+            .ok()
+            .map(|v| {
+                let v = v.to_lowercase();
+                v == "1" || v == "true" || v == "yes"
+            })
+            .unwrap_or(false);
+
+        let http_hsts_enabled = env::var("HTTP_HSTS")
+            .ok()
+            .map(|v| {
+                let v = v.to_lowercase();
+                v == "1" || v == "true" || v == "yes"
+            })
+            .unwrap_or(false);
+
         let jwt_secret = must_env("JWT_SECRET");
+        // Basic guardrails against weak defaults.
+        let secret_trim = jwt_secret.trim();
+        if secret_trim.len() < 32 || secret_trim.to_lowercase().contains("change-me") {
+            panic!(
+                "JWT_SECRET trop faible (min 32 chars et ne doit pas contenir 'change-me')"
+            );
+        }
         let jwt_issuer = env::var("JWT_ISSUER").unwrap_or_else(|_| "tikiya-api".to_string());
         let jwt_audience = env::var("JWT_AUDIENCE").unwrap_or_else(|_| "tikiya-clients".to_string());
         // Google OAuth config is optional; only required if you use Google endpoints
@@ -77,6 +114,10 @@ impl AppConfig {
             http_request_timeout_secs,
             http_concurrency_limit,
             http_max_body_bytes,
+            rate_limit_per_second,
+            rate_limit_burst,
+            trust_proxy_headers,
+            http_hsts_enabled,
             jwt_secret,
             jwt_issuer,
             jwt_audience,

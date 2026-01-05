@@ -3,10 +3,11 @@ use axum::{
     extract::DefaultBodyLimit,
     error_handling::HandleErrorLayer,
     http::{HeaderName, HeaderValue, Method, Request, StatusCode},
+    response::{IntoResponse, Response},
     routing::get,
     Router,
 };
-use axum::middleware::{from_fn, Next};
+use axum::middleware::{from_fn, from_fn_with_state, Next};
 use std::time::Duration;
 use axum::BoxError;
 use tower::{ServiceBuilder, limit::ConcurrencyLimitLayer, load_shed::LoadShedLayer};
@@ -18,21 +19,60 @@ use tower_http::{
 use axum::body::Body;
 use uuid::Uuid;
 use serde::Serialize;
+use tower_governor::{
+    governor::GovernorConfigBuilder,
+    key_extractor::{PeerIpKeyExtractor, SmartIpKeyExtractor},
+    GovernorLayer,
+    GovernorError,
+};
+
+#[derive(Clone, Copy)]
+struct ConfigurableIpKeyExtractor {
+    trust_proxy_headers: bool,
+}
+
+impl tower_governor::key_extractor::KeyExtractor for ConfigurableIpKeyExtractor {
+    type Key = std::net::IpAddr;
+
+    fn extract<T>(&self, req: &Request<T>) -> Result<Self::Key, GovernorError> {
+        if self.trust_proxy_headers {
+            SmartIpKeyExtractor.extract(req)
+        } else {
+            PeerIpKeyExtractor.extract(req)
+        }
+    }
+}
 
 use crate::routes;
 use crate::state::AppState;
 
 pub fn build_router(state: AppState) -> Router {
+    let hsts_enabled = state.config.http_hsts_enabled;
     let cors = build_cors(&state.config.allowed_origins);
     let timeout = TimeoutLayer::new(Duration::from_secs(state.config.http_request_timeout_secs));
     let concurrency = ConcurrencyLimitLayer::new(state.config.http_concurrency_limit);
     let body_limit = DefaultBodyLimit::max(state.config.http_max_body_bytes);
+
+     // Global IP rate limiting (anti-bot / brute force). Configure via env.
+    let conf = GovernorConfigBuilder::default()
+        .per_second(state.config.rate_limit_per_second.into())
+        .burst_size(state.config.rate_limit_burst)
+        .key_extractor(ConfigurableIpKeyExtractor {
+            trust_proxy_headers: state.config.trust_proxy_headers,
+        })
+        .finish()
+        .expect("governor config");
+    let governor = GovernorLayer {
+        config: std::sync::Arc::new(conf),
+    };
+
     let middleware = ServiceBuilder::new()
-        .layer(HandleErrorLayer::new(handle_layer_error))
+        .layer(HandleErrorLayer::<_, ()>::new(handle_layer_error))
         .layer(timeout)
         // If concurrency is saturated, reject immediately instead of holding connections.
         .layer(LoadShedLayer::new())
         .layer(concurrency)
+        .layer(governor)
         .layer(body_limit);
 
     let trace = TraceLayer::new_for_http().make_span_with(|req: &Request<_>| {
@@ -54,7 +94,7 @@ pub fn build_router(state: AppState) -> Router {
         .merge(routes::oauth::router())
         .with_state(state)
         .layer(middleware)
-        .layer(from_fn(security_headers))
+        .layer(from_fn_with_state(hsts_enabled, security_headers))
         .layer(cors)
         .layer(trace)
         .layer(from_fn(request_id))
@@ -115,7 +155,7 @@ struct LayerErrorBody {
     detail: Option<String>,
 }
 
-async fn handle_layer_error(err: BoxError) -> impl axum::response::IntoResponse {
+async fn handle_layer_error(err: BoxError) -> Response {
     if err.is::<tower::timeout::error::Elapsed>() {
         let status = StatusCode::REQUEST_TIMEOUT;
         let body = axum::Json(LayerErrorBody {
@@ -123,7 +163,7 @@ async fn handle_layer_error(err: BoxError) -> impl axum::response::IntoResponse 
             message: "Request Timeout",
             detail: None,
         });
-        return (status, body);
+        return (status, body).into_response();
     }
 
     if err.is::<tower::load_shed::error::Overloaded>() {
@@ -133,7 +173,7 @@ async fn handle_layer_error(err: BoxError) -> impl axum::response::IntoResponse 
             message: "Server Busy",
             detail: None,
         });
-        return (status, body);
+        return (status, body).into_response();
     }
 
     tracing::error!(error = %err, "layer.error");
@@ -143,10 +183,14 @@ async fn handle_layer_error(err: BoxError) -> impl axum::response::IntoResponse 
         message: "Internal Server Error",
         detail: None,
     });
-    (status, body)
+    (status, body).into_response()
 }
 
-async fn security_headers(req: Request<Body>, next: Next) -> impl axum::response::IntoResponse {
+async fn security_headers(
+    State(hsts_enabled): State<bool>,
+    req: Request<Body>,
+    next: Next,
+) -> impl axum::response::IntoResponse {
     let mut resp = next.run(req).await;
     let headers = resp.headers_mut();
     headers.insert(
@@ -175,5 +219,19 @@ async fn security_headers(req: Request<Body>, next: Next) -> impl axum::response
             "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
         ),
     );
+
+    headers.insert(
+        HeaderName::from_static("permissions-policy"),
+        HeaderValue::from_static("geolocation=(), microphone=(), camera=()"),
+    );
+
+    // HSTS must only be enabled when served via HTTPS (usually at the reverse-proxy).
+    // We gate it behind env to avoid breaking local HTTP.
+    if hsts_enabled {
+        headers.insert(
+            HeaderName::from_static("strict-transport-security"),
+            HeaderValue::from_static("max-age=31536000; includeSubDomains"),
+        );
+    }
     resp
 }

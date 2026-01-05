@@ -42,7 +42,10 @@ impl OAuthService {
             .connect_timeout(Duration::from_secs(5))
             .timeout(Duration::from_secs(10))
             .build()
-            .expect("reqwest client");
+            .unwrap_or_else(|e| {
+                tracing::error!(error = ?e, "oauth.reqwest_client_build_failed");
+                reqwest::Client::new()
+            });
         Self { state, client }
     }
 

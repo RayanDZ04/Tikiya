@@ -12,6 +12,7 @@ mod models;
 mod routes;
 mod services;
 mod state;
+mod security;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
