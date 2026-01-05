@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
+import '../services/session_store.dart';
+import '../widgets/bottom_nav.dart';
+import '../widgets/language_switch.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -14,6 +19,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _auth = AuthService();
   String? _error;
 
@@ -27,6 +34,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     super.dispose();
   }
 
@@ -52,6 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: bleuProfon,
       body: SafeArea(
@@ -59,6 +69,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             children: [
               const SizedBox(height: 56),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: const LanguageSwitch(foregroundColor: Colors.white),
+                ),
+              ),
               Center(
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 370),
@@ -82,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Text.rich(
                         TextSpan(children: [
                           TextSpan(
-                            text: 'Tikiya',
+                              text: l10n.appTitle,
                             style: GoogleFonts.montserrat(
                               fontSize: 32,
                               fontWeight: FontWeight.w700,
@@ -103,8 +120,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        "S'inscrire",
+                      Text(
+                        l10n.signupTitle,
                         style: TextStyle(
                           color: bleuProfon,
                           fontWeight: FontWeight.w700,
@@ -135,35 +152,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _label('Adresse e-mail'),
+                              _label(l10n.firstNameLabel),
+                              _input(
+                                controller: _firstNameController,
+                                validator: (v) => (v == null || v.isEmpty)
+                                ? l10n.firstNameRequired
+                                    : null,
+                              ),
+                              const SizedBox(height: 18),
+                              _label(l10n.lastNameLabel),
+                              _input(
+                                controller: _lastNameController,
+                                validator: (v) => (v == null || v.isEmpty)
+                                ? l10n.lastNameRequired
+                                    : null,
+                              ),
+                              const SizedBox(height: 18),
+                              _label(l10n.emailLabel),
                               _input(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (v) => (v == null || v.isEmpty)
-                                    ? 'Veuillez entrer votre e-mail'
+                                ? l10n.emailRequired
                                     : null,
                               ),
                               const SizedBox(height: 18),
 
-                              _label('Mot de passe'),
+                              _label(l10n.passwordLabel),
                               _input(
                                 controller: _passwordController,
                                 obscureText: true,
                                 validator: (v) => (v == null || v.isEmpty)
-                                    ? 'Veuillez entrer votre mot de passe'
+                                ? l10n.passwordRequired
                                     : null,
                               ),
                               const SizedBox(height: 18),
-                              _label('Confirmer le mot de passe'),
+                              _label(l10n.confirmPasswordLabel),
                               _input(
                                 controller: _confirmPasswordController,
                                 obscureText: true,
                                 validator: (v) {
                                   if (v == null || v.isEmpty) {
-                                    return 'Veuillez confirmer votre mot de passe';
+                                return l10n.confirmPasswordRequired;
                                   }
                                   if (v != _passwordController.text) {
-                                    return 'Les mots de passe ne correspondent pas';
+                                return l10n.passwordMismatch;
                                   }
                                   return null;
                                 },
@@ -183,24 +216,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   onPressed: () async {
                                     if (!(_formKey.currentState?.validate() ?? false)) {
-                                      setState(() => _error = 'Veuillez corriger les champs');
+                                      setState(() => _error = l10n.fixFields);
                                       return;
                                     }
                                     setState(() => _error = null);
-                                    _showStyledSnack(context, 'Inscription...');
+                                    _showStyledSnack(context, l10n.signupProgress);
                                     try {
                                       await _auth.register(
                                         email: _emailController.text.trim(),
                                         password: _passwordController.text,
+                                        firstName: _firstNameController.text.trim(),
+                                        lastName: _lastNameController.text.trim(),
                                       );
-                                      _showStyledSnack(context, 'Inscrit, vous pouvez vous connecter');
+                                      _showStyledSnack(context, l10n.signupSuccess);
                                       Navigator.pushReplacementNamed(context, '/');
                                     } catch (e) {
                                       _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
                                     }
                                   },
-                                  child: const Text(
-                                    "S'inscrire",
+                                  child: Text(
+                                    l10n.signupTitle,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 17,
@@ -214,6 +249,80 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(height: 18),
+                      // Google Sign-Up (same as login)
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: bleuCyan),
+                            foregroundColor: bleuCyan,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                          ),
+                          icon: const Icon(Icons.g_mobiledata, size: 24),
+                          label: Text(
+                            l10n.googleSignup,
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.01,
+                            ),
+                          ),
+                          onPressed: () async {
+                            try {
+                              final google = GoogleSignIn(
+                                scopes: const ['email', 'profile'],
+                                serverClientId:
+                                    '1095903953092-56rvogj8p1tlsm0rqmd4qp2ec5e3vt5v.apps.googleusercontent.com',
+                              );
+                              await google.signOut();
+                              final account = await google.signIn();
+                              final auth = await account?.authentication;
+                              final idToken = auth?.idToken;
+                              if (idToken == null) {
+                                _showStyledSnack(context, l10n.googleFailed, bg: const Color(0xFFB00020));
+                                return;
+                              }
+                              _showStyledSnack(context, l10n.googleProgress);
+                              await _auth.loginWithGoogleIdToken(idToken);
+                              _showStyledSnack(context, l10n.connected);
+                              if (context.mounted) {
+                                Navigator.pushReplacementNamed(context, '/');
+                              }
+                            } catch (e) {
+                              final msg = e.toString();
+                              if (msg.contains('ApiException: 10')) {
+                                final accepted = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: Text(l10n.googleUnavailableTitle),
+                                    content: Text(l10n.googleUnavailableBody),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+                                      ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.activate)),
+                                    ],
+                                  ),
+                                );
+                                if (accepted == true) {
+                                  SessionStore.I.setSession(const UserSession(
+                                    id: 'demo',
+                                    email: 'demo@tikiya.local',
+                                    username: 'Demo',
+                                    role: 'user',
+                                    accessToken: 'demo-token',
+                                  ));
+                                  _showStyledSnack(context, l10n.demoEnabled);
+                                  if (context.mounted) {
+                                    Navigator.pushReplacementNamed(context, '/');
+                                  }
+                                  return;
+                                }
+                              }
+                              _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pushNamed('/login'),
                         child: RichText(
@@ -246,18 +355,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(0, 18, 0, 14),
-        decoration: const BoxDecoration(
-          color: grisClair,
-          boxShadow: [
-            BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.07), blurRadius: 16, offset: Offset(0, -2)),
-          ],
-        ),
-        child: const Text(
-          'Tikiya© 2025',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: grisFonce, fontSize: 18, letterSpacing: 0.05),
-        ),
+        padding: EdgeInsets.zero,
+        child: const BottomNav(current: 'login'),
       ),
     );
   }

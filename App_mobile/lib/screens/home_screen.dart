@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '_placeholders.dart';
+import '../l10n/l10n.dart';
 import '../services/session_store.dart';
+import '../widgets/bottom_nav.dart';
+import '../widgets/language_switch.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     const Color bleuProfond = Color(0xFF1A237E);
     const Color bleuCyan = Color(0xFF00ACC1);
     const Color grisClair = Color(0xFFF5F7FA);
@@ -47,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 border: Border.all(color: const Color(0xFFE3E8EF)),
               ),
               alignment: Alignment.center,
-              child: Text('Aucun contenu pour le moment', style: textTheme.bodySmall),
+              child: Text(l10n.homeNoContentYet, style: textTheme.bodySmall),
             ),
           ],
         ),
@@ -86,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   foregroundColor: blanc,
                                   textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                                 ),
-                                child: const Text('Se connecter'),
+                                child: Text(l10n.authLogin),
                               ),
                               const SizedBox(width: 6),
                               TextButton(
@@ -95,14 +99,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   foregroundColor: blanc,
                                   textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                                 ),
-                                child: const Text("S'inscrire"),
+                                child: Text(l10n.authRegister),
                               ),
+                              const SizedBox(width: 6),
+                              const LanguageSwitch(foregroundColor: blanc),
                             ],
                           );
                         }
                         final display = (session.username?.isNotEmpty ?? false)
                           ? session.username!
-                          : ((session.email ?? '').split('@').first);
+                          : (session.email.split('@').first);
                         return Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -117,8 +123,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             IconButton(
                               onPressed: () => SessionStore.I.clear(),
                               icon: const Icon(Icons.logout, size: 18, color: blanc),
-                              tooltip: 'Se déconnecter',
+                              tooltip: l10n.authLogout,
                             ),
+                            const LanguageSwitch(foregroundColor: blanc),
                           ],
                         );
                       },
@@ -136,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: 'Tikiya',
+                                text: l10n.appTitle,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 40,
                                   fontWeight: FontWeight.w700,
@@ -159,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Explorez, réservez et vivez les meilleurs événements',
+                          l10n.homeTagline,
                           style: GoogleFonts.montserrat(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -182,14 +189,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Expanded(
+                              Expanded(
                                 child: TextField(
                                   style: TextStyle(fontSize: 16, height: 1.0),
                                   decoration: InputDecoration(
                                     isDense: true,
                                     contentPadding: EdgeInsets.symmetric(horizontal: 12),
                                     border: InputBorder.none,
-                                    hintText: 'Rechercher un événement...',
+                                    hintText: l10n.homeSearchHint,
                                   ),
                                 ),
                               ),
@@ -240,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     const Icon(Icons.tune, color: bleuCyan, size: 20),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Filtres',
+                                      l10n.homeFiltersTitle,
                                       style: GoogleFonts.montserrat(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
@@ -252,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     TextButton(
                                       onPressed: () => setState(() => _filtersOpen = false),
                                       child: Text(
-                                        'Fermer',
+                                        l10n.homeFiltersClose,
                                         style: GoogleFonts.montserrat(
                                           color: bleuCyan,
                                           fontWeight: FontWeight.w600,
@@ -262,16 +269,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 12),
-                                const Wrap(spacing: 12, runSpacing: 10, children: [
-                                  FilterChipPlaceholder(label: 'Musique'),
-                                  FilterChipPlaceholder(label: 'Culture'),
-                                  FilterChipPlaceholder(label: 'Divertissement'),
+                                Wrap(spacing: 12, runSpacing: 10, children: [
+                                  FilterChipPlaceholder(label: l10n.filterMusic),
+                                  FilterChipPlaceholder(label: l10n.filterCulture),
+                                  FilterChipPlaceholder(label: l10n.filterEntertainment),
                                 ]),
                                 const SizedBox(height: 14),
-                                const Row(children: [
-                                  Expanded(child: LabeledInput(label: 'Ville', hint: 'Ex: Alger')),
-                                  SizedBox(width: 12),
-                                  Expanded(child: LabeledInput(label: 'Date', hint: 'Choisir une date')),
+                                Row(children: [
+                                  Expanded(child: LabeledInput(label: l10n.filterCity, hint: l10n.filterCityHint)),
+                                  const SizedBox(width: 12),
+                                  Expanded(child: LabeledInput(label: l10n.filterDate, hint: l10n.filterDateHint)),
                                 ]),
                                 const SizedBox(height: 16),
                                 Row(
@@ -286,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         onPressed: () {},
                                         child: Text(
-                                          'Réinitialiser',
+                                          l10n.homeFiltersReset,
                                           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                                         ),
                                       ),
@@ -303,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         onPressed: () {},
                                         child: Text(
-                                          'Appliquer',
+                                          l10n.homeFiltersApply,
                                           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                                         ),
                                       ),
@@ -330,10 +337,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     builder: (context, constraints) {
                       final isWide = constraints.maxWidth > 700;
                       final children = <Widget>[
-                        sectionCard(title: 'Musique', subtitle: 'Aucun résultat'),
-                        sectionCard(title: 'Culture', subtitle: 'Aucun résultat'),
-                        sectionCard(title: 'Divertissement', subtitle: 'Aucun résultat'),
-                        sectionCard(title: 'Populaire', subtitle: 'Aucun résultat'),
+                        sectionCard(title: l10n.filterMusic, subtitle: l10n.noResults),
+                        sectionCard(title: l10n.filterCulture, subtitle: l10n.noResults),
+                        sectionCard(title: l10n.filterEntertainment, subtitle: l10n.noResults),
+                        sectionCard(title: l10n.filterPopular, subtitle: l10n.noResults),
                       ];
                       if (isWide) {
                         return GridView.count(
@@ -358,6 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: const BottomNav(current: 'home'),
     );
   }
 }

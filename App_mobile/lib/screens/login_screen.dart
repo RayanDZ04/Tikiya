@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
+import '../services/session_store.dart';
+import '../widgets/bottom_nav.dart';
+import '../widgets/language_switch.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -51,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: bleuProfon,
       body: SafeArea(
@@ -58,6 +63,13 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               const SizedBox(height: 56),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: const LanguageSwitch(foregroundColor: Colors.white),
+                ),
+              ),
               // Card conteneur
               Center(
                 child: Container(
@@ -83,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text.rich(
                           TextSpan(children: [
                             TextSpan(
-                              text: 'Tikiya',
+                                text: l10n.appTitle,
                               style: GoogleFonts.montserrat(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w700,
@@ -103,8 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ]),
                           textAlign: TextAlign.center,
                         ),
-                      const Text(
-                        'Se connecter',
+                      Text(
+                        l10n.loginTitle,
                         style: TextStyle(
                           color: bleuProfon,
                           fontWeight: FontWeight.w700,
@@ -126,21 +138,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _label('Adresse e-mail'),
+                              _label(l10n.emailLabel),
                               _input(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (v) => (v == null || v.isEmpty)
-                                    ? 'Veuillez entrer votre e-mail'
+                                ? l10n.emailRequired
                                     : null,
                               ),
                               const SizedBox(height: 18),
-                              _label('Mot de passe'),
+                              _label(l10n.passwordLabel),
                               _input(
                                 controller: _passwordController,
                                 obscureText: true,
                                 validator: (v) => (v == null || v.isEmpty)
-                                    ? 'Veuillez entrer votre mot de passe'
+                                ? l10n.passwordRequired
                                     : null,
                               ),
                               const SizedBox(height: 16),
@@ -158,20 +170,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   onPressed: () async {
                                     if (!_formKey.currentState!.validate()) return;
-                                    _showStyledSnack(context, 'Connexion...');
+                                    _showStyledSnack(context, l10n.loginProgress);
                                     try {
-                                      final res = await _auth.login(
+                                      await _auth.login(
                                         email: _emailController.text.trim(),
                                         password: _passwordController.text,
                                       );
-                                      _showStyledSnack(context, 'Connecté');
+                                      _showStyledSnack(context, l10n.connected);
                                       Navigator.pushReplacementNamed(context, '/');
                                     } catch (e) {
                                       _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
                                     }
                                   },
-                                  child: const Text(
-                                    'Connexion',
+                                  child: Text(
+                                    l10n.loginAction,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 17,
@@ -197,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           icon: const Icon(Icons.g_mobiledata, size: 24),
                           label: Text(
-                            'Se connecter avec Google',
+                            l10n.googleLogin,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.01,
@@ -216,19 +228,49 @@ class _LoginScreenState extends State<LoginScreen> {
                               final auth = await account?.authentication;
                               final idToken = auth?.idToken;
                               if (idToken == null) {
-                                _showStyledSnack(context, 'Échec Google', bg: const Color(0xFFB00020));
+                                _showStyledSnack(context, l10n.googleFailed, bg: const Color(0xFFB00020));
                                 return;
                               }
-                              _showStyledSnack(context, 'Connexion Google...');
-                              final res = await _auth.loginWithGoogleIdToken(idToken);
-                              _showStyledSnack(context, 'Connecté');
+                              _showStyledSnack(context, l10n.googleProgress);
+                              await _auth.loginWithGoogleIdToken(idToken);
+                              _showStyledSnack(context, l10n.connected);
                               Navigator.pushReplacementNamed(context, '/');
                             } catch (e) {
+                              final msg = e.toString();
+                              // Propose un mode démo si l'erreur Google API 10 survient (fréquent sur émulateur)
+                              if (msg.contains('ApiException: 10')) {
+                                final accepted = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: Text(l10n.googleUnavailableTitle),
+                                    content: Text(l10n.googleUnavailableBody),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+                                      ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.activate)),
+                                    ],
+                                  ),
+                                );
+                                if (accepted == true) {
+                                  SessionStore.I.setSession(const UserSession(
+                                    id: 'demo',
+                                    email: 'demo@tikiya.local',
+                                    username: 'Demo',
+                                    role: 'user',
+                                    accessToken: 'demo-token',
+                                  ));
+                                  _showStyledSnack(context, l10n.demoEnabled);
+                                  if (context.mounted) {
+                                    Navigator.pushReplacementNamed(context, '/');
+                                  }
+                                  return;
+                                }
+                              }
                               _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
                             }
                           },
                         ),
                       ),
+                      const SizedBox(height: 16),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pushNamed('/register'),
                         child: RichText(
@@ -261,18 +303,8 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(0, 18, 0, 14),
-        decoration: const BoxDecoration(
-          color: grisClair,
-          boxShadow: [
-            BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.07), blurRadius: 16, offset: Offset(0, -2)),
-          ],
-        ),
-        child: const Text(
-          'Tikiya© 2025',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: grisFonce, fontSize: 18, letterSpacing: 0.05),
-        ),
+        padding: EdgeInsets.zero,
+        child: const BottomNav(current: 'login'),
       ),
     );
   }

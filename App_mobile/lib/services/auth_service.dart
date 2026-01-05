@@ -21,12 +21,23 @@ class AuthService {
     return data;
   }
 
-  Future<Map<String, dynamic>> register({required String email, required String password}) async {
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String password,
+    String? firstName,
+    String? lastName,
+  }) async {
     final uri = Uri.parse('$_baseUrl/register');
+    final body = <String, dynamic>{
+      'email': email,
+      'password': password,
+      if (firstName != null && firstName.isNotEmpty) 'first_name': firstName,
+      if (lastName != null && lastName.isNotEmpty) 'last_name': lastName,
+    };
     final res = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      body: jsonEncode(body),
     );
     _ensureOk(res);
     final data = jsonDecode(res.body) as Map<String, dynamic>;
@@ -56,10 +67,22 @@ class AuthService {
   void _captureSession(Map<String, dynamic> data) {
     final user = (data['user'] as Map?) ?? (data['data'] as Map?) ?? {};
     final tokens = (data['tokens'] as Map?) ?? {};
+    final fn = (user['first_name'] ?? user['firstName'])?.toString();
+    final ln = (user['last_name'] ?? user['lastName'])?.toString();
+    String? displayName;
+    if (fn != null && fn.isNotEmpty && ln != null && ln.isNotEmpty) {
+      displayName = '$fn $ln';
+    } else if (fn != null && fn.isNotEmpty) {
+      displayName = fn;
+    } else if (ln != null && ln.isNotEmpty) {
+      displayName = ln;
+    } else {
+      displayName = (user['username'] ?? user['name'])?.toString();
+    }
     final session = UserSession(
       id: (user['id'] ?? '').toString(),
       email: (user['email'] ?? '').toString(),
-      username: (user['username'] ?? user['name'])?.toString(),
+      username: displayName,
       role: (user['role'] ?? '').toString(),
       accessToken: (tokens['access_token'] ?? tokens['accessToken'] ?? '').toString(),
       refreshToken: (tokens['refresh_token'] ?? tokens['refreshToken'])?.toString(),

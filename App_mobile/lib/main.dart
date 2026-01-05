@@ -4,8 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
+import 'services/session_store.dart';
+import 'l10n/app_localizations.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SessionStore.I.loadLocale();
+
   const Color statusBarColor = Color(0xFF0D47A1);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: statusBarColor,
@@ -29,21 +34,29 @@ class MyApp extends StatelessWidget {
       textTheme: GoogleFonts.montserratTextTheme(),
     );
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Tikiya',
-      theme: baseTheme.copyWith(
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF0D47A1),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomeScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
+    return ValueListenableBuilder<Locale?>(
+      valueListenable: SessionStore.I.locale,
+      builder: (context, locale, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+          theme: baseTheme.copyWith(
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF0D47A1),
+              foregroundColor: Colors.white,
+              elevation: 0,
+            ),
+          ),
+          locale: locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const HomeScreen(),
+            '/login': (context) => const LoginScreen(),
+            '/register': (context) => const RegisterScreen(),
+          },
+        );
       },
     );
   }
