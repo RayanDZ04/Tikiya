@@ -5,8 +5,10 @@ use argon2::password_hash::{
 use argon2::Argon2;
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use chrono::{Duration, Utc};
+use hmac::{Hmac, Mac};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::Serialize;
+use sha2::Sha256;
 use uuid::Uuid;
 
 use crate::dto::{AuthResponse, AuthTokens, LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest, UserResponse};
@@ -19,7 +21,6 @@ const REFRESH_TOKEN_TTL_DAYS: i64 = 30;
 
 pub struct AuthService {
     pub(crate) state: AppState,
-    argon2: Argon2<'static>,
 }
 
 #[derive(Debug, Serialize)]
@@ -34,14 +35,11 @@ struct Claims {
 
 impl AuthService {
     pub fn new(state: AppState) -> Self {
-        Self {
-            state,
-            argon2: Argon2::default(),
-        }
+        Self { state }
     }
 
     pub async fn register(&self, payload: RegisterRequest) -> Result<AuthResponse, ApiError> {
-        let password_hash = self.hash_password(&payload.password)?;
+        let password_hash = self.hash_password(&payload.password).await?;
 
         let user = sqlx::query_as::<_, User>(
             "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, password_hash, role, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
@@ -80,16 +78,23 @@ impl AuthService {
             .as_deref()
             .ok_or(ApiError::Unauthorized)?;
 
-        let parsed = PasswordHash::new(hash).map_err(|err| {
-            tracing::error!(?err, "auth.login.hash_parse_failed");
-            ApiError::Internal
-        })?;
+        // Argon2 is CPU-bound: run it on the blocking thread pool.
+        let password = payload.password.clone();
+        let hash_str = hash.to_string();
+        let ok = tokio::task::spawn_blocking(move || {
+            let parsed = PasswordHash::new(&hash_str).map_err(|_| ())?;
+            let argon2 = Argon2::default();
+            argon2
+                .verify_password(password.as_bytes(), &parsed)
+                .map(|_| ())
+                .map_err(|_| ())
+        })
+        .await
+        .map_err(|_| ApiError::Internal)
+        ?
+        .is_ok();
 
-        if self
-            .argon2
-            .verify_password(payload.password.as_bytes(), &parsed)
-            .is_err()
-        {
+        if !ok {
             tracing::warn!(email = %payload.email, "auth.login.invalid_password");
             // Increment failed attempts and set lockout if threshold reached
             let attempts = user.failed_attempts + 1;
@@ -106,11 +111,13 @@ impl AuthService {
             return Err(ApiError::Unauthorized);
         }
 
-        // Reset failed attempts on success
-        sqlx::query("UPDATE users SET failed_attempts = 0, lockout_until = NULL WHERE id = $1")
-            .bind(user.id)
-            .execute(&self.state.db.pool)
-            .await?;
+        // Reset failed attempts only if needed (avoid a write on every successful login)
+        if user.failed_attempts != 0 || user.lockout_until.is_some() {
+            sqlx::query("UPDATE users SET failed_attempts = 0, lockout_until = NULL WHERE id = $1")
+                .bind(user.id)
+                .execute(&self.state.db.pool)
+                .await?;
+        }
 
         let tokens = self.issue_tokens(&user).await?;
 
@@ -133,16 +140,21 @@ impl AuthService {
         Ok(user)
     }
 
-    fn hash_password(&self, password: &str) -> Result<String, ApiError> {
-        let salt = SaltString::generate(&mut OsRng);
-        Ok(self
-            .argon2
-            .hash_password(password.as_bytes(), &salt)?
-            .to_string())
+    async fn hash_password(&self, password: &str) -> Result<String, ApiError> {
+        let password = password.to_string();
+        Ok(tokio::task::spawn_blocking(move || {
+            let salt = SaltString::generate(&mut OsRng);
+            let argon2 = Argon2::default();
+            argon2
+                .hash_password(password.as_bytes(), &salt)
+                .map(|h| h.to_string())
+        })
+        .await
+        .map_err(|_| ApiError::Internal)??)
     }
 
     pub async fn issue_tokens(&self, user: &User) -> Result<AuthTokens, ApiError> {
-        let access_token = self.generate_access_token(user)?;
+        let access_token = self.generate_access_token(user.id, &user.email)?;
         let (secret, secret_hash, refresh_exp) = self.generate_refresh_secret()?;
         let session_id = self.persist_session(user, &secret_hash, refresh_exp).await?;
         let refresh_token = format!("{}.{}", session_id, secret);
@@ -153,12 +165,12 @@ impl AuthService {
         })
     }
 
-    fn generate_access_token(&self, user: &User) -> Result<String, ApiError> {
+    fn generate_access_token(&self, user_id: Uuid, email: &str) -> Result<String, ApiError> {
         let now = Utc::now();
         let exp = now + Duration::minutes(ACCESS_TOKEN_TTL_MINUTES);
         let claims = Claims {
-            sub: user.id,
-            email: user.email.clone(),
+            sub: user_id,
+            email: email.to_string(),
             iat: now.timestamp() as usize,
             exp: exp.timestamp() as usize,
             aud: self.state.config.jwt_audience.clone(),
@@ -183,17 +195,50 @@ impl AuthService {
         rng.fill_bytes(&mut bytes);
         let secret = URL_SAFE_NO_PAD.encode(bytes);
 
-        let salt = SaltString::generate(&mut rng);
-        let hash = self
-            .argon2
-            .hash_password(secret.as_bytes(), &salt)
-            .map_err(|err| {
-                tracing::error!(?err, "auth.refresh.hash_failed");
-                ApiError::Internal
-            })?
-            .to_string();
-
+        // Refresh secrets are already high-entropy random. A fast keyed hash (HMAC) is sufficient
+        // and much faster than Argon2 under load.
+        let hash = self.hmac_refresh_secret(&secret)?;
         Ok((secret, hash, expires_at))
+    }
+
+    fn hmac_refresh_secret(&self, secret: &str) -> Result<String, ApiError> {
+        // Use JWT secret as the key by default; can be separated later if desired.
+        let key = self.state.config.jwt_secret.as_bytes();
+        let mut mac = Hmac::<Sha256>::new_from_slice(key).map_err(|_| ApiError::Internal)?;
+        mac.update(secret.as_bytes());
+        let tag = mac.finalize().into_bytes();
+        Ok(format!("hmac:{}", URL_SAFE_NO_PAD.encode(tag)))
+    }
+
+    async fn verify_refresh_secret(&self, stored_hash: &str, secret: &str) -> Result<(), ApiError> {
+        // Backward compatibility: accept legacy Argon2 hashes stored in DB.
+        if let Some(b64) = stored_hash.strip_prefix("hmac:") {
+            let expected = URL_SAFE_NO_PAD
+                .decode(b64)
+                .map_err(|_| ApiError::Unauthorized)?;
+            let key = self.state.config.jwt_secret.as_bytes();
+            let mut mac = Hmac::<Sha256>::new_from_slice(key).map_err(|_| ApiError::Internal)?;
+            mac.update(secret.as_bytes());
+            mac.verify_slice(&expected)
+                .map_err(|_| ApiError::Unauthorized)?;
+            return Ok(());
+        }
+
+        // Legacy Argon2 verification is CPU-bound as well.
+        let secret = secret.to_string();
+        let stored = stored_hash.to_string();
+        tokio::task::spawn_blocking(move || {
+            let parsed = PasswordHash::new(&stored).map_err(|_| ())?;
+            let argon2 = Argon2::default();
+            argon2
+                .verify_password(secret.as_bytes(), &parsed)
+                .map(|_| ())
+                .map_err(|_| ())
+        })
+        .await
+        .map_err(|_| ApiError::Internal)?
+        .map_err(|_| ApiError::Unauthorized)?;
+        Ok(())
     }
 
     async fn persist_session(
@@ -221,13 +266,14 @@ impl AuthService {
         struct SessionRow {
             id: Uuid,
             user_id: Uuid,
+            email: String,
             token_hash: String,
             expires_at: chrono::DateTime<Utc>,
             revoked_at: Option<chrono::DateTime<Utc>>,
         }
 
         let session = sqlx::query_as::<_, SessionRow>(
-            "SELECT id, user_id, token_hash, expires_at, revoked_at FROM sessions WHERE id = $1",
+            "SELECT s.id, s.user_id, u.email, s.token_hash, s.expires_at, s.revoked_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.id = $1",
         )
         .bind(session_id)
         .fetch_optional(&self.state.db.pool)
@@ -238,24 +284,10 @@ impl AuthService {
             return Err(ApiError::Unauthorized);
         }
 
-        let parsed = PasswordHash::new(&session.token_hash).map_err(|err| {
-            tracing::error!(?err, "auth.refresh.hash_parse_failed");
-            ApiError::Internal
-        })?;
-
-        self.argon2
-            .verify_password(secret.as_bytes(), &parsed)
-            .map_err(|_| ApiError::Unauthorized)?;
-
-        let user = sqlx::query_as::<_, User>(
-            "SELECT id, email, password_hash, role, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE id = $1",
-        )
-        .bind(session.user_id)
-        .fetch_one(&self.state.db.pool)
-        .await?;
+        self.verify_refresh_secret(&session.token_hash, secret).await?;
 
         // Issue new tokens and rotate session hash
-        let access_token = self.generate_access_token(&user)?;
+        let access_token = self.generate_access_token(session.user_id, &session.email)?;
         let (new_secret, new_hash, new_exp) = self.generate_refresh_secret()?;
         let refresh_token = format!("{}.{}", session.id, new_secret);
 
@@ -288,14 +320,7 @@ impl AuthService {
             return Err(ApiError::Unauthorized);
         }
 
-        let parsed = PasswordHash::new(&token_hash).map_err(|err| {
-            tracing::error!(?err, "auth.logout.hash_parse_failed");
-            ApiError::Internal
-        })?;
-
-        self.argon2
-            .verify_password(secret.as_bytes(), &parsed)
-            .map_err(|_| ApiError::Unauthorized)?;
+        self.verify_refresh_secret(&token_hash, secret).await?;
 
         sqlx::query("UPDATE sessions SET revoked_at = NOW() WHERE id = $1")
             .bind(session_id)

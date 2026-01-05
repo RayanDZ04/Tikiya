@@ -49,12 +49,12 @@ impl AppConfig {
         let http_request_timeout_secs = env::var("HTTP_REQUEST_TIMEOUT_SECS")
             .ok()
             .and_then(|v| v.parse().ok())
-            .unwrap_or(30);
+            .unwrap_or(15);
 
         let http_concurrency_limit = env::var("HTTP_CONCURRENCY_LIMIT")
             .ok()
             .and_then(|v| v.parse().ok())
-            .unwrap_or(1024);
+            .unwrap_or_else(|| (database_pool_max as usize).saturating_mul(4).max(8));
 
         let http_max_body_bytes = env::var("HTTP_MAX_BODY_BYTES")
             .ok()

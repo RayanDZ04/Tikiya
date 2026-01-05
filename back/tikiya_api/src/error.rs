@@ -16,6 +16,8 @@ pub enum ApiError {
     NotFound,
     #[error("conflict: {0}")]
     Conflict(String),
+    #[error("service unavailable")]
+    ServiceUnavailable,
     #[error("internal error")]
     Internal,
 }
@@ -38,6 +40,11 @@ impl IntoResponse for ApiError {
             ApiError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized", None),
             ApiError::NotFound => (StatusCode::NOT_FOUND, "Not Found", None),
             ApiError::Conflict(msg) => (StatusCode::CONFLICT, "Conflict", Some(msg.clone())),
+            ApiError::ServiceUnavailable => (
+                StatusCode::SERVICE_UNAVAILABLE,
+                "Service Unavailable",
+                None,
+            ),
             ApiError::Internal => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Internal Server Error",
@@ -57,6 +64,7 @@ impl IntoResponse for ApiError {
 impl From<sqlx::Error> for ApiError {
     fn from(e: sqlx::Error) -> Self {
         match e {
+            sqlx::Error::PoolTimedOut | sqlx::Error::PoolClosed => ApiError::ServiceUnavailable,
             sqlx::Error::RowNotFound => ApiError::NotFound,
             sqlx::Error::Database(db_err) => {
                 if db_err.code().map(|c| c == "23505").unwrap_or(false) {
