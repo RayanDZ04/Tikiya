@@ -8,7 +8,6 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::Serialize;
 use uuid::Uuid;
-use futures_util::StreamExt;
 
 use crate::dto::{AuthResponse, AuthTokens, LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest, UserResponse};
 use crate::error::ApiError;
@@ -144,10 +143,9 @@ impl AuthService {
 
     pub async fn issue_tokens(&self, user: &User) -> Result<AuthTokens, ApiError> {
         let access_token = self.generate_access_token(user)?;
-        let (refresh_token, refresh_hash, refresh_exp) = self.generate_refresh_token()?;
-
-        self.persist_session(user, &refresh_hash, refresh_exp)
-            .await?;
+        let (secret, secret_hash, refresh_exp) = self.generate_refresh_secret()?;
+        let session_id = self.persist_session(user, &secret_hash, refresh_exp).await?;
+        let refresh_token = format!("{}.{}", session_id, secret);
 
         Ok(AuthTokens {
             access_token,
@@ -178,24 +176,24 @@ impl AuthService {
         })
     }
 
-    fn generate_refresh_token(&self) -> Result<(String, String, chrono::DateTime<Utc>), ApiError> {
+    fn generate_refresh_secret(&self) -> Result<(String, String, chrono::DateTime<Utc>), ApiError> {
         let expires_at = Utc::now() + Duration::days(REFRESH_TOKEN_TTL_DAYS);
         let mut rng = OsRng;
         let mut bytes = [0u8; 64];
         rng.fill_bytes(&mut bytes);
-        let token = URL_SAFE_NO_PAD.encode(bytes);
+        let secret = URL_SAFE_NO_PAD.encode(bytes);
 
         let salt = SaltString::generate(&mut rng);
         let hash = self
             .argon2
-            .hash_password(token.as_bytes(), &salt)
+            .hash_password(secret.as_bytes(), &salt)
             .map_err(|err| {
                 tracing::error!(?err, "auth.refresh.hash_failed");
                 ApiError::Internal
             })?
             .to_string();
 
-        Ok((token, hash, expires_at))
+        Ok((secret, hash, expires_at))
     }
 
     async fn persist_session(
@@ -203,51 +201,51 @@ impl AuthService {
         user: &User,
         refresh_hash: &str,
         expires_at: chrono::DateTime<Utc>,
-    ) -> Result<(), ApiError> {
-        sqlx::query("INSERT INTO sessions (user_id, token_hash, expires_at) VALUES ($1, $2, $3)")
+    ) -> Result<Uuid, ApiError> {
+        let id = sqlx::query_scalar::<_, Uuid>(
+            "INSERT INTO sessions (user_id, token_hash, expires_at) VALUES ($1, $2, $3) RETURNING id",
+        )
             .bind(user.id)
             .bind(refresh_hash)
             .bind(expires_at)
-            .execute(&self.state.db.pool)
+            .fetch_one(&self.state.db.pool)
             .await?;
 
-        Ok(())
+        Ok(id)
     }
 
     pub async fn refresh(&self, payload: RefreshRequest) -> Result<AuthTokens, ApiError> {
-        // Load candidate sessions and verify against provided refresh token
+        let (session_id, secret) = parse_refresh_token(&payload.refresh_token)?;
+
         #[derive(sqlx::FromRow)]
         struct SessionRow {
-            id: i64,
+            id: Uuid,
             user_id: Uuid,
             token_hash: String,
-            _expires_at: chrono::DateTime<Utc>,
+            expires_at: chrono::DateTime<Utc>,
+            revoked_at: Option<chrono::DateTime<Utc>>,
         }
 
-        let mut matched: Option<SessionRow> = None;
-        let mut rows = sqlx::query_as::<_, SessionRow>(
-            "SELECT id, user_id, token_hash, expires_at FROM sessions WHERE expires_at > NOW()",
+        let session = sqlx::query_as::<_, SessionRow>(
+            "SELECT id, user_id, token_hash, expires_at, revoked_at FROM sessions WHERE id = $1",
         )
-        .fetch(&self.state.db.pool);
+        .bind(session_id)
+        .fetch_optional(&self.state.db.pool)
+        .await?
+        .ok_or(ApiError::Unauthorized)?;
 
-        while let Some(res) = rows.next().await {
-            let row = res.map_err(|e| {
-                tracing::error!(?e, "auth.refresh.query_failed");
-                ApiError::Internal
-            })?;
-            if let Ok(parsed) = PasswordHash::new(&row.token_hash) {
-                if self
-                    .argon2
-                    .verify_password(payload.refresh_token.as_bytes(), &parsed)
-                    .is_ok()
-                {
-                    matched = Some(row);
-                    break;
-                }
-            }
+        if session.revoked_at.is_some() || session.expires_at <= Utc::now() {
+            return Err(ApiError::Unauthorized);
         }
 
-        let session = matched.ok_or(ApiError::Unauthorized)?;
+        let parsed = PasswordHash::new(&session.token_hash).map_err(|err| {
+            tracing::error!(?err, "auth.refresh.hash_parse_failed");
+            ApiError::Internal
+        })?;
+
+        self.argon2
+            .verify_password(secret.as_bytes(), &parsed)
+            .map_err(|_| ApiError::Unauthorized)?;
 
         let user = sqlx::query_as::<_, User>(
             "SELECT id, email, password_hash, role, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE id = $1",
@@ -258,7 +256,8 @@ impl AuthService {
 
         // Issue new tokens and rotate session hash
         let access_token = self.generate_access_token(&user)?;
-        let (new_refresh, new_hash, new_exp) = self.generate_refresh_token()?;
+        let (new_secret, new_hash, new_exp) = self.generate_refresh_secret()?;
+        let refresh_token = format!("{}.{}", session.id, new_secret);
 
         sqlx::query("UPDATE sessions SET token_hash = $1, expires_at = $2 WHERE id = $3")
             .bind(new_hash)
@@ -269,48 +268,49 @@ impl AuthService {
 
         Ok(AuthTokens {
             access_token,
-            refresh_token: new_refresh,
+            refresh_token,
         })
     }
 
     pub async fn logout(&self, payload: LogoutRequest) -> Result<(), ApiError> {
-        // Find session by verifying hash, then delete it
-        #[derive(sqlx::FromRow)]
-        struct SessionRow {
-            id: i64,
-            token_hash: String,
-        }
+        let (session_id, secret) = parse_refresh_token(&payload.refresh_token)?;
 
-        let mut target_id: Option<i64> = None;
-        let mut rows = sqlx::query_as::<_, SessionRow>(
-            "SELECT id, token_hash FROM sessions WHERE expires_at > NOW()",
+        let row = sqlx::query_as::<_, (String, chrono::DateTime<Utc>, Option<chrono::DateTime<Utc>>)>(
+            "SELECT token_hash, expires_at, revoked_at FROM sessions WHERE id = $1",
         )
-        .fetch(&self.state.db.pool);
+        .bind(session_id)
+        .fetch_optional(&self.state.db.pool)
+        .await?
+        .ok_or(ApiError::Unauthorized)?;
 
-        while let Some(res) = rows.next().await {
-            let row = res.map_err(|e| {
-                tracing::error!(?e, "auth.logout.query_failed");
-                ApiError::Internal
-            })?;
-            if let Ok(parsed) = PasswordHash::new(&row.token_hash) {
-                if self
-                    .argon2
-                    .verify_password(payload.refresh_token.as_bytes(), &parsed)
-                    .is_ok()
-                {
-                    target_id = Some(row.id);
-                    break;
-                }
-            }
+        let (token_hash, expires_at, revoked_at) = row;
+        if revoked_at.is_some() || expires_at <= Utc::now() {
+            return Err(ApiError::Unauthorized);
         }
 
-        let id = target_id.ok_or(ApiError::Unauthorized)?;
+        let parsed = PasswordHash::new(&token_hash).map_err(|err| {
+            tracing::error!(?err, "auth.logout.hash_parse_failed");
+            ApiError::Internal
+        })?;
 
-        sqlx::query("DELETE FROM sessions WHERE id = $1")
-            .bind(id)
+        self.argon2
+            .verify_password(secret.as_bytes(), &parsed)
+            .map_err(|_| ApiError::Unauthorized)?;
+
+        sqlx::query("UPDATE sessions SET revoked_at = NOW() WHERE id = $1")
+            .bind(session_id)
             .execute(&self.state.db.pool)
             .await?;
 
         Ok(())
     }
+}
+
+fn parse_refresh_token(token: &str) -> Result<(Uuid, &str), ApiError> {
+    let (sid, secret) = token.split_once('.').ok_or(ApiError::Unauthorized)?;
+    let session_id = Uuid::parse_str(sid).map_err(|_| ApiError::Unauthorized)?;
+    if secret.is_empty() {
+        return Err(ApiError::Unauthorized);
+    }
+    Ok((session_id, secret))
 }

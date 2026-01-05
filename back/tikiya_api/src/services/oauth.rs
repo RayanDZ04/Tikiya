@@ -1,5 +1,6 @@
 use axum::http::Uri;
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
 
 use crate::dto::{AuthResponse, UserResponse};
 use crate::error::ApiError;
@@ -38,6 +39,8 @@ impl OAuthService {
     pub fn new(state: AppState) -> Self {
         let client = reqwest::Client::builder()
             .user_agent("tikiya-api/1.0")
+            .connect_timeout(Duration::from_secs(5))
+            .timeout(Duration::from_secs(10))
             .build()
             .expect("reqwest client");
         Self { state, client }

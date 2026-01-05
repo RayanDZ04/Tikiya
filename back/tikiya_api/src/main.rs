@@ -29,8 +29,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let state = state::AppState {
         db,
         config: cfg.clone(),
-        failed_logins: std::sync::Arc::new(std::sync::Mutex::new(std::collections::HashMap::new())),
-        ip_failures: std::sync::Arc::new(std::sync::Mutex::new(std::collections::HashMap::new())),
     };
 
     let app = http::build_router(state);

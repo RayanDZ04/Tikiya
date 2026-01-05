@@ -1,0 +1,25 @@
+[Unit]
+Description=Tikiya API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/tikiya_api
+EnvironmentFile=/opt/tikiya_api/.env
+ExecStart=/opt/tikiya_api/tikiya_api
+
+Restart=always
+RestartSec=2
+
+# Robustesse sous charge (sockets/fichiers)
+LimitNOFILE=1048576
+
+# Sécurité (pragmatique)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/tikiya_api
+
+[Install]
+WantedBy=multi-user.target

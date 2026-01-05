@@ -2,7 +2,6 @@ use axum::{extract::{State, ConnectInfo}, Json};
 use serde::Deserialize;
 use std::net::SocketAddr;
 use crate::dto::AuthTokens;
-use std::time::{Duration, Instant};
 use validator::Validate;
 
 use crate::dto::{AuthResponse, LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest};
@@ -37,59 +36,10 @@ pub async fn login(
     payload
         .validate()
         .map_err(|err| ApiError::Validation(err.to_string()))?;
-    // Lockout check per email
-    {
-        let guard = state.failed_logins.lock().map_err(|_| ApiError::Internal)?;
-        if let Some((_, Some(until))) = guard.get(&payload.email) {
-            if Instant::now() < *until {
-                tracing::warn!(email = %payload.email, "auth.login.locked_out");
-                return Err(ApiError::Unauthorized);
-            }
-        }
-    }
-
-    // Rate limit per IP: 10 failures lock for 15 minutes
-    {
-        let ip = addr.ip().to_string();
-        let guard = state.ip_failures.lock().map_err(|_| ApiError::Internal)?;
-        if let Some((_, Some(until))) = guard.get(&ip) {
-            if Instant::now() < *until {
-                tracing::warn!(ip = %ip, "auth.login.ip_rate_limited");
-                return Err(ApiError::Unauthorized);
-            }
-        }
-    }
-
     let service = AuthService::new(state);
-    match service.login(payload.clone()).await {
-        Ok(response) => {
-            // Reset failures on success
-            let mut guard = service.state.failed_logins.lock().map_err(|_| ApiError::Internal)?;
-            guard.remove(&payload.email);
-            tracing::info!(ip = %addr.ip(), user_email = %response.user.email, "auth.login.response_success");
-            Ok(Json(response))
-        }
-        Err(err) => {
-            // Increment failures and apply lockout after 5
-            let mut guard = service.state.failed_logins.lock().map_err(|_| ApiError::Internal)?;
-            let entry = guard.entry(payload.email.clone()).or_insert((0, None));
-            entry.0 += 1;
-            if entry.0 >= 5 {
-                entry.1 = Some(Instant::now() + Duration::from_secs(15 * 60));
-            }
-
-            // Increment per-IP failures and apply lockout after 10
-            let ip = addr.ip().to_string();
-            let mut ip_guard = service.state.ip_failures.lock().map_err(|_| ApiError::Internal)?;
-            let ip_entry = ip_guard.entry(ip).or_insert((0, None));
-            ip_entry.0 += 1;
-            if ip_entry.0 >= 10 {
-                ip_entry.1 = Some(Instant::now() + Duration::from_secs(15 * 60));
-            }
-            tracing::warn!(ip = %addr.ip(), email = %payload.email, "auth.login.response_error");
-            Err(err)
-        }
-    }
+    let response = service.login(payload).await?;
+    tracing::info!(ip = %addr.ip(), user_email = %response.user.email, "auth.login.response_success");
+    Ok(Json(response))
 }
 
 pub async fn refresh(
@@ -136,7 +86,12 @@ pub async fn google_mobile(
     Json(payload): Json<GoogleMobileRequest>,
 ) -> Result<Json<AuthResponse>, ApiError> {
     tracing::info!(ip = %addr.ip(), "auth.google_mobile.request");
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .user_agent("tikiya-api/1.0")
+        .connect_timeout(std::time::Duration::from_secs(5))
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|_| ApiError::Internal)?;
     let res = client
         .get("https://oauth2.googleapis.com/tokeninfo")
         .query(&[("id_token", payload.id_token.clone())])

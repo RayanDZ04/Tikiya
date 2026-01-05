@@ -6,6 +6,9 @@ pub struct AppConfig {
     pub allowed_origins: Vec<String>,
     pub database_url: String,
     pub database_pool_max: u32,
+    pub http_request_timeout_secs: u64,
+    pub http_concurrency_limit: usize,
+    pub http_max_body_bytes: usize,
     pub jwt_secret: String,
     pub jwt_issuer: String,
     pub jwt_audience: String,
@@ -42,6 +45,22 @@ impl AppConfig {
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(20);
+
+        let http_request_timeout_secs = env::var("HTTP_REQUEST_TIMEOUT_SECS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(30);
+
+        let http_concurrency_limit = env::var("HTTP_CONCURRENCY_LIMIT")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(1024);
+
+        let http_max_body_bytes = env::var("HTTP_MAX_BODY_BYTES")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(1024 * 1024);
+
         let jwt_secret = must_env("JWT_SECRET");
         let jwt_issuer = env::var("JWT_ISSUER").unwrap_or_else(|_| "tikiya-api".to_string());
         let jwt_audience = env::var("JWT_AUDIENCE").unwrap_or_else(|_| "tikiya-clients".to_string());
@@ -55,6 +74,9 @@ impl AppConfig {
             allowed_origins,
             database_url,
             database_pool_max,
+            http_request_timeout_secs,
+            http_concurrency_limit,
+            http_max_body_bytes,
             jwt_secret,
             jwt_issuer,
             jwt_audience,

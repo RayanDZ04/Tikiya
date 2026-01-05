@@ -1,8 +1,8 @@
 use axum::{extract::State, http::HeaderMap, Json};
-use jsonwebtoken::{decode, DecodingKey, Validation};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
 
-use crate::{error::ApiError, models::User, state::AppState};
+use crate::{dto::UserResponse, error::ApiError, state::AppState};
 
 #[derive(Debug, Deserialize)]
 struct JwtClaims {
@@ -17,7 +17,7 @@ struct JwtClaims {
 pub async fn admin_me(
     State(state): State<AppState>,
     headers: HeaderMap,
-) -> Result<Json<User>, ApiError> {
+) -> Result<Json<UserResponse>, ApiError> {
     let auth = headers
         .get("authorization")
         .and_then(|v| v.to_str().ok())
@@ -25,17 +25,29 @@ pub async fn admin_me(
 
     let token = auth.strip_prefix("Bearer ").ok_or(ApiError::Unauthorized)?;
 
+    let mut validation = Validation::new(Algorithm::HS256);
+    validation.set_audience(std::slice::from_ref(&state.config.jwt_audience));
+    validation.set_issuer(std::slice::from_ref(&state.config.jwt_issuer));
+
     let claims = decode::<JwtClaims>(
         token,
         &DecodingKey::from_secret(state.config.jwt_secret.as_bytes()),
-        &Validation::default(),
+        &validation,
     )
     .map_err(|_| ApiError::Unauthorized)?
     .claims;
 
     // Load user and check role
-    let user = sqlx::query_as::<_, User>(
-        "SELECT id, email, password_hash, role, oauth_provider, oauth_subject, created_at FROM users WHERE id = $1",
+    #[derive(sqlx::FromRow)]
+    struct MeRow {
+        id: uuid::Uuid,
+        email: String,
+        role: String,
+        created_at: chrono::DateTime<chrono::Utc>,
+    }
+
+    let user = sqlx::query_as::<_, MeRow>(
+        "SELECT id, email, role, created_at FROM users WHERE id = $1",
     )
     .bind(claims.sub)
     .fetch_one(&state.db.pool)
@@ -45,5 +57,10 @@ pub async fn admin_me(
         return Err(ApiError::Unauthorized);
     }
 
-    Ok(Json(user))
+    Ok(Json(UserResponse {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        created_at: user.created_at,
+    }))
 }
