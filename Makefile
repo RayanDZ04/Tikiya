@@ -45,12 +45,16 @@ android:
 	@if [ -z "$(ANDROID_SDK_ROOT)" ]; then echo "ANDROID_SDK_ROOT introuvable"; exit 1; fi
 	@if [ ! -x "$(EMULATOR)" ]; then echo "Emulator introuvable: $(EMULATOR)"; exit 1; fi
 	@if [ ! -x "$(ADB)" ]; then echo "ADB introuvable: $(ADB)"; exit 1; fi
-	@if [ -n "$$($(ADB_SERIAL_CMD))" ]; then echo "Emulateur déjà actif: $$($(ADB_SERIAL_CMD))"; exit 0; fi
-	@echo "Lancement AVD: $(AVD_NAME)"
-	$(EMULATOR_ENV) $(EMULATOR) -avd $(AVD_NAME) $(EMULATOR_ARGS) > $(EMULATOR_LOG) 2>&1 &
-	@echo "Log emulateur: $(EMULATOR_LOG)"
-	@timeout $(ADB_WAIT_TIMEOUT) $(ADB) wait-for-device || (echo "Emulateur non démarré"; tail -n 200 $(EMULATOR_LOG); exit 1)
-	@echo "Emulateur prêt"
+	@serial=$$($(ADB_SERIAL_CMD)); \
+	 if [ -n "$$serial" ]; then echo "Emulateur déjà actif: $$serial"; exit 0; fi; \
+	 echo "Lancement AVD: $(AVD_NAME)"; \
+	 $(EMULATOR_ENV) $(EMULATOR) -avd $(AVD_NAME) $(EMULATOR_ARGS) > $(EMULATOR_LOG) 2>&1 & \
+	 echo "Log emulateur: $(EMULATOR_LOG)"; \
+	 timeout $(ADB_WAIT_TIMEOUT) sh -c 'while [ -z "$$($(ADB_SERIAL_CMD))" ]; do sleep 2; done' \
+	   || (echo "Emulateur non démarré"; tail -n 200 $(EMULATOR_LOG); exit 1); \
+	 serial=$$($(ADB_SERIAL_CMD)); \
+	 $(ADB) -s $$serial wait-for-device; \
+	 echo "Emulateur prêt"
 
 # Build and install App_mobile APK via Docker on the running emulator
 app: android

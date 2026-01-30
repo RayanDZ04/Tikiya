@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '_placeholders.dart';
 import '../l10n/l10n.dart';
+import '../models/orga_event.dart';
+import '../services/orga_events_service.dart';
 import '../services/session_store.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
@@ -15,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _filtersOpen = false;
+  final _eventsService = OrgaEventsService();
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +56,33 @@ class _HomeScreenState extends State<HomeScreen> {
               alignment: Alignment.center,
               child: Text(l10n.homeNoContentYet, style: textTheme.bodySmall),
             ),
+          ],
+        ),
+      );
+    }
+
+    Widget eventCard(OrgaEvent event) {
+      final date = '${event.date.year}-${event.date.month.toString().padLeft(2, '0')}-${event.date.day.toString().padLeft(2, '0')}';
+      final subtitle = '${event.city} • $date';
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: blanc,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(color: Color(0x12000000), blurRadius: 10, offset: Offset(0, 6)),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(event.title, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: bleuProfond)),
+            const SizedBox(height: 8),
+            Text(subtitle, style: textTheme.bodyMedium?.copyWith(color: grisFonce)),
+            if (event.description != null && event.description!.trim().isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(event.description!, style: textTheme.bodySmall?.copyWith(color: grisFonce)),
+            ],
           ],
         ),
       );
@@ -333,29 +363,50 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 900),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isWide = constraints.maxWidth > 700;
-                      final children = <Widget>[
-                        sectionCard(title: l10n.filterMusic, subtitle: l10n.noResults),
-                        sectionCard(title: l10n.filterCulture, subtitle: l10n.noResults),
-                        sectionCard(title: l10n.filterEntertainment, subtitle: l10n.noResults),
-                        sectionCard(title: l10n.filterPopular, subtitle: l10n.noResults),
-                      ];
-                      if (isWide) {
-                        return GridView.count(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: children,
+                  child: FutureBuilder<List<OrgaEvent>>(
+                    future: SessionStore.I.session.value == null
+                        ? Future.value(const <OrgaEvent>[]) 
+                        : _eventsService.listEvents(),
+                    builder: (context, snap) {
+                      if (snap.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(child: CircularProgressIndicator()),
                         );
                       }
-                      return Column(
-                        children: [
-                          for (final c in children) ...[c, const SizedBox(height: 16)],
-                        ],
+                      if (snap.hasError) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text('Erreur de chargement', style: textTheme.bodyMedium?.copyWith(color: grisFonce)),
+                        );
+                      }
+                      final events = snap.data ?? const <OrgaEvent>[];
+                      if (events.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text('Lance ton premier événement et commence à vendre tes billets.', style: textTheme.bodyMedium?.copyWith(color: grisFonce)),
+                        );
+                      }
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isWide = constraints.maxWidth > 700;
+                          final cards = events.map(eventCard).toList();
+                          if (isWide) {
+                            return GridView.count(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              children: cards,
+                            );
+                          }
+                          return Column(
+                            children: [
+                              for (final c in cards) ...[c, const SizedBox(height: 16)],
+                            ],
+                          );
+                        },
                       );
                     },
                   ),
