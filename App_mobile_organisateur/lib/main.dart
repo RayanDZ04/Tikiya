@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/home_screen.dart';
 import 'screens/orga/orga_panel_screen.dart';
 import 'screens/orga/orga_events_screen.dart';
 import 'screens/orga/orga_event_detail_screen.dart';
@@ -56,11 +57,12 @@ class MyApp extends StatelessWidget {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           initialRoute: '/',
           routes: {
-            '/': (context) => const OrgaPanelScreen(),
+            '/': (context) => const HomeScreen(),
             '/login': (context) => const LoginScreen(),
             '/register': (context) => const RegisterScreen(),
             '/profile': (context) => const ProfileScreen(),
             '/orga': (context) => const OrgaEventsScreen(),
+            '/orga/panel': (context) => const OrgaPanelScreen(),
             '/orga/event/new': (context) => const OrgaEventFormScreen(),
           },
           onGenerateRoute: (settings) {
