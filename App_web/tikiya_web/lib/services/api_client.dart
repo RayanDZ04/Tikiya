@@ -55,4 +55,34 @@ class ApiClient {
 
     return json;
   }
+
+  Future<dynamic> getJson(
+    String path, {
+    Map<String, String>? headers,
+  }) async {
+    final resp = await _client.get(
+      _uri(path),
+      headers: {
+        'Accept': 'application/json',
+        ...?headers,
+      },
+    );
+
+    final text = resp.body;
+    dynamic json;
+    try {
+      json = (text.isEmpty ? null : jsonDecode(text));
+    } catch (_) {
+      throw ApiException('Réponse invalide du serveur', statusCode: resp.statusCode);
+    }
+
+    if (resp.statusCode < 200 || resp.statusCode >= 300) {
+      final msg = (json is Map)
+          ? (json['message'] ?? json['error'] ?? 'Erreur serveur').toString()
+          : 'Erreur serveur';
+      throw ApiException(msg, statusCode: resp.statusCode);
+    }
+
+    return json;
+  }
 }

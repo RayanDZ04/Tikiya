@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
 import '../services/session_store.dart';
+import '../ui/auth_layout.dart';
+import '../ui/tikiya_form_widgets.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
@@ -59,65 +61,72 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Connexion')),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFormField(
-                    controller: _email,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Email requis' : null,
+    return AuthLayout(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const TikiyaLogo(),
+            const SizedBox(height: 10),
+            Text(
+              'Connexion',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _password,
-                    decoration: const InputDecoration(labelText: 'Mot de passe'),
-                    obscureText: true,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  if (_error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        _error!,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
-                      ),
-                    ),
-                  ElevatedButton(
-                    onPressed: _loading
-                        ? null
-                        : () {
-                            if (!_formKey.currentState!.validate()) return;
-                            _submit();
-                          },
-                    child: _loading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Se connecter'),
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pushReplacementNamed('/register'),
-                    child: const Text("Pas de compte ? S'inscrire"),
-                  ),
-                ],
+            ),
+            const SizedBox(height: 20),
+            const TikiyaLabel('Email'),
+            TikiyaTextField(
+              controller: _email,
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Email requis' : null,
+            ),
+            const SizedBox(height: 18),
+            const TikiyaLabel('Mot de passe'),
+            TikiyaTextField(
+              controller: _password,
+              obscureText: true,
+              validator: (v) => (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
+            ),
+            const SizedBox(height: 16),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text(
+                  _error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            if (_error != null) const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _loading
+                      ? null
+                      : () {
+                          if (!_formKey.currentState!.validate()) return;
+                          _submit();
+                        },
+                  child: _loading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Se connecter'),
+                ),
               ),
             ),
-          ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: _loading ? null : () => Navigator.of(context).pushReplacementNamed('/register'),
+              child: const Text("Pas de compte ? S'inscrire"),
+            ),
+          ],
         ),
       ),
     );

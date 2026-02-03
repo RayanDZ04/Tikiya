@@ -21,7 +21,7 @@ PKG_ORGA ?= com.tikiya.orga
 PKG_MOBILE_OLD ?= com.example.app_mobile
 PKG_ORGA_OLD ?= com.example.tikiya_orga
 
-.PHONY: build android app app_orga clean app_clean
+.PHONY: build android app app_orga clean app_clean web web_mobile web_orga
 
 IMAGE_MOBILE ?= tikiya-android_build_mobile:latest
 IMAGE_ORGA ?= tikiya-android_build_organisateur:latest
@@ -79,3 +79,12 @@ clean:
 app_clean:
 	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi; \
 	 for pkg in $(PKG_MOBILE) $(PKG_MOBILE_OLD) $(PKG_ORGA) $(PKG_ORGA_OLD); do $(ADB) -s $$serial uninstall $$pkg >/dev/null 2>&1 || true; done
+
+web:
+	$(MAKE) -C App_web web
+
+web_mobile:
+	./scripts/serve_web_mobile.sh
+
+web_orga:
+	./scripts/serve_web_orga.sh
