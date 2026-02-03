@@ -1,38 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-
-import '../models/event.dart';
-import '../services/api_client.dart';
-import '../services/events_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../ui/tikiya_colors.dart';
 import '../ui/pattern_band.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  late final EventsService _events = EventsService(ApiClient());
-  late Future<_HomeState> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = _load();
-  }
-
-  Future<_HomeState> _load() async {
-    try {
-      final items = await _events.listPublicEvents();
-      return _HomeState(items: items);
-    } catch (e) {
-      return _HomeState(items: const [], error: e.toString());
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,106 +18,100 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Positioned.fill(child: _LandingBackground()),
           Positioned.fill(
-            child: FutureBuilder<_HomeState>(
-              future: _future,
-              builder: (context, snap) {
-                final state = snap.data;
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: SafeArea(
+                    bottom: false,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1120),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _TopNav(
+                                onLogin: () => Navigator.of(context).pushNamed('/login'),
+                                onRegister: () => Navigator.of(context).pushNamed('/register'),
+                              ),
+                              const SizedBox(height: 44),
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final wide = constraints.maxWidth >= 920;
+                                  final left = _HeroCopy(textTheme: textTheme);
+                                  final right = const _PhoneMock();
 
-                return CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: SafeArea(
-                        bottom: false,
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 1120),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _TopNav(
-                                    onLogin: () => Navigator.of(context).pushNamed('/login'),
-                                    onRegister: () => Navigator.of(context).pushNamed('/register'),
-                                  ),
-                                  const SizedBox(height: 44),
-                                  LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      final wide = constraints.maxWidth >= 920;
-                                      final left = _HeroCopy(textTheme: textTheme);
-                                      final right = const _PhoneMock();
+                                  if (!wide) {
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        left,
+                                        const SizedBox(height: 20),
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: ConstrainedBox(
+                                            constraints: const BoxConstraints(maxWidth: 420),
+                                            child: right,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 22),
+                                        const _SearchPanel(),
+                                        const SizedBox(height: 14),
+                                        const _CategoryChips(),
+                                        const SizedBox(height: 18),
+                                        Center(
+                                          child: _PrimaryButton(
+                                            label: 'Voir tous les événements',
+                                            onPressed: () {},
+                                            icon: Icons.arrow_forward_rounded,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
 
-                                      if (!wide) {
-                                        return Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            left,
-                                            const SizedBox(height: 20),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: ConstrainedBox(
-                                                constraints: const BoxConstraints(maxWidth: 420),
-                                                child: right,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 22),
-                                            const _SearchPanel(),
-                                            const SizedBox(height: 14),
-                                            const _CategoryChips(),
-                                            const SizedBox(height: 18),
-                                            Center(
-                                              child: _PrimaryButton(
-                                                label: 'Voir tous les événements',
-                                                onPressed: () {},
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }
-
-                                      return Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Stack(
+                                        clipBehavior: Clip.none,
                                         children: [
-                                          Stack(
-                                            clipBehavior: Clip.none,
+                                          Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Expanded(flex: 6, child: left),
-                                                  const SizedBox(width: 28),
-                                                  const Expanded(flex: 5, child: _PhoneMock()),
-                                                ],
-                                              ),
-                                              Positioned(
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 120,
-                                                child: Align(
-                                                  alignment: const Alignment(0.10, 1.0),
-                                                  child: ConstrainedBox(
-                                                    constraints: const BoxConstraints(maxWidth: 940),
-                                                    child: const _HeroBottomBlock(),
-                                                  ),
-                                                ),
-                                              ),
+                                              Expanded(flex: 6, child: left),
+                                              const SizedBox(width: 28),
+                                              const Expanded(flex: 5, child: _PhoneMock()),
                                             ],
                                           ),
-                                          const SizedBox(height: 10),
+                                          Positioned(
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 120,
+                                            child: Align(
+                                              alignment: const Alignment(0.10, 1.0),
+                                              child: ConstrainedBox(
+                                                constraints: const BoxConstraints(maxWidth: 940),
+                                                child: const _HeroBottomBlock(),
+                                              ),
+                                            ),
+                                          ),
                                         ],
-                                      );
-                                    },
-                                  ),
-                                ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                    ],
+                                  );
+                                },
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  ],
-                );
-              },
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -238,6 +206,12 @@ class _TopNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final brandStyle = GoogleFonts.montserrat(
+      textStyle: textTheme.titleLarge,
+      fontSize: 28,
+      fontWeight: FontWeight.bold,
+      letterSpacing: 0.4,
+    );
 
     return Row(
       children: [
@@ -246,18 +220,11 @@ class _TopNav extends StatelessWidget {
             children: [
               TextSpan(
                 text: 'Tikiya',
-                style: textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.3,
-                ),
+                style: brandStyle.copyWith(color: Colors.white),
               ),
               TextSpan(
                 text: '!',
-                style: textTheme.titleLarge?.copyWith(
-                  color: TikiyaColors.bleuCyan,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: brandStyle.copyWith(color: TikiyaColors.bleuCyan),
               ),
             ],
           ),
@@ -357,13 +324,12 @@ class _HeroCopy extends StatelessWidget {
           spacing: 12,
           runSpacing: 10,
           children: [
-            _PrimaryButton(
-              label: "Télécharger l'app",
+            _GooglePlayButton(
+              label: 'Installer avec Google Play',
               onPressed: () {},
-              icon: Icons.download_rounded,
             ),
-            _SecondaryButton(
-              label: 'Explorer les événements',
+            _AppleStoreButton(
+              label: "Télécharger sur l’App Store",
               onPressed: () {},
             ),
           ],
@@ -739,202 +705,100 @@ class _PrimaryButton extends StatelessWidget {
   }
 }
 
-class _SecondaryButton extends StatelessWidget {
+class _GooglePlayButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
 
-  const _SecondaryButton({
+  const _GooglePlayButton({
     required this.label,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
+    final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.1,
+        );
+
+    return ElevatedButton(
       onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white.withValues(alpha: 0.92),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.20)),
-        backgroundColor: Colors.white.withValues(alpha: 0.06),
-        textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        shadowColor: Colors.transparent,
+        foregroundColor: Colors.black,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        textStyle: textStyle,
       ),
-      child: Text(label),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            label: 'Google Play',
+            image: true,
+            child: Image.asset(
+              'assets/playstore.webp',
+              width: 22,
+              height: 22,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(label),
+        ],
+      ),
     );
   }
 }
 
-class _HomeState { 
-  final List<PublicEvent> items;
-  final String? error;
+class _AppleStoreButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
 
-  const _HomeState({required this.items, this.error});
-}
-
-class _EventCard extends StatelessWidget {
-  final String title;
-  final String? description;
-  final String? location;
-  final DateTime? startsAt;
-  final num? price;
-
-  const _EventCard({
-    required this.title,
-    this.description,
-    this.location,
-    this.startsAt,
-    this.price,
+  const _AppleStoreButton({
+    required this.label,
+    required this.onPressed,
   });
-
-  String _formatDate(DateTime d) {
-    final local = d.toLocal();
-    final y = local.year.toString().padLeft(4, '0');
-    final m = local.month.toString().padLeft(2, '0');
-    final day = local.day.toString().padLeft(2, '0');
-    return '$day/$m/$y';
-  }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.1,
+        );
 
-    final subtitleParts = <String>[];
-    if (location != null && location!.trim().isNotEmpty) subtitleParts.add(location!.trim());
-    if (startsAt != null) subtitleParts.add(_formatDate(startsAt!));
-    if (price != null) subtitleParts.add('${price!.toString()} FCFA');
-
-    final priceLabel = price == null ? null : '${price!.toString()} FCFA';
-    final meta = subtitleParts.isEmpty ? null : subtitleParts.join(' • ');
-
-    return _GlassCard(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: Colors.black,
+        shadowColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        textStyle: textStyle,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              height: 140,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            TikiyaColors.bleuProfond.withValues(alpha: 0.95),
-                            const Color(0xFF1D4ED8).withValues(alpha: 0.75),
-                            const Color(0xFF0A0D1D),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: 0.08,
-                      child: Image.asset('assets/ticket_logo.webp', fit: BoxFit.cover),
-                    ),
-                  ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-                      ),
-                      child: Icon(Icons.favorite_border_rounded, size: 18, color: Colors.white.withValues(alpha: 0.9)),
-                    ),
-                  ),
-                  if (priceLabel != null)
-                    Positioned(
-                      right: 10,
-                      bottom: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.28),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-                        ),
-                        child: Text(
-                          priceLabel,
-                          style: textTheme.labelLarge?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                  Positioned(
-                    left: 12,
-                    right: 12,
-                    bottom: 10,
-                    child: Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.titleSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          Semantics(
+            label: 'App Store',
+            image: true,
+            child: Image.asset(
+              'assets/apple.png',
+              width: 22,
+              height: 22,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
             ),
           ),
-          const SizedBox(height: 10),
-          if (meta != null)
-            Row(
-              children: [
-                Icon(Icons.place_rounded, size: 16, color: Colors.white.withValues(alpha: 0.55)),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    meta,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.65),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          const SizedBox(height: 10),
-          Text(
-            (description == null || description!.trim().isEmpty) ? 'Description non disponible.' : description!,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodySmall?.copyWith(color: Colors.white.withValues(alpha: 0.70)),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Détails bientôt disponibles.')),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white.withValues(alpha: 0.92),
-                side: BorderSide(color: Colors.white.withValues(alpha: 0.18)),
-                backgroundColor: Colors.white.withValues(alpha: 0.06),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Voir'),
-            ),
-          ),
+          const SizedBox(width: 10),
+          Text(label),
         ],
       ),
     );
