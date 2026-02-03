@@ -4,7 +4,7 @@ import 'app_theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/landing_screen.dart';
 import 'screens/login_screen.dart';
-import 'screens/orga_home_screen.dart';
+import 'screens/orga_entry_screen.dart';
 import 'screens/participant_home_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/splash_screen.dart';
@@ -31,7 +31,7 @@ class TikiyaWebApp extends StatelessWidget {
         '/login': (_) => LoginScreen(authService: _authService, sessionStore: _sessionStore),
         '/register': (_) => RegisterScreen(authService: _authService, sessionStore: _sessionStore),
         '/participant': (_) => ParticipantHomeScreen(sessionStore: _sessionStore),
-        '/orga': (_) => OrgaHomeScreen(sessionStore: _sessionStore),
+        '/orga': (_) => OrgaEntryScreen(sessionStore: _sessionStore),
       },
     );
   }
