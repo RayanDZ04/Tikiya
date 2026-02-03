@@ -135,10 +135,10 @@ class _HeroWideState extends State<_HeroWide> {
           right: 0,
           top: _leftHeight + 25,
           child: Align(
-            alignment: Alignment.topCenter,
+            alignment: Alignment.topLeft,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 940),
-              child: const _HeroBottomBlock(),
+              child: const _HeroBottomBlock(alignLeft: true),
             ),
           ),
         ),
@@ -450,19 +450,20 @@ class _PhoneMock extends StatelessWidget {
 }
 
 class _SearchPanel extends StatelessWidget {
-  const _SearchPanel();
+  final bool alignLeft;
+
+  const _SearchPanel({this.alignLeft = false});
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 940),
-        child: _GlassCard(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-          child: Column(
-            children: [
+    final panel = ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 940),
+      child: _GlassCard(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        child: Column(
+          children: [
               Container(
                 height: 54,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -507,7 +508,7 @@ class _SearchPanel extends StatelessWidget {
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                alignment: WrapAlignment.center,
+                alignment: alignLeft ? WrapAlignment.start : WrapAlignment.center,
                 children: [
                   const _FilterPill(icon: Icons.place_rounded, label: 'Alger'),
                   const _FilterPill(icon: Icons.event_rounded, label: 'Ce week-end'),
@@ -519,23 +520,28 @@ class _SearchPanel extends StatelessWidget {
                   ),
                 ],
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
+
+    return alignLeft
+        ? Align(alignment: Alignment.centerLeft, child: panel)
+        : Center(child: panel);
   }
 }
 
 class _HeroBottomBlock extends StatelessWidget {
-  const _HeroBottomBlock();
+  final bool alignLeft;
+
+  const _HeroBottomBlock({this.alignLeft = false});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const _SearchPanel(),
+        _SearchPanel(alignLeft: alignLeft),
         const SizedBox(height: 18),
         Center(
           child: _PrimaryButton(
