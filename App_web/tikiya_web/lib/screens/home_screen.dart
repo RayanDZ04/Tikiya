@@ -41,32 +41,35 @@ class HomeScreen extends StatelessWidget {
                                 builder: (context, constraints) {
                                   final wide = constraints.maxWidth >= 920;
                                   if (!wide) {
-                                    final left = _HeroCopy(textTheme: textTheme);
-                                    return Stack(
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        Positioned(
-                                          right: 0,
-                                          top: 0,
-                                          child: IgnorePointer(
-                                            child: ConstrainedBox(
-                                              constraints: const BoxConstraints(maxWidth: 420),
-                                              child: Transform.translate(
-                                                offset: const Offset(0, -40),
-                                                child: const _PhoneMock(),
+                                    final left = _HeroCopy(textTheme: textTheme, compactTitle: true);
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 30),
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          Positioned(
+                                            right: 0,
+                                            top: 0,
+                                            child: IgnorePointer(
+                                              child: ConstrainedBox(
+                                                constraints: const BoxConstraints(maxWidth: 420),
+                                                child: Transform.translate(
+                                                  offset: const Offset(0, -40),
+                                                  child: const _PhoneMock(),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            left,
-                                            const SizedBox(height: 25),
-                                            const _HeroBottomBlock(),
-                                          ],
-                                        ),
-                                      ],
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              left,
+                                              const SizedBox(height: 25),
+                                              const _HeroBottomBlock(),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     );
                                   }
 
@@ -357,15 +360,24 @@ class _NavLink extends StatelessWidget {
 
 class _HeroCopy extends StatelessWidget {
   final TextTheme textTheme;
-  const _HeroCopy({required this.textTheme});
+  final bool compactTitle;
+
+  const _HeroCopy({
+    required this.textTheme,
+    this.compactTitle = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final title = compactTitle
+        ? 'Le moyen le plus simple\nd’entrer aux meilleurs\névénements'
+        : 'Le moyen le plus simple\nd’entrer aux meilleurs événements';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Explore, réserve et vis\nles meilleurs événements',
+          title,
           style: textTheme.displaySmall?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w900,
@@ -374,7 +386,7 @@ class _HeroCopy extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Billets, guestlists et recommandations pour\nne rien rater autour de toi.',
+          'Billets sécurisés, QR code et accès rapide.',
           style: textTheme.titleMedium?.copyWith(
             color: Colors.white.withValues(alpha: 0.72),
             fontWeight: FontWeight.w600,
