@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../ui/tikiya_colors.dart';
 import '../ui/pattern_band.dart';
@@ -39,33 +40,31 @@ class HomeScreen extends StatelessWidget {
                               LayoutBuilder(
                                 builder: (context, constraints) {
                                   final wide = constraints.maxWidth >= 920;
-                                  final left = _HeroCopy(textTheme: textTheme);
-                                  final right = const _PhoneMock();
-
                                   if (!wide) {
-                                    return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                    final left = _HeroCopy(textTheme: textTheme);
+                                    return Stack(
+                                      clipBehavior: Clip.none,
                                       children: [
-                                        left,
-                                        const SizedBox(height: 20),
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: ConstrainedBox(
-                                            constraints: const BoxConstraints(maxWidth: 420),
-                                            child: right,
+                                        Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: IgnorePointer(
+                                            child: ConstrainedBox(
+                                              constraints: const BoxConstraints(maxWidth: 420),
+                                              child: Transform.translate(
+                                                offset: const Offset(0, -40),
+                                                child: const _PhoneMock(),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                        const SizedBox(height: 22),
-                                        const _SearchPanel(),
-                                        const SizedBox(height: 14),
-                                        const _CategoryChips(),
-                                        const SizedBox(height: 18),
-                                        Center(
-                                          child: _PrimaryButton(
-                                            label: 'Voir tous les événements',
-                                            onPressed: () {},
-                                            icon: Icons.arrow_forward_rounded,
-                                          ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            left,
+                                            const SizedBox(height: 25),
+                                            const _HeroBottomBlock(),
+                                          ],
                                         ),
                                       ],
                                     );
@@ -73,33 +72,9 @@ class HomeScreen extends StatelessWidget {
 
                                   return Column(
                                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      Stack(
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Expanded(flex: 6, child: left),
-                                              const SizedBox(width: 28),
-                                              const Expanded(flex: 5, child: _PhoneMock()),
-                                            ],
-                                          ),
-                                          Positioned(
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 120,
-                                            child: Align(
-                                              alignment: const Alignment(0.10, 1.0),
-                                              child: ConstrainedBox(
-                                                constraints: const BoxConstraints(maxWidth: 940),
-                                                child: const _HeroBottomBlock(),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10),
+                                    children: const [
+                                      _HeroWide(),
+                                      SizedBox(height: 10),
                                     ],
                                   );
                                 },
@@ -117,6 +92,93 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _HeroWide extends StatefulWidget {
+  const _HeroWide();
+
+  @override
+  State<_HeroWide> createState() => _HeroWideState();
+}
+
+class _HeroWideState extends State<_HeroWide> {
+  double _leftHeight = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 6,
+              child: _MeasureSize(
+                onChange: (size) {
+                  if (!mounted) return;
+                  if ((size.height - _leftHeight).abs() <= 0.5) return;
+                  setState(() => _leftHeight = size.height);
+                },
+                child: _HeroCopy(textTheme: textTheme),
+              ),
+            ),
+            const SizedBox(width: 28),
+            const Expanded(flex: 5, child: _PhoneMock()),
+          ],
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: _leftHeight + 25,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 940),
+              child: const _HeroBottomBlock(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MeasureSize extends SingleChildRenderObjectWidget {
+  final ValueChanged<Size> onChange;
+
+  const _MeasureSize({
+    required this.onChange,
+    required super.child,
+  });
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderMeasureSize(onChange);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderMeasureSize).onChange = onChange;
+  }
+}
+
+class _RenderMeasureSize extends RenderProxyBox {
+  ValueChanged<Size> onChange;
+  Size? _oldSize;
+
+  _RenderMeasureSize(this.onChange);
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final newSize = child?.size ?? Size.zero;
+    if (_oldSize == newSize) return;
+    _oldSize = newSize;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onChange(newSize));
   }
 }
 
@@ -392,53 +454,74 @@ class _SearchPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _GlassCard(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      child: Column(
-        children: [
-          Row(
+    final textTheme = Theme.of(context).textTheme;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 940),
+        child: _GlassCard(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          child: Column(
             children: [
-              Icon(Icons.search_rounded, color: Colors.white.withValues(alpha: 0.75)),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.92), fontWeight: FontWeight.w600),
-                  decoration: InputDecoration(
-                    hintText: 'Rechercher un événement...',
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.45)),
-                    isDense: true,
-                    border: InputBorder.none,
-                  ),
+              Container(
+                height: 54,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  color: Colors.white.withValues(alpha: 0.06),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
                 ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                      child: Icon(Icons.search_rounded, color: Colors.white.withValues(alpha: 0.78), size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        style: textTheme.titleSmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          fontWeight: FontWeight.w700,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Rechercher un événement…',
+                          hintStyle: textTheme.titleSmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.40),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          isDense: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                alignment: WrapAlignment.center,
+                children: [
+                  const _FilterPill(icon: Icons.place_rounded, label: 'Alger'),
+                  const _FilterPill(icon: Icons.event_rounded, label: 'Ce week-end'),
+                  _FilterPill(
+                    icon: Icons.tune_rounded,
+                    label: 'Filtres',
+                    emphasis: true,
+                    onTap: () {},
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final compact = constraints.maxWidth < 720;
-
-              final pills = <Widget>[
-                const _FilterPill(icon: Icons.place_rounded, label: 'Paris'),
-                const _FilterPill(icon: Icons.event_rounded, label: 'Ce week-end'),
-                const _FilterPill(icon: Icons.auto_awesome_rounded, label: '+100 événement'),
-                _FilterPill(
-                  icon: Icons.tune_rounded,
-                  label: 'Filtres',
-                  emphasis: true,
-                  onTap: () {},
-                ),
-              ];
-
-              return Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                alignment: compact ? WrapAlignment.start : WrapAlignment.spaceBetween,
-                children: pills,
-              );
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -453,13 +536,12 @@ class _HeroBottomBlock extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const _SearchPanel(),
-        const SizedBox(height: 14),
-        const _CategoryChips(),
         const SizedBox(height: 18),
         Center(
           child: _PrimaryButton(
             label: 'Voir tous les événements',
             onPressed: () {},
+            icon: Icons.arrow_forward_rounded,
           ),
         ),
       ],
@@ -514,63 +596,6 @@ class _FilterPill extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CategoryChips extends StatelessWidget {
-  const _CategoryChips();
-
-  @override
-  Widget build(BuildContext context) {
-    final items = const [
-      (Icons.music_note_rounded, 'Musique'),
-      (Icons.palette_rounded, 'Culture'),
-      (Icons.celebration_rounded, 'Festival'),
-      (Icons.headphones_rounded, 'Techno'),
-    ];
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      alignment: WrapAlignment.center,
-      children: [
-        for (final it in items)
-          _CategoryChip(icon: it.$1, label: it.$2),
-      ],
-    );
-  }
-}
-
-class _CategoryChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _CategoryChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withValues(alpha: 0.06),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 18, color: Colors.white.withValues(alpha: 0.78)),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.86),
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-        ],
       ),
     );
   }
