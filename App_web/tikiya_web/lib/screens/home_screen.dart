@@ -234,7 +234,10 @@ class _TopNav extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   const _NavLink(label: 'Découvrir'),
-                  const _NavLink(label: 'Événements'),
+                  _NavLink(
+                    label: 'Événements',
+                    onTap: () => Navigator.of(context).pushNamed('/events'),
+                  ),
                   _NavLink(
                     label: 'Organisateurs',
                     onTap: () => Navigator.of(context).pushNamed('/orga'),
@@ -490,7 +493,7 @@ class _HeroBottomBlock extends StatelessWidget {
         Center(
           child: _PrimaryButton(
             label: 'Voir tous les événements',
-            onPressed: () {},
+            onPressed: () => Navigator.of(context).pushNamed('/events'),
             icon: Icons.arrow_forward_rounded,
           ),
         ),

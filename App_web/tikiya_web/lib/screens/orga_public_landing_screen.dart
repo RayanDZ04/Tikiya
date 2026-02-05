@@ -4,11 +4,16 @@ import 'package:google_fonts/google_fonts.dart';
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
 
-class OrgaPublicLandingScreen extends StatelessWidget {
+class OrgaPublicLandingScreen extends StatefulWidget {
   final VoidCallback onCta;
 
   const OrgaPublicLandingScreen({super.key, required this.onCta});
 
+  @override
+  State<OrgaPublicLandingScreen> createState() => _OrgaPublicLandingScreenState();
+}
+
+class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,31 +34,10 @@ class OrgaPublicLandingScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           Expanded(
-                            child: isWide
-                                ? Stack(
-                                    children: [
-                                      const Positioned.fill(
-                                        child: Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: _RightVisual(),
-                                        ),
-                                      ),
-                                      const Positioned.fill(
-                                        child: _LeftColumn(),
-                                      ),
-                                    ],
-                                  )
-                                : const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      _LeftColumn(),
-                                      SizedBox(height: 18),
-                                      Expanded(child: _RightVisual()),
-                                    ],
-                                  ),
+                            child: _HeroBody(isWide: isWide),
                           ),
                           const SizedBox(height: 18),
-                          _CtaButton(onPressed: onCta),
+                          _CtaButton(onPressed: widget.onCta),
                         ],
                       ),
                     ),
@@ -68,8 +52,52 @@ class OrgaPublicLandingScreen extends StatelessWidget {
   }
 }
 
+class _HeroBody extends StatelessWidget {
+  final bool isWide;
+
+  const _HeroBody({required this.isWide});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final desiredWidth = isWide
+            ? (constraints.maxWidth * 0.62).clamp(560.0, 820.0)
+            : (constraints.maxWidth * 0.90).clamp(320.0, 520.0);
+
+        final visualWidth = desiredWidth.clamp(0.0, constraints.maxWidth);
+        final bottomPadding = isWide ? 6.0 : 220.0;
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              right: 150,
+              bottom: -100,
+              child: IgnorePointer(
+                child: SizedBox(
+                  width: visualWidth,
+                  child: const _RightVisual(),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: _LeftColumn(bottomPadding: bottomPadding),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class _LeftColumn extends StatelessWidget {
-  const _LeftColumn();
+  final double bottomPadding;
+
+  const _LeftColumn({required this.bottomPadding});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +113,7 @@ class _LeftColumn extends StatelessWidget {
     return Align(
       alignment: Alignment.topLeft,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 6),
+        padding: EdgeInsets.only(bottom: bottomPadding),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: Column(
@@ -124,7 +152,7 @@ class _LeftColumn extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 26),
-              const _FeatureItem(
+              _FeatureItem(
                 icon: Icons.dashboard_outlined,
                 title: 'Tableau de bord complet',
                 subtitle: 'Suivez tous vos événements en\nun coup d\'œil',
@@ -227,37 +255,21 @@ class _RightVisual extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final isWide = size.width >= 980;
-
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final scale = isWide ? 2.2 : 1.1;
-          final horizontalOffset = isWide ? 240.0 : 0.0;
-          final verticalOffset = isWide ? 360.0 : 0.0;
-
-          return Transform.translate(
-            offset: Offset(horizontalOffset, verticalOffset),
-            child: Transform.scale(
-              scale: scale,
-              alignment: isWide ? Alignment.bottomRight : Alignment.bottomCenter,
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: constraints.maxWidth * 0.85,
-                  maxHeight: constraints.maxHeight * 0.8,
-                ),
-                child: Image.asset(
-                  'assets/ordi.png',
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.high,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth,
+            maxHeight: constraints.maxHeight,
+          ),
+          child: Image.asset(
+            'assets/ordi.png',
+            fit: BoxFit.contain,
+            alignment: Alignment.bottomCenter,
+            filterQuality: FilterQuality.high,
+          ),
+        );
+      },
     );
   }
 }
