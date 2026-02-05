@@ -246,7 +246,7 @@ class _HeroCopy extends StatelessWidget {
           runSpacing: 10,
           children: [
             _GooglePlayButton(
-              label: 'Télécharger avec Google Play',
+              label: 'Télécharger sur Google Play',
               onPressed: () {},
             ),
             _AppleStoreButton(
@@ -346,14 +346,7 @@ class _PrimaryButton extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            TikiyaColors.bleuCyan.withValues(alpha: 0.95),
-            const Color(0xFF3B82F6).withValues(alpha: 0.90),
-          ],
-        ),
+        color: TikiyaColors.bleuCyanPremium,
         boxShadow: const [
           BoxShadow(color: Color(0x44000000), blurRadius: 18, offset: Offset(0, 10)),
         ],

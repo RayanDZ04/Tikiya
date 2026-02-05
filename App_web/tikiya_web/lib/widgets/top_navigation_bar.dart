@@ -181,11 +181,7 @@ class _PillButton extends StatelessWidget {
       return DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(999),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1F5BFF), Color(0xFF00ACC1)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
+          color: TikiyaColors.bleuCyanPremium,
         ),
         child: TextButton(
           onPressed: onPressed,
