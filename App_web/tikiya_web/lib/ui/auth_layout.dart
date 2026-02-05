@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'tikiya_colors.dart';
+import '../widgets/top_navigation_bar.dart';
 
 class AuthLayout extends StatelessWidget {
   final Widget child;
@@ -9,6 +10,7 @@ class AuthLayout extends StatelessWidget {
   final bool showSideBands;
   final double sideBandWidth;
   final double sideBandOpacity;
+  final TopNavSection? activeNav;
 
   const AuthLayout({
     super.key,
@@ -17,6 +19,7 @@ class AuthLayout extends StatelessWidget {
     this.showSideBands = true,
     this.sideBandWidth = 64,
     this.sideBandOpacity = 0.16,
+    this.activeNav,
   });
 
   @override
@@ -27,7 +30,16 @@ class AuthLayout extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 56),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1180),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(26, 18, 26, 12),
+                    child: TopNavigationBar(active: activeNav),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
               Center(
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 520),

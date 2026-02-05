@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_theme.dart';
 import 'screens/events_screen.dart';
+import 'screens/help_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/landing_screen.dart';
 import 'screens/login_screen.dart';
@@ -30,6 +31,7 @@ class TikiyaWebApp extends StatelessWidget {
         '/': (_) => const HomeScreen(),
         '/landing': (_) => const LandingScreen(),
         '/events': (_) => const EventsScreen(),
+        '/help': (_) => const HelpScreen(),
         '/login': (_) => LoginScreen(authService: _authService, sessionStore: _sessionStore),
         '/register': (_) => RegisterScreen(authService: _authService, sessionStore: _sessionStore),
         '/participant': (_) => ParticipantHomeScreen(sessionStore: _sessionStore),

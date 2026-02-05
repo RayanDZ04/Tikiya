@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
+import '../widgets/top_navigation_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -197,98 +197,10 @@ class _TopNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final brandStyle = GoogleFonts.montserrat(
-      textStyle: textTheme.titleLarge,
-      fontSize: 28,
-      fontWeight: FontWeight.bold,
-      letterSpacing: 0.4,
-    );
-
-    return Row(
-      children: [
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Tikiya',
-                style: brandStyle.copyWith(color: Colors.white),
-              ),
-              TextSpan(
-                text: '!',
-                style: brandStyle.copyWith(color: TikiyaColors.bleuCyan),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 18),
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showLinks = constraints.maxWidth >= 520;
-              if (!showLinks) return const SizedBox.shrink();
-
-              return Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 14,
-                runSpacing: 8,
-                children: [
-                  const _NavLink(label: 'Découvrir'),
-                  _NavLink(
-                    label: 'Événements',
-                    onTap: () => Navigator.of(context).pushNamed('/events'),
-                  ),
-                  _NavLink(
-                    label: 'Organisateurs',
-                    onTap: () => Navigator.of(context).pushNamed('/orga'),
-                  ),
-                  const _NavLink(label: 'Aide'),
-                ],
-              );
-            },
-          ),
-        ),
-        Wrap(
-          spacing: 8,
-          children: [
-            _PillButton(
-              label: 'Se connecter',
-              onPressed: onLogin,
-              variant: _PillVariant.ghost,
-            ),
-            _PillButton(
-              label: 'Créer un compte',
-              onPressed: onRegister,
-              variant: _PillVariant.filled,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _NavLink extends StatelessWidget {
-  final String label;
-  final VoidCallback? onTap;
-
-  const _NavLink({required this.label, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(999),
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Colors.white.withValues(alpha: 0.88),
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-      ),
+    return TopNavigationBar(
+      active: TopNavSection.discover,
+      onLogin: onLogin,
+      onRegister: onRegister,
     );
   }
 }
@@ -334,7 +246,7 @@ class _HeroCopy extends StatelessWidget {
           runSpacing: 10,
           children: [
             _GooglePlayButton(
-              label: 'Installer avec Google Play',
+              label: 'Télécharger avec Google Play',
               onPressed: () {},
             ),
             _AppleStoreButton(
@@ -396,88 +308,6 @@ class _PhoneMock extends StatelessWidget {
   }
 }
 
-class _SearchPanel extends StatelessWidget {
-  final bool alignLeft;
-
-  const _SearchPanel({this.alignLeft = false});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    final panel = ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 940),
-      child: _GlassCard(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-        child: Column(
-          children: [
-              Container(
-                height: 54,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  color: Colors.white.withValues(alpha: 0.06),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
-                      child: Icon(Icons.search_rounded, color: Colors.white.withValues(alpha: 0.78), size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        style: textTheme.titleSmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.92),
-                          fontWeight: FontWeight.w700,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Rechercher un événement…',
-                          hintStyle: textTheme.titleSmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.40),
-                            fontWeight: FontWeight.w600,
-                          ),
-                          isDense: true,
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                alignment: alignLeft ? WrapAlignment.start : WrapAlignment.center,
-                children: [
-                  const _FilterPill(icon: Icons.place_rounded, label: 'Alger'),
-                  const _FilterPill(icon: Icons.event_rounded, label: 'Ce week-end'),
-                  _FilterPill(
-                    icon: Icons.tune_rounded,
-                    label: 'Filtres',
-                    emphasis: true,
-                    onTap: () {},
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-
-    return alignLeft
-        ? Align(alignment: Alignment.centerLeft, child: panel)
-        : Center(child: panel);
-  }
-}
-
 class _HeroBottomBlock extends StatelessWidget {
   final bool alignLeft;
 
@@ -488,8 +318,6 @@ class _HeroBottomBlock extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _SearchPanel(alignLeft: alignLeft),
-        const SizedBox(height: 18),
         Center(
           child: _PrimaryButton(
             label: 'Voir tous les événements',
@@ -498,142 +326,6 @@ class _HeroBottomBlock extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _FilterPill extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool emphasis;
-  final VoidCallback? onTap;
-
-  const _FilterPill({
-    required this.icon,
-    required this.label,
-    this.emphasis = false,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bg = emphasis
-        ? Colors.white.withValues(alpha: 0.14)
-        : Colors.white.withValues(alpha: 0.08);
-    final border = Colors.white.withValues(alpha: emphasis ? 0.28 : 0.16);
-
-    return Material(
-      color: bg,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.85)),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.90),
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-enum _PillVariant { filled, ghost }
-
-class _PillButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-  final _PillVariant variant;
-
-  const _PillButton({
-    required this.label,
-    required this.onPressed,
-    required this.variant,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bool filled = variant == _PillVariant.filled;
-
-    final bg = filled
-        ? TikiyaColors.bleuCyan.withValues(alpha: 0.95)
-        : Colors.white.withValues(alpha: 0.14);
-    final fg = Colors.white;
-    final border = filled ? Colors.transparent : Colors.white.withValues(alpha: 0.35);
-
-    return Material(
-      color: bg,
-      borderRadius: BorderRadius.circular(999),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: onPressed,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: border),
-          ),
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: fg,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.1,
-                ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-
-  const _GlassCard({
-    required this.child,
-    this.padding = const EdgeInsets.all(12),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.09),
-                Colors.white.withValues(alpha: 0.04),
-              ],
-            ),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-          ),
-          child: child,
-        ),
-      ),
     );
   }
 }

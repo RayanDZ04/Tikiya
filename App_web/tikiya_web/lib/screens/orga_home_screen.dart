@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/session_store.dart';
+import '../widgets/top_navigation_bar.dart';
 
 class OrgaHomeScreen extends StatelessWidget {
   final SessionStore sessionStore;
@@ -16,17 +17,40 @@ class OrgaHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Espace organisateur'),
-        actions: [
-          TextButton(
-            onPressed: () => _logout(context),
-            child: const Text('Se déconnecter', style: TextStyle(color: Colors.white)),
+      backgroundColor: const Color(0xFF070A14),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1180),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(26, 18, 26, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TopNavigationBar(
+                    active: TopNavSection.organizers,
+                    trailing: OutlinedButton(
+                      onPressed: () => _logout(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: BorderSide(color: Colors.white.withValues(alpha: 0.28)),
+                        shape: const StadiumBorder(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      ),
+                      child: const Text('Se déconnecter', style: TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  const Expanded(
+                    child: Center(
+                      child: Text('Bienvenue ! (organisateur)', style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
-      ),
-      body: const Center(
-        child: Text('Bienvenue ! (organisateur)'),
+        ),
       ),
     );
   }

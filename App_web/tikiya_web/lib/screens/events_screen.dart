@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
+import '../widgets/top_navigation_bar.dart';
 
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
@@ -25,7 +25,7 @@ class EventsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _TopNav(textTheme: textTheme),
+                      const TopNavigationBar(active: TopNavSection.events),
                       const SizedBox(height: 48),
                       _HeroTitle(textTheme: textTheme),
                       const SizedBox(height: 32),
@@ -44,140 +44,6 @@ class EventsScreen extends StatelessWidget {
   }
 }
 
-class _TopNav extends StatelessWidget {
-  final TextTheme textTheme;
-
-  const _TopNav({required this.textTheme});
-
-  @override
-  Widget build(BuildContext context) {
-    final brandStyle = GoogleFonts.montserrat(
-      textStyle: textTheme.titleLarge,
-      fontSize: 28,
-      fontWeight: FontWeight.bold,
-      letterSpacing: 0.4,
-    );
-
-    return Row(
-      children: [
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Tikiya',
-                style: brandStyle.copyWith(color: Colors.white),
-              ),
-              TextSpan(
-                text: '!',
-                style: brandStyle.copyWith(color: TikiyaColors.bleuCyan),
-              ),
-            ],
-          ),
-        ),
-        const Spacer(),
-        _NavButton(label: 'Découvrir', onPressed: () {}),
-        const SizedBox(width: 24),
-        _NavButton(label: 'Événements', onPressed: () {}),
-        const SizedBox(width: 24),
-        _NavButton(label: 'Organisateurs', onPressed: () {}),
-        const SizedBox(width: 24),
-        _NavButton(label: 'Aide', onPressed: () {}),
-        const SizedBox(width: 32),
-        _OutlineButton(label: 'Se connecter', onPressed: () {}),
-        const SizedBox(width: 12),
-        _PrimaryButton(label: 'Créer un compte', onPressed: () {}),
-      ],
-    );
-  }
-}
-
-class _NavButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-
-  const _NavButton({required this.label, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        foregroundColor: Colors.white.withValues(alpha: 0.9),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-}
-
-class _OutlineButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-
-  const _OutlineButton({required this.label, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-
-  const _PrimaryButton({required this.label, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1F5BFF), Color(0xFF00ACC1)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-      ),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _HeroTitle extends StatelessWidget {
   final TextTheme textTheme;
 
@@ -189,7 +55,7 @@ class _HeroTitle extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'À ne pas manquer à Alger',
+          'À ne pas manquer en Algérie',
           style: textTheme.displayMedium?.copyWith(
             fontSize: 42,
             fontWeight: FontWeight.w700,

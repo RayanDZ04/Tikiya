@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
+import '../widgets/top_navigation_bar.dart';
 
 class OrgaPublicLandingScreen extends StatefulWidget {
   final VoidCallback onCta;
@@ -33,6 +33,12 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                       padding: const EdgeInsets.fromLTRB(26, 18, 26, 24),
                       child: Column(
                         children: [
+                          TopNavigationBar(
+                            active: TopNavSection.organizers,
+                            onLogin: widget.onCta,
+                            onRegister: () => Navigator.of(context).pushNamed('/register'),
+                          ),
+                          const SizedBox(height: 28),
                           Expanded(
                             child: _HeroBody(isWide: isWide),
                           ),
@@ -103,13 +109,6 @@ class _LeftColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    final brandStyle = GoogleFonts.montserrat(
-      textStyle: textTheme.titleLarge,
-      fontSize: 28,
-      fontWeight: FontWeight.bold,
-      letterSpacing: 0.4,
-    );
-
     return Align(
       alignment: Alignment.topLeft,
       child: SingleChildScrollView(
@@ -119,21 +118,7 @@ class _LeftColumn extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Tikiya',
-                      style: brandStyle.copyWith(color: Colors.white),
-                    ),
-                    TextSpan(
-                      text: '!',
-                      style: brandStyle.copyWith(color: TikiyaColors.bleuCyan),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 8),
               Text(
                 'Boostez la vente de vos billets,\nsuivez vos événements\nen temps réel',
                 style: textTheme.displaySmall?.copyWith(
