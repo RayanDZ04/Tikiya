@@ -6,6 +6,7 @@ import '../ui/tikiya_colors.dart';
 enum TopNavSection {
   discover,
   events,
+  participants,
   organizers,
   help,
 }
@@ -15,6 +16,7 @@ class TopNavigationBar extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onLogin;
   final VoidCallback? onRegister;
+  final bool showParticipants;
 
   const TopNavigationBar({
     super.key,
@@ -22,6 +24,7 @@ class TopNavigationBar extends StatelessWidget {
     this.trailing,
     this.onLogin,
     this.onRegister,
+    this.showParticipants = true,
   });
 
   void _go(BuildContext context, String route) {
@@ -85,6 +88,14 @@ class TopNavigationBar extends StatelessWidget {
                           onTap: () => _go(context, '/events'),
                         ),
                         SizedBox(width: spacing),
+                        if (showParticipants) ...[
+                          _NavLink(
+                            label: 'Participants',
+                            isActive: active == TopNavSection.participants,
+                            onTap: () => _go(context, '/participant'),
+                          ),
+                          SizedBox(width: spacing),
+                        ],
                         _NavLink(
                           label: 'Organisateurs',
                           isActive: active == TopNavSection.organizers,
@@ -116,7 +127,7 @@ class TopNavigationBar extends StatelessWidget {
                 variant: _PillVariant.ghost,
               ),
               _PillButton(
-                label: 'Créer un compte',
+                label: 'S\'inscrire',
                 onPressed: onRegister ?? () => _go(context, '/register'),
                 variant: _PillVariant.primary,
               ),

@@ -100,6 +100,30 @@ class _HeroBody extends StatelessWidget {
   }
 }
 
+class _RightVisual extends StatelessWidget {
+  const _RightVisual();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth,
+            maxHeight: constraints.maxHeight,
+          ),
+          child: Image.asset(
+            'assets/ordi.png',
+            fit: BoxFit.contain,
+            alignment: Alignment.bottomCenter,
+            filterQuality: FilterQuality.high,
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _LeftColumn extends StatelessWidget {
   final double bottomPadding;
 
@@ -231,30 +255,6 @@ class _FeatureItem extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _RightVisual extends StatelessWidget {
-  const _RightVisual();
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: constraints.maxWidth,
-            maxHeight: constraints.maxHeight,
-          ),
-          child: Image.asset(
-            'assets/ordi.png',
-            fit: BoxFit.contain,
-            alignment: Alignment.bottomCenter,
-            filterQuality: FilterQuality.high,
-          ),
-        );
-      },
     );
   }
 }

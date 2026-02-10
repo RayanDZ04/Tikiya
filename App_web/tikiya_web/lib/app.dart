@@ -34,7 +34,7 @@ class TikiyaWebApp extends StatelessWidget {
         '/help': (_) => const HelpScreen(),
         '/login': (_) => LoginScreen(authService: _authService, sessionStore: _sessionStore),
         '/register': (_) => RegisterScreen(authService: _authService, sessionStore: _sessionStore),
-        '/participant': (_) => ParticipantHomeScreen(sessionStore: _sessionStore),
+        '/participant': (_) => const ParticipantHomeScreen(),
         '/orga': (_) => OrgaEntryScreen(sessionStore: _sessionStore),
       },
     );
