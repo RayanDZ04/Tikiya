@@ -68,6 +68,9 @@ flutter:
     - assets/ordi.png
     - assets/playstore.webp
     - assets/apple.png
+    - assets/Qr.png
+    - assets/Market.png
+    - assets/Pay.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
