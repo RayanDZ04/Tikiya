@@ -114,8 +114,9 @@ class _FeatureGrid extends StatelessWidget {
                     : 1;
 
             // PNG visibles en entier (pas de crop) + cartes compactes
-            final imageViewportHeight = 750.0;
-            final mainAxisExtent = imageViewportHeight + 8.0;
+            final imageViewportHeight = 470.0;
+            // Place pour: titre (haut) + description (bas) + paddings
+            final mainAxisExtent = imageViewportHeight + 108.0;
 
             return GridView(
               shrinkWrap: true,
@@ -132,24 +133,26 @@ class _FeatureGrid extends StatelessWidget {
                   subtitle: 'Votre billet généré\ninstantanément.',
                   asset: 'assets/Qr.png',
                   imageViewportHeight: imageViewportHeight,
-                  imageAlignment: Alignment.center,
-                  imageScale: 1.18,
+                  imageAlignment: Alignment.topCenter,
+                  imageScale: 1.08,
+                  imageYOffset: 10.0,
                 ),
                 _FeatureCard(
                   title: 'Billets\nMarketplace',
                   subtitle: 'Revendez vos billets\nfacilement.',
                   asset: 'assets/Market.png',
                   imageViewportHeight: imageViewportHeight,
-                  imageAlignment: Alignment.center,
-                  imageScale: 1.28,
+                  imageAlignment: Alignment.topCenter,
+                  imageScale: 1.22,
                 ),
                 _FeatureCard(
                   title: 'Paiement flexible',
                   subtitle: 'Carte bancaire ou en\nespèces au bureau de tabac.',
                   asset: 'assets/Pay.png',
                   imageViewportHeight: imageViewportHeight,
-                  imageAlignment: Alignment.center,
+                  imageAlignment: Alignment.topCenter,
                   imageScale: 1.28,
+                  imageYOffset: 50.0,
                 ),
               ],
             );
@@ -167,6 +170,7 @@ class _FeatureCard extends StatelessWidget {
   final double imageViewportHeight;
   final Alignment imageAlignment;
   final double imageScale;
+  final double imageYOffset;
 
   const _FeatureCard({
     required this.title,
@@ -175,6 +179,7 @@ class _FeatureCard extends StatelessWidget {
     required this.imageViewportHeight,
     this.imageAlignment = Alignment.center,
     this.imageScale = 1.0,
+    this.imageYOffset = 0.0,
   });
 
   @override
@@ -186,6 +191,7 @@ class _FeatureCard extends StatelessWidget {
       imageViewportHeight: imageViewportHeight,
       imageAlignment: imageAlignment,
       imageScale: imageScale,
+      imageYOffset: imageYOffset,
     );
   }
 }
@@ -197,6 +203,7 @@ class _HoverFeatureCard extends StatefulWidget {
   final double imageViewportHeight;
   final Alignment imageAlignment;
   final double imageScale;
+  final double imageYOffset;
 
   const _HoverFeatureCard({
     required this.title,
@@ -205,6 +212,7 @@ class _HoverFeatureCard extends StatefulWidget {
     required this.imageViewportHeight,
     this.imageAlignment = Alignment.center,
     this.imageScale = 1.0,
+    this.imageYOffset = 0.0,
   });
 
   @override
@@ -222,6 +230,19 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
     final borderAlpha = _hovered ? 0.22 : 0.10;
     final bgAlpha = _hovered ? 0.09 : 0.06;
     final glowAlpha = _hovered ? 0.22 : 0.12;
+
+    final titleStyle = textTheme.titleMedium?.copyWith(
+      color: Colors.white,
+      fontWeight: FontWeight.w900,
+      height: 1.05,
+      letterSpacing: 0.2,
+    );
+
+    final subtitleStyle = textTheme.bodyMedium?.copyWith(
+      color: Colors.white.withValues(alpha: 0.78),
+      fontWeight: FontWeight.w600,
+      height: 1.25,
+    );
 
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
@@ -274,75 +295,50 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.zero,
-                    child: SizedBox(
-                      height: widget.imageViewportHeight,
-                      width: double.infinity,
-                      child: Align(
-                        alignment: widget.imageAlignment,
-                        child: Transform.scale(
-                          scale: widget.imageScale,
-                          child: Image.asset(
-                            widget.asset,
-                            fit: BoxFit.contain,
-                            filterQuality: FilterQuality.high,
-                            errorBuilder: (context, error, stackTrace) => Icon(
-                              Icons.image_not_supported_outlined,
-                              color: Colors.white.withValues(alpha: 0.70),
-                              size: 40,
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.title,
+                          textAlign: TextAlign.center,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: titleStyle,
+                        ),
+                          const SizedBox(height: 4),
+                        SizedBox(
+                          height: widget.imageViewportHeight,
+                          width: double.infinity,
+                          child: Align(
+                            alignment: widget.imageAlignment,
+                            child: Transform.translate(
+                              offset: Offset(0, widget.imageYOffset),
+                              child: Transform.scale(
+                                scale: widget.imageScale,
+                                child: Image.asset(
+                                  widget.asset,
+                                  fit: BoxFit.contain,
+                                  filterQuality: FilterQuality.high,
+                                  errorBuilder: (context, error, stackTrace) => Icon(
+                                    Icons.image_not_supported_outlined,
+                                    color: Colors.white.withValues(alpha: 0.70),
+                                    size: 40,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            const Color(0xFF070A14).withValues(alpha: 0.72),
-                          ],
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.subtitle,
+                          textAlign: TextAlign.center,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: subtitleStyle,
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 18, 8, 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.title,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: textTheme.titleMedium?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                height: 1.05,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.subtitle,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.78),
-                                fontWeight: FontWeight.w600,
-                                height: 1.25,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      ],
                     ),
                   ),
                 ],

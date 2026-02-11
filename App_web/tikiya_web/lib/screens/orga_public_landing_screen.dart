@@ -73,6 +73,8 @@ class _HeroBody extends StatelessWidget {
 
         final visualWidth = desiredWidth.clamp(0.0, constraints.maxWidth);
         final bottomPadding = isWide ? 6.0 : 220.0;
+        final visualScale = isWide ? 1.08 : 1.0;
+        final visualYOffset = isWide ? 29.0 : 0.0;
 
         return Stack(
           clipBehavior: Clip.none,
@@ -83,7 +85,10 @@ class _HeroBody extends StatelessWidget {
               child: IgnorePointer(
                 child: SizedBox(
                   width: visualWidth,
-                  child: const _RightVisual(),
+                  child: _RightVisual(
+                    scale: visualScale,
+                    yOffset: visualYOffset,
+                  ),
                 ),
               ),
             ),
@@ -101,7 +106,10 @@ class _HeroBody extends StatelessWidget {
 }
 
 class _RightVisual extends StatelessWidget {
-  const _RightVisual();
+  final double scale;
+  final double yOffset;
+
+  const _RightVisual({this.scale = 1.0, this.yOffset = 0.0});
 
   @override
   Widget build(BuildContext context) {
@@ -112,11 +120,17 @@ class _RightVisual extends StatelessWidget {
             maxWidth: constraints.maxWidth,
             maxHeight: constraints.maxHeight,
           ),
-          child: Image.asset(
-            'assets/ordi.png',
-            fit: BoxFit.contain,
-            alignment: Alignment.bottomCenter,
-            filterQuality: FilterQuality.high,
+          child: Transform.translate(
+            offset: Offset(0, yOffset),
+            child: Transform.scale(
+              scale: scale,
+              child: Image.asset(
+                'assets/ordi.png',
+                fit: BoxFit.contain,
+                alignment: Alignment.bottomCenter,
+                filterQuality: FilterQuality.high,
+              ),
+            ),
           ),
         );
       },
