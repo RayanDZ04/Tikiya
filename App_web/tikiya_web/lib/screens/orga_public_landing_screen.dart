@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
-import '../widgets/top_navigation_bar.dart';
 
 class OrgaPublicLandingScreen extends StatefulWidget {
   final VoidCallback onCta;
@@ -33,17 +33,22 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                       padding: const EdgeInsets.fromLTRB(26, 18, 26, 24),
                       child: Column(
                         children: [
-                          TopNavigationBar(
-                            active: TopNavSection.organizers,
-                            onLogin: widget.onCta,
-                            onRegister: () => Navigator.of(context).pushNamed('/register'),
+                          Row(
+                            children: [
+                              const _BrandTitle(),
+                              const Spacer(),
+                              _TopLoginButton(onPressed: widget.onCta),
+                            ],
                           ),
                           const SizedBox(height: 28),
                           Expanded(
                             child: _HeroBody(isWide: isWide),
                           ),
                           const SizedBox(height: 18),
-                          _CtaButton(onPressed: widget.onCta),
+                          _CtaActions(
+                            onPrimary: widget.onCta,
+                            onSecondary: widget.onCta,
+                          ),
                         ],
                       ),
                     ),
@@ -101,6 +106,54 @@ class _HeroBody extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _BrandTitle extends StatelessWidget {
+  const _BrandTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final baseStyle = GoogleFonts.montserrat(
+      textStyle: textTheme.titleLarge,
+      fontSize: 28,
+      fontWeight: FontWeight.bold,
+      letterSpacing: 0.4,
+      color: Colors.white,
+    );
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: 'Tikiya', style: baseStyle),
+          TextSpan(
+            text: '!',
+            style: baseStyle.copyWith(color: TikiyaColors.bleuCyan),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TopLoginButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _TopLoginButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.28)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      child: const Text('Se connecter', style: TextStyle(fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -273,19 +326,58 @@ class _FeatureItem extends StatelessWidget {
   }
 }
 
-class _CtaButton extends StatelessWidget {
-  final VoidCallback onPressed;
+class _CtaActions extends StatelessWidget {
+  final VoidCallback onPrimary;
+  final VoidCallback onSecondary;
 
-  const _CtaButton({required this.onPressed});
+  const _CtaActions({required this.onPrimary, required this.onSecondary});
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return Center(
-      child: DecoratedBox(
+      child: Transform.translate(
+        offset: const Offset(0, -20),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          alignment: WrapAlignment.center,
+          children: [
+            _CtaButton(
+              label: 'Commencer maintenant',
+              onPressed: onPrimary,
+              variant: _CtaVariant.primary,
+            ),
+            _CtaButton(
+              label: 'Échanger sur vos besoins',
+              onPressed: onSecondary,
+              variant: _CtaVariant.ghost,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+enum _CtaVariant { primary, ghost }
+
+class _CtaButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final _CtaVariant variant;
+
+  const _CtaButton({
+    required this.label,
+    required this.onPressed,
+    required this.variant,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (variant == _CtaVariant.primary) {
+      return DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(8),
           gradient: const LinearGradient(
             colors: [Color(0xFF1F5BFF), Color(0xFF00ACC1)],
             begin: Alignment.centerLeft,
@@ -294,29 +386,35 @@ class _CtaButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF00ACC1).withValues(alpha: 0.30),
-              blurRadius: 26,
-              offset: const Offset(0, 12),
+              blurRadius: 22,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(999),
-            onTap: onPressed,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
-              child: Text(
-                'Accéder au panel organisateur',
-                style: textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
+        child: TextButton(
+          onPressed: onPressed,
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: const Text(
+            'Commencer maintenant',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
           ),
         ),
+      );
+    }
+
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.28)),
+        padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
+      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
     );
   }
 }

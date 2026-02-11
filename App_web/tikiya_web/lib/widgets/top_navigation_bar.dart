@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:html' as html;
 
 import '../ui/tikiya_colors.dart';
 
@@ -97,12 +98,6 @@ class TopNavigationBar extends StatelessWidget {
                           SizedBox(width: spacing),
                         ],
                         _NavLink(
-                          label: 'Organisateurs',
-                          isActive: active == TopNavSection.organizers,
-                          onTap: () => _go(context, '/orga'),
-                        ),
-                        SizedBox(width: spacing),
-                        _NavLink(
                           label: 'Aide',
                           isActive: active == TopNavSection.help,
                           onTap: () => _go(context, '/help'),
@@ -118,20 +113,34 @@ class TopNavigationBar extends StatelessWidget {
         if (trailing != null) ...[
           trailing!,
         ] else ...[
-          Wrap(
-            spacing: 8,
-            children: [
-              _PillButton(
-                label: 'Se connecter',
-                onPressed: onLogin ?? () => _go(context, '/login'),
-                variant: _PillVariant.ghost,
-              ),
-              _PillButton(
-                label: 'S\'inscrire',
-                onPressed: onRegister ?? () => _go(context, '/register'),
-                variant: _PillVariant.primary,
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = MediaQuery.of(context).size.width;
+              final showOrganizerCta = screenWidth >= 520;
+
+              return Wrap(
+                spacing: 8,
+                children: [
+                  if (showOrganizerCta)
+                    _PillButton(
+                      label: 'Je suis organisateur',
+                      onPressed: () => html.window
+                          .open('${html.window.location.origin}/#/orga', '_blank'),
+                      variant: _PillVariant.ghost,
+                    ),
+                  _PillButton(
+                    label: 'Se connecter',
+                    onPressed: onLogin ?? () => _go(context, '/login'),
+                    variant: _PillVariant.ghost,
+                  ),
+                  _PillButton(
+                    label: 'S\'inscrire',
+                    onPressed: onRegister ?? () => _go(context, '/register'),
+                    variant: _PillVariant.primary,
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ],
@@ -188,10 +197,12 @@ class _PillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const borderRadius = BorderRadius.all(Radius.circular(10));
+
     if (variant == _PillVariant.primary) {
       return DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: borderRadius,
           color: TikiyaColors.bleuCyanPremium,
         ),
         child: TextButton(
@@ -199,7 +210,7 @@ class _PillButton extends StatelessWidget {
           style: TextButton.styleFrom(
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            shape: const StadiumBorder(),
+            shape: const RoundedRectangleBorder(borderRadius: borderRadius),
           ),
           child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
         ),
@@ -212,7 +223,7 @@ class _PillButton extends StatelessWidget {
         foregroundColor: Colors.white,
         side: BorderSide(color: Colors.white.withValues(alpha: 0.28)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        shape: const StadiumBorder(),
+        shape: const RoundedRectangleBorder(borderRadius: borderRadius),
       ),
       child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
     );
