@@ -77,6 +77,21 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    Navigator.of(context).pushReplacementNamed('/');
+                  }
+                },
+                icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                label: const Text('Retour'),
+              ),
+            ),
+            const SizedBox(height: 6),
             Center(
               child: TikiyaLogo(showPro: isOrganizerMode),
             ),
