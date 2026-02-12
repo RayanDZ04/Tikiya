@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/session_store.dart';
 import '../widgets/top_navigation_bar.dart';
+import '../l10n/app_localizations.dart';
 
 class OrgaHomeScreen extends StatelessWidget {
   final SessionStore sessionStore;
@@ -16,6 +17,7 @@ class OrgaHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: const Color(0xFF070A14),
       body: SafeArea(
@@ -37,13 +39,19 @@ class OrgaHomeScreen extends StatelessWidget {
                         shape: const StadiumBorder(),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       ),
-                      child: const Text('Se déconnecter', style: TextStyle(fontWeight: FontWeight.w700)),
+                      child: Text(
+                        l10n.t('orga_logout'),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 40),
-                  const Expanded(
+                  Expanded(
                     child: Center(
-                      child: Text('Bienvenue ! (organisateur)', style: TextStyle(color: Colors.white)),
+                      child: Text(
+                        l10n.t('orga_welcome'),
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],

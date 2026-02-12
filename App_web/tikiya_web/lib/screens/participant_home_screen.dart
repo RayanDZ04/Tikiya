@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../ui/landing_background.dart';
 import '../widgets/top_navigation_bar.dart';
+import '../l10n/app_localizations.dart';
 
 class ParticipantHomeScreen extends StatelessWidget {
   const ParticipantHomeScreen({super.key});
@@ -9,6 +10,7 @@ class ParticipantHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: const Color(0xFF070A14),
@@ -39,9 +41,13 @@ class ParticipantHomeScreen extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _ParticipantHero(textTheme: textTheme, compact: !wide),
+                                  _ParticipantHero(
+                                    textTheme: textTheme,
+                                    l10n: l10n,
+                                    compact: !wide,
+                                  ),
                                   const SizedBox(height: 28),
-                                  _FeatureGrid(wide: wide),
+                                  _FeatureGrid(wide: wide, l10n: l10n),
                                 ],
                               ),
                             );
@@ -63,8 +69,9 @@ class ParticipantHomeScreen extends StatelessWidget {
 class _ParticipantHero extends StatelessWidget {
   final TextTheme textTheme;
   final bool compact;
+  final AppLocalizations l10n;
 
-  const _ParticipantHero({required this.textTheme, this.compact = false});
+  const _ParticipantHero({required this.textTheme, required this.l10n, this.compact = false});
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +84,10 @@ class _ParticipantHero extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Simplifiez vos sorties\navec Tikiya', style: titleStyle),
+        Text(l10n.t('participant_title'), style: titleStyle),
         const SizedBox(height: 14),
         Text(
-          'Accédez à vos billets, QR code et événements en un seul endroit.',
+          l10n.t('participant_subtitle'),
           style: textTheme.titleMedium?.copyWith(
             color: Colors.white.withValues(alpha: 0.72),
             fontWeight: FontWeight.w600,
@@ -94,8 +101,9 @@ class _ParticipantHero extends StatelessWidget {
 
 class _FeatureGrid extends StatelessWidget {
   final bool wide;
+  final AppLocalizations l10n;
 
-  const _FeatureGrid({required this.wide});
+  const _FeatureGrid({required this.wide, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -129,8 +137,8 @@ class _FeatureGrid extends StatelessWidget {
               ),
               children: [
                 _FeatureCard(
-                  title: 'Billet QR code\nsécurisé',
-                  subtitle: 'Votre billet généré\ninstantanément.',
+                  title: l10n.t('participant_feature1_title'),
+                  subtitle: l10n.t('participant_feature1_sub'),
                   asset: 'assets/Qr.png',
                   imageViewportHeight: imageViewportHeight,
                   imageAlignment: Alignment.topCenter,
@@ -138,16 +146,16 @@ class _FeatureGrid extends StatelessWidget {
                   imageYOffset: 10.0,
                 ),
                 _FeatureCard(
-                  title: 'Billets\nMarketplace',
-                  subtitle: 'Revendez vos billets\nfacilement.',
+                  title: l10n.t('participant_feature2_title'),
+                  subtitle: l10n.t('participant_feature2_sub'),
                   asset: 'assets/Market.png',
                   imageViewportHeight: imageViewportHeight,
                   imageAlignment: Alignment.topCenter,
                   imageScale: 1.22,
                 ),
                 _FeatureCard(
-                  title: 'Paiement flexible',
-                  subtitle: 'Carte bancaire ou en\nespèces au bureau de tabac.',
+                  title: l10n.t('participant_feature3_title'),
+                  subtitle: l10n.t('participant_feature3_sub'),
                   asset: 'assets/Pay.png',
                   imageViewportHeight: imageViewportHeight,
                   imageAlignment: Alignment.topCenter,

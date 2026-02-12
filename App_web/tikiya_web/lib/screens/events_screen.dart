@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
 import '../widgets/top_navigation_bar.dart';
+import '../l10n/app_localizations.dart';
 
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
@@ -10,6 +11,7 @@ class EventsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: const Color(0xFF070A14),
@@ -27,11 +29,11 @@ class EventsScreen extends StatelessWidget {
                     children: [
                       const TopNavigationBar(active: TopNavSection.events),
                       const SizedBox(height: 48),
-                      _HeroTitle(textTheme: textTheme),
+                      _HeroTitle(textTheme: textTheme, l10n: l10n),
                       const SizedBox(height: 32),
-                      _SearchBar(),
+                      _SearchBar(l10n: l10n),
                       const SizedBox(height: 64),
-                      const Expanded(child: _EmptyState()),
+                      Expanded(child: _EmptyState(l10n: l10n)),
                     ],
                   ),
                 ),
@@ -46,8 +48,9 @@ class EventsScreen extends StatelessWidget {
 
 class _HeroTitle extends StatelessWidget {
   final TextTheme textTheme;
+  final AppLocalizations l10n;
 
-  const _HeroTitle({required this.textTheme});
+  const _HeroTitle({required this.textTheme, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +58,7 @@ class _HeroTitle extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'À ne pas manquer en Algérie',
+          l10n.t('events_title'),
           style: textTheme.displayMedium?.copyWith(
             fontSize: 42,
             fontWeight: FontWeight.w700,
@@ -65,7 +68,7 @@ class _HeroTitle extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Découvrez et réservez vos prochains événements: concerts,\nsoirées, spectacles et plus encore.',
+          l10n.t('events_subtitle'),
           style: textTheme.bodyLarge?.copyWith(
             fontSize: 16,
             color: Colors.white.withValues(alpha: 0.7),
@@ -79,6 +82,10 @@ class _HeroTitle extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
+  final AppLocalizations l10n;
+
+  const _SearchBar({required this.l10n});
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -96,7 +103,7 @@ class _SearchBar extends StatelessWidget {
             child: TextField(
               style: const TextStyle(color: Colors.white, fontSize: 15),
               decoration: InputDecoration(
-                hintText: 'Rechercher un événement...',
+                hintText: l10n.t('events_search_hint'),
                 hintStyle: TextStyle(
                   color: Colors.white.withValues(alpha: 0.4),
                   fontSize: 15,
@@ -118,19 +125,19 @@ class _SearchBar extends StatelessWidget {
         const SizedBox(width: 12),
         _FilterChip(
           icon: Icons.calendar_today,
-          label: 'Alger',
+          label: l10n.t('events_filter_city'),
           onPressed: () {},
         ),
         const SizedBox(width: 12),
         _FilterChip(
           icon: Icons.date_range,
-          label: 'Ce week-end',
+          label: l10n.t('events_filter_weekend'),
           onPressed: () {},
         ),
         const SizedBox(width: 12),
         _FilterChip(
           icon: Icons.tune,
-          label: 'Filtres',
+          label: l10n.t('events_filter_filters'),
           onPressed: () {},
         ),
       ],
@@ -192,7 +199,9 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+  final AppLocalizations l10n;
+
+  const _EmptyState({required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +229,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 28),
           Text(
-            'Aucun événement pour le moment',
+            l10n.t('events_empty_title'),
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -229,7 +238,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Les événements à venir seront bientôt disponibles.\nRevenez plus tard pour découvrir nos prochains événements !',
+            l10n.t('events_empty_body'),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,

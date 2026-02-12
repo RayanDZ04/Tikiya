@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'tikiya_colors.dart';
 import '../widgets/top_navigation_bar.dart';
+import '../l10n/app_localizations.dart';
 
 class AuthLayout extends StatefulWidget {
   final Widget child;
@@ -213,6 +214,8 @@ class TikiyaLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final baseText = l10n.t('app_title');
     final baseStyle = GoogleFonts.montserrat(
       fontSize: fontSize,
       fontWeight: FontWeight.w700,
@@ -229,7 +232,7 @@ class TikiyaLogo extends StatelessWidget {
 
     final baseSpan = TextSpan(
       children: [
-        TextSpan(text: 'Tikiya', style: baseStyle),
+        TextSpan(text: baseText, style: baseStyle),
         TextSpan(text: '!', style: accentStyle),
       ],
     );

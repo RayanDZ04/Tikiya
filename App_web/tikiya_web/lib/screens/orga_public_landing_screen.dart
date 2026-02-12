@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
+import '../l10n/app_localizations.dart';
+import '../widgets/language_menu.dart';
 
 class OrgaPublicLandingScreen extends StatefulWidget {
   final VoidCallback onLogin;
@@ -23,6 +25,8 @@ class OrgaPublicLandingScreen extends StatefulWidget {
 class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Scaffold(
       backgroundColor: TikiyaColors.grisFonce,
       body: LayoutBuilder(
@@ -50,19 +54,34 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                         children: [
                           Row(
                             children: [
-                              const _BrandTitle(),
-                              const Spacer(),
-                              _TopLoginButton(onPressed: widget.onLogin),
+                              if (isRtl) ...[
+                                _TopLoginButton(
+                                  onPressed: widget.onLogin,
+                                  label: l10n.t('cta_login'),
+                                ),
+                                const SizedBox(width: 10),
+                                const LanguageMenu(),
+                                const Spacer(),
+                                const _BrandTitle(),
+                              ] else ...[
+                                const _BrandTitle(),
+                                const Spacer(),
+                                const LanguageMenu(),
+                                const SizedBox(width: 10),
+                                _TopLoginButton(
+                                  onPressed: widget.onLogin,
+                                  label: l10n.t('cta_login'),
+                                ),
+                              ],
                             ],
                           ),
                           const SizedBox(height: 28),
-                          Expanded(
-                            child: _HeroBody(isWide: isWide),
-                          ),
+                          Expanded(child: _HeroBody(isWide: isWide, l10n: l10n)),
                           const SizedBox(height: 18),
                           _CtaActions(
                             onPrimary: widget.onRegister,
                             onSecondary: widget.onNeeds,
+                            l10n: l10n,
                           ),
                         ],
                       ),
@@ -80,11 +99,14 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
 
 class _HeroBody extends StatelessWidget {
   final bool isWide;
+  final AppLocalizations l10n;
 
-  const _HeroBody({required this.isWide});
+  const _HeroBody({required this.isWide, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final desiredWidth = isWide
@@ -100,7 +122,8 @@ class _HeroBody extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             Positioned(
-              right: 150,
+              right: isRtl ? null : 150,
+              left: isRtl ? 150 : null,
               bottom: -100,
               child: IgnorePointer(
                 child: SizedBox(
@@ -114,8 +137,12 @@ class _HeroBody extends StatelessWidget {
             ),
             Positioned.fill(
               child: Align(
-                alignment: Alignment.topLeft,
-                child: _LeftColumn(bottomPadding: bottomPadding),
+                alignment: isRtl ? Alignment.topRight : Alignment.topLeft,
+                child: _LeftColumn(
+                  bottomPadding: bottomPadding,
+                  l10n: l10n,
+                  isRtl: isRtl,
+                ),
               ),
             ),
           ],
@@ -131,6 +158,8 @@ class _BrandTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     final baseStyle = GoogleFonts.montserrat(
       textStyle: textTheme.titleLarge,
       fontSize: 28,
@@ -142,7 +171,7 @@ class _BrandTitle extends StatelessWidget {
     return Text.rich(
       TextSpan(
         children: [
-          TextSpan(text: 'Tikiya', style: baseStyle),
+          TextSpan(text: l10n.t('app_title'), style: baseStyle),
           TextSpan(
             text: '!',
             style: baseStyle.copyWith(color: TikiyaColors.bleuCyan),
@@ -157,6 +186,7 @@ class _BrandTitle extends StatelessWidget {
           ),
         ],
       ),
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
     );
   }
 }
@@ -164,8 +194,9 @@ class _BrandTitle extends StatelessWidget {
 
 class _TopLoginButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final String label;
 
-  const _TopLoginButton({required this.onPressed});
+  const _TopLoginButton({required this.onPressed, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +208,7 @@ class _TopLoginButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      child: const Text('Se connecter', style: TextStyle(fontWeight: FontWeight.w700)),
+      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -217,25 +248,32 @@ class _RightVisual extends StatelessWidget {
 
 class _LeftColumn extends StatelessWidget {
   final double bottomPadding;
+  final AppLocalizations l10n;
+  final bool isRtl;
 
-  const _LeftColumn({required this.bottomPadding});
+  const _LeftColumn({
+    required this.bottomPadding,
+    required this.l10n,
+    required this.isRtl,
+  });
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return Align(
-      alignment: Alignment.topLeft,
+      alignment: isRtl ? Alignment.topRight : Alignment.topLeft,
       child: SingleChildScrollView(
         padding: EdgeInsets.only(bottom: bottomPadding),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
               Text(
-                'Boostez la vente de vos billets,\nsuivez vos événements\nen temps réel',
+                l10n.t('orga_public_title'),
+                textAlign: isRtl ? TextAlign.right : TextAlign.left,
                 style: textTheme.displaySmall?.copyWith(
                   height: 1.1,
                   fontWeight: FontWeight.w700,
@@ -244,7 +282,8 @@ class _LeftColumn extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               Text(
-                'Proposez vos événements, boostez vos ventes et\naccédez aux meilleures statistiques avec\nun panel organisateur intuitif.',
+                l10n.t('orga_public_subtitle'),
+                textAlign: isRtl ? TextAlign.right : TextAlign.left,
                 style: textTheme.bodyLarge?.copyWith(
                   height: 1.55,
                   color: Colors.white.withValues(alpha: 0.72),
@@ -254,26 +293,30 @@ class _LeftColumn extends StatelessWidget {
               const SizedBox(height: 26),
               _FeatureItem(
                 icon: Icons.dashboard_outlined,
-                title: 'Tableau de bord complet',
-                subtitle: 'Suivez tous vos événements en\nun coup d\'œil',
+                title: l10n.t('orga_feature1_title'),
+                subtitle: l10n.t('orga_feature1_sub'),
+                isRtl: isRtl,
               ),
               const SizedBox(height: 16),
-              const _FeatureItem(
+              _FeatureItem(
                 icon: Icons.insights_outlined,
-                title: 'Statistiques en temps réel',
-                subtitle: 'Consultez vos ventes, billets vendus,\net tendances en direct',
+                title: l10n.t('orga_feature2_title'),
+                subtitle: l10n.t('orga_feature2_sub'),
+                isRtl: isRtl,
               ),
               const SizedBox(height: 16),
-              const _FeatureItem(
+              _FeatureItem(
                 icon: Icons.add_box_outlined,
-                title: 'Création d\'événements facile',
-                subtitle: 'Postez vos événements\nen quelques clics',
+                title: l10n.t('orga_feature3_title'),
+                subtitle: l10n.t('orga_feature3_sub'),
+                isRtl: isRtl,
               ),
               const SizedBox(height: 16),
-              const _FeatureItem(
+              _FeatureItem(
                 icon: Icons.tune_outlined,
-                title: 'Gestion en live',
-                subtitle: 'Modifiez la capacité, ouvrez les ventes,\nsuivez les entrées',
+                title: l10n.t('orga_feature4_title'),
+                subtitle: l10n.t('orga_feature4_sub'),
+                isRtl: isRtl,
               ),
             ],
           ),
@@ -287,65 +330,79 @@ class _FeatureItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final bool isRtl;
 
   const _FeatureItem({
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.isRtl = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
+    final content = Expanded(
+      child: Column(
+        crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            textAlign: isRtl ? TextAlign.right : TextAlign.left,
+            style: textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            textAlign: isRtl ? TextAlign.right : TextAlign.left,
+            style: textTheme.bodyMedium?.copyWith(
+              height: 1.35,
+              color: Colors.white.withValues(alpha: 0.65),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final iconBadge = Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2B6DFF), TikiyaColors.bleuCyan],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2B6DFF).withValues(alpha: 0.32),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: Colors.white, size: 18),
+    );
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [Color(0xFF2B6DFF), TikiyaColors.bleuCyan],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF2B6DFF).withValues(alpha: 0.32),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
-              ),
+      children: isRtl
+          ? [
+              content,
+              const SizedBox(width: 12),
+              iconBadge,
+            ]
+          : [
+              iconBadge,
+              const SizedBox(width: 12),
+              content,
             ],
-          ),
-          child: Icon(icon, color: Colors.white, size: 18),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: textTheme.bodyMedium?.copyWith(
-                  height: 1.35,
-                  color: Colors.white.withValues(alpha: 0.65),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -353,29 +410,33 @@ class _FeatureItem extends StatelessWidget {
 class _CtaActions extends StatelessWidget {
   final VoidCallback onPrimary;
   final VoidCallback onSecondary;
+  final AppLocalizations l10n;
 
-  const _CtaActions({required this.onPrimary, required this.onSecondary});
+  const _CtaActions({required this.onPrimary, required this.onSecondary, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final primary = _CtaButton(
+      label: l10n.t('orga_cta_primary'),
+      onPressed: onPrimary,
+      variant: _CtaVariant.primary,
+    );
+    final secondary = _CtaButton(
+      label: l10n.t('orga_cta_secondary'),
+      onPressed: onSecondary,
+      variant: _CtaVariant.ghost,
+    );
+
     return Center(
       child: Transform.translate(
         offset: const Offset(0, -20),
         child: Wrap(
           spacing: 12,
           runSpacing: 12,
-          alignment: WrapAlignment.center,
+          alignment: isRtl ? WrapAlignment.end : WrapAlignment.center,
           children: [
-            _CtaButton(
-              label: 'Commencer maintenant',
-              onPressed: onPrimary,
-              variant: _CtaVariant.primary,
-            ),
-            _CtaButton(
-              label: 'Échanger sur vos besoins',
-              onPressed: onSecondary,
-              variant: _CtaVariant.ghost,
-            ),
+            if (isRtl) ...[secondary, primary] else ...[primary, secondary],
           ],
         ),
       ),
@@ -422,9 +483,9 @@ class _CtaButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          child: const Text(
-            'Commencer maintenant',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
           ),
         ),
       );

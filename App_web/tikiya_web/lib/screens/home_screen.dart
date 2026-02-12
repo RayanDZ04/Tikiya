@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
 import '../widgets/top_navigation_bar.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,6 +13,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: const Color(0xFF070A14),
@@ -41,7 +43,11 @@ class HomeScreen extends StatelessWidget {
                                 builder: (context, constraints) {
                                   final wide = constraints.maxWidth >= 920;
                                   if (!wide) {
-                                    final left = _HeroCopy(textTheme: textTheme, compactTitle: true);
+                                    final left = _HeroCopy(
+                                      textTheme: textTheme,
+                                      l10n: l10n,
+                                      compactTitle: true,
+                                    );
                                     return Padding(
                                       padding: const EdgeInsets.only(top: 30),
                                       child: Stack(
@@ -65,7 +71,7 @@ class HomeScreen extends StatelessWidget {
                                             children: [
                                               left,
                                               const SizedBox(height: 25),
-                                              const _HeroBottomBlock(),
+                                              _HeroBottomBlock(l10n: l10n),
                                             ],
                                           ),
                                         ],
@@ -75,9 +81,9 @@ class HomeScreen extends StatelessWidget {
 
                                   return Column(
                                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: const [
-                                      _HeroWide(),
-                                      SizedBox(height: 10),
+                                    children: [
+                                      _HeroWide(l10n: l10n),
+                                      const SizedBox(height: 10),
                                     ],
                                   );
                                 },
@@ -99,7 +105,9 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _HeroWide extends StatefulWidget {
-  const _HeroWide();
+  final AppLocalizations l10n;
+
+  const _HeroWide({required this.l10n});
 
   @override
   State<_HeroWide> createState() => _HeroWideState();
@@ -126,7 +134,7 @@ class _HeroWideState extends State<_HeroWide> {
                   if ((size.height - _leftHeight).abs() <= 0.5) return;
                   setState(() => _leftHeight = size.height);
                 },
-                child: _HeroCopy(textTheme: textTheme),
+                child: _HeroCopy(textTheme: textTheme, l10n: widget.l10n),
               ),
             ),
             const SizedBox(width: 28),
@@ -141,7 +149,7 @@ class _HeroWideState extends State<_HeroWide> {
             alignment: Alignment.topLeft,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 940),
-              child: const _HeroBottomBlock(alignLeft: true),
+              child: _HeroBottomBlock(alignLeft: true, l10n: widget.l10n),
             ),
           ),
         ),
@@ -208,17 +216,17 @@ class _TopNav extends StatelessWidget {
 class _HeroCopy extends StatelessWidget {
   final TextTheme textTheme;
   final bool compactTitle;
+  final AppLocalizations l10n;
 
   const _HeroCopy({
     required this.textTheme,
+    required this.l10n,
     this.compactTitle = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final title = compactTitle
-        ? 'Le moyen le plus simple\nd’entrer aux meilleurs\névénements'
-        : 'Le moyen le plus simple\nd’entrer aux meilleurs événements';
+    final title = compactTitle ? l10n.t('home_title_compact') : l10n.t('home_title_full');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +241,7 @@ class _HeroCopy extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Billets sécurisés, QR code et accès rapide.',
+          l10n.t('home_subtitle'),
           style: textTheme.titleMedium?.copyWith(
             color: Colors.white.withValues(alpha: 0.72),
             fontWeight: FontWeight.w600,
@@ -246,11 +254,11 @@ class _HeroCopy extends StatelessWidget {
           runSpacing: 10,
           children: [
             _GooglePlayButton(
-              label: 'Télécharger sur Google Play',
+              label: l10n.t('home_google_play'),
               onPressed: () {},
             ),
             _AppleStoreButton(
-              label: "Télécharger sur l’App Store",
+              label: l10n.t('home_app_store'),
               onPressed: () {},
             ),
           ],
@@ -266,7 +274,7 @@ class _PhoneMock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Aperçu de l’application mobile',
+      label: context.l10n.t('home_phone_semantics'),
       image: true,
       child: Stack(
         alignment: Alignment.center,
@@ -310,8 +318,9 @@ class _PhoneMock extends StatelessWidget {
 
 class _HeroBottomBlock extends StatelessWidget {
   final bool alignLeft;
+  final AppLocalizations l10n;
 
-  const _HeroBottomBlock({this.alignLeft = false});
+  const _HeroBottomBlock({this.alignLeft = false, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -319,10 +328,10 @@ class _HeroBottomBlock extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Transform.translate(
-          offset: const Offset(-20, 0),
+          offset: const Offset(-40000, 0),
           child: Center(
             child: _PrimaryButton(
-              label: 'Voir tous les événements',
+              label: l10n.t('home_view_events'),
               onPressed: () => Navigator.of(context).pushNamed('/events'),
               icon: Icons.arrow_forward_rounded,
             ),

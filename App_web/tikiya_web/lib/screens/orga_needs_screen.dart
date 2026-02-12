@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../ui/landing_background.dart';
 import '../ui/tikiya_colors.dart';
+import '../l10n/app_localizations.dart';
+import '../widgets/language_menu.dart';
 
 class OrgaNeedsScreen extends StatefulWidget {
   const OrgaNeedsScreen({super.key});
@@ -30,6 +32,7 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: TikiyaColors.grisFonce,
       body: SafeArea(
@@ -51,9 +54,12 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: const _BrandTitle(),
+                      Row(
+                        children: [
+                          const _BrandTitle(),
+                          const Spacer(),
+                          const LanguageMenu(),
+                        ],
                       ),
                       const SizedBox(height: 6),
                       Align(
@@ -67,7 +73,7 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                             }
                           },
                           icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                          label: const Text('Retour'),
+                          label: Text(l10n.t('cta_back')),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.white.withValues(alpha: 0.8),
                           ),
@@ -100,7 +106,7 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
                                     Text(
-                                      'Présentez-nous votre activité',
+                                      l10n.t('orga_needs_title'),
                                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w700,
@@ -108,14 +114,14 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
-                                      'Vous serez recontacté par notre équipe',
+                                      l10n.t('orga_needs_subtitle'),
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                             color: Colors.white.withValues(alpha: 0.75),
                                           ),
                                     ),
                                     const SizedBox(height: 10),
                                     Text(
-                                      'Ce formulaire est réservé aux organisateurs & agences',
+                                      l10n.t('orga_needs_note'),
                                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                             color: Colors.white.withValues(alpha: 0.65),
                                           ),
@@ -126,20 +132,20 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                       left: Column(
                                         crossAxisAlignment: CrossAxisAlignment.stretch,
                                         children: [
-                                          _FieldLabel('Prénom*'),
+                                          _FieldLabel(l10n.t('field_first_name')),
                                           _DarkTextField(
                                             controller: _firstName,
-                                            hintText: 'Ryad',
+                                            hintText: l10n.t('hint_first_name'),
                                           ),
                                         ],
                                       ),
                                       right: Column(
                                         crossAxisAlignment: CrossAxisAlignment.stretch,
                                         children: [
-                                          _FieldLabel('Nom*'),
+                                          _FieldLabel(l10n.t('field_last_name')),
                                           _DarkTextField(
                                             controller: _lastName,
-                                            hintText: 'Mahrez',
+                                            hintText: l10n.t('hint_last_name'),
                                           ),
                                         ],
                                       ),
@@ -150,10 +156,10 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                       left: Column(
                                         crossAxisAlignment: CrossAxisAlignment.stretch,
                                         children: [
-                                          _FieldLabel('E-mail*'),
+                                          _FieldLabel(l10n.t('field_email')),
                                           _DarkTextField(
                                             controller: _email,
-                                            hintText: 'votre@email-pro.dz',
+                                            hintText: l10n.t('hint_email'),
                                             keyboardType: TextInputType.emailAddress,
                                           ),
                                         ],
@@ -161,20 +167,20 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                       right: Column(
                                         crossAxisAlignment: CrossAxisAlignment.stretch,
                                         children: [
-                                          _FieldLabel('Téléphone*'),
+                                          _FieldLabel(l10n.t('field_phone')),
                                           _DarkTextField(
                                             controller: _phone,
-                                            hintText: '+213 # ## ## ## ##',
+                                            hintText: l10n.t('hint_phone'),
                                             keyboardType: TextInputType.phone,
                                           ),
                                         ],
                                       ),
                                     ),
                                     const SizedBox(height: 14),
-                                    _FieldLabel('Site web*'),
+                                    _FieldLabel(l10n.t('field_website')),
                                     _DarkTextField(
                                       controller: _instagram,
-                                      hintText: 'Liens de votre site',
+                                      hintText: l10n.t('hint_website'),
                                     ),
                                     const SizedBox(height: 22),
                                     SizedBox(
@@ -188,9 +194,9 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                             borderRadius: BorderRadius.circular(10),
                                           ),
                                         ),
-                                        child: const Text(
-                                          'Soumettre mes informations',
-                                          style: TextStyle(fontWeight: FontWeight.w700),
+                                        child: Text(
+                                          l10n.t('orga_needs_submit'),
+                                          style: const TextStyle(fontWeight: FontWeight.w700),
                                         ),
                                       ),
                                     ),
@@ -239,6 +245,7 @@ class _BrandTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final brandStyle = GoogleFonts.montserrat(
       textStyle: textTheme.titleLarge,
@@ -251,7 +258,7 @@ class _BrandTitle extends StatelessWidget {
     return Text.rich(
       TextSpan(
         children: [
-          TextSpan(text: 'Tikiya', style: brandStyle),
+          TextSpan(text: l10n.t('app_title'), style: brandStyle),
           TextSpan(
             text: '!',
             style: brandStyle.copyWith(color: TikiyaColors.bleuCyan),

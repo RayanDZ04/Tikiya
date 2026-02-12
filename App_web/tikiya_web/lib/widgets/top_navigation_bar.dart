@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:html' as html;
 
 import '../ui/tikiya_colors.dart';
+import '../l10n/app_localizations.dart';
+import 'language_menu.dart';
 
 enum TopNavSection {
   discover,
@@ -36,6 +38,7 @@ class TopNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final routeName = ModalRoute.of(context)?.settings.name;
     final showProBrand = routeName == '/orga-login' || routeName == '/orga-register';
     final brandStyle = GoogleFonts.montserrat(
@@ -53,7 +56,7 @@ class TopNavigationBar extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(
-                text: 'Tikiya',
+                text: l10n.t('app_title'),
                 style: brandStyle.copyWith(color: Colors.white),
               ),
               TextSpan(
@@ -91,20 +94,20 @@ class TopNavigationBar extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               _NavLink(
-                                label: 'Découvrir',
+                                label: l10n.t('nav_discover'),
                                 isActive: active == TopNavSection.discover,
                                 onTap: () => _go(context, '/'),
                               ),
                               SizedBox(width: spacing),
                               _NavLink(
-                                label: 'Événements',
+                                label: l10n.t('nav_events'),
                                 isActive: active == TopNavSection.events,
                                 onTap: () => _go(context, '/events'),
                               ),
                               SizedBox(width: spacing),
                               if (showParticipants) ...[
                                 _NavLink(
-                                  label: 'Participants',
+                                  label: l10n.t('nav_participants'),
                                   isActive: active == TopNavSection.participants,
                                   onTap: () => _go(context, '/participant'),
                                 ),
@@ -129,9 +132,9 @@ class TopNavigationBar extends StatelessWidget {
               final routeName = ModalRoute.of(context)?.settings.name;
               final organizerAuthRoute =
                   routeName == '/orga-login' || routeName == '/orga-register';
-              final organizerCtaLabel = organizerAuthRoute
-                  ? 'Je suis participant'
-                  : 'Je suis organisateur';
+                final organizerCtaLabel = organizerAuthRoute
+                  ? l10n.t('cta_im_participant')
+                  : l10n.t('cta_im_organizer');
                 final organizerCtaUrl = organizerAuthRoute
                   ? '${html.window.location.origin}/#/participant'
                   : '${html.window.location.origin}/#/orga';
@@ -140,6 +143,7 @@ class TopNavigationBar extends StatelessWidget {
               return Wrap(
                 spacing: 8,
                 children: [
+                  const LanguageMenu(),
                   if (showOrganizerCta)
                     _PillButton(
                       label: organizerCtaLabel,
@@ -149,12 +153,12 @@ class TopNavigationBar extends StatelessWidget {
                     ),
                   if (showAuthButtons) ...[
                     _PillButton(
-                      label: 'Se connecter',
+                      label: l10n.t('cta_login'),
                       onPressed: onLogin ?? () => _go(context, '/login'),
                       variant: _PillVariant.ghost,
                     ),
                     _PillButton(
-                      label: 'S\'inscrire',
+                      label: l10n.t('cta_register'),
                       onPressed: onRegister ?? () => _go(context, '/register'),
                       variant: _PillVariant.primary,
                     ),

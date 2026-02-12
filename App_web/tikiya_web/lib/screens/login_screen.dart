@@ -6,6 +6,7 @@ import '../ui/auth_layout.dart';
 import '../ui/tikiya_colors.dart';
 import '../ui/tikiya_form_widgets.dart';
 import '../widgets/top_navigation_bar.dart';
+import '../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
@@ -65,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final routeName = ModalRoute.of(context)?.settings.name;
     final isOrganizerRoute = routeName == '/orga-login';
     final isOrganizerMode = widget.isOrganizerMode || isOrganizerRoute;
@@ -88,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                 },
                 icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                label: const Text('Retour'),
+                label: Text(l10n.t('cta_back')),
               ),
             ),
             const SizedBox(height: 6),
@@ -97,25 +99,29 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              'Connexion',
+              l10n.t('auth_login_title'),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
             const SizedBox(height: 20),
-            const TikiyaLabel('Email'),
+            TikiyaLabel(l10n.t('auth_email')),
             TikiyaTextField(
               controller: _email,
               keyboardType: TextInputType.emailAddress,
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Email requis' : null,
+              validator: (v) => (v == null || v.trim().isEmpty)
+                  ? l10n.t('auth_email_required')
+                  : null,
             ),
             const SizedBox(height: 18),
-            const TikiyaLabel('Mot de passe'),
+            TikiyaLabel(l10n.t('auth_password')),
             TikiyaTextField(
               controller: _password,
               obscureText: true,
-              validator: (v) => (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
+              validator: (v) => (v == null || v.isEmpty)
+                  ? l10n.t('auth_password_required')
+                  : null,
             ),
             const SizedBox(height: 16),
             if (_error != null)
@@ -144,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Se connecter'),
+                      : Text(l10n.t('cta_login')),
                 ),
               ),
             ),
@@ -155,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   : () => Navigator.of(context).pushReplacementNamed(
                         isOrganizerMode ? '/orga-register' : '/register',
                       ),
-              child: const Text("Pas de compte ? S'inscrire"),
+              child: Text(l10n.t('auth_no_account')),
             ),
           ],
         ),
