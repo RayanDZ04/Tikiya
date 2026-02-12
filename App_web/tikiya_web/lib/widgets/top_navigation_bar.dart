@@ -9,7 +9,6 @@ enum TopNavSection {
   events,
   participants,
   organizers,
-  help,
 }
 
 class TopNavigationBar extends StatelessWidget {
@@ -111,11 +110,6 @@ class TopNavigationBar extends StatelessWidget {
                                 ),
                                 SizedBox(width: spacing),
                               ],
-                              _NavLink(
-                                label: 'Aide',
-                                isActive: active == TopNavSection.help,
-                                onTap: () => _go(context, '/help'),
-                              ),
                             ],
                           ),
                         ),
