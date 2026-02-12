@@ -51,9 +51,27 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Align(
+                      Align(
                         alignment: Alignment.topLeft,
-                        child: _BrandTitle(),
+                        child: const _BrandTitle(),
+                      ),
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: TextButton.icon(
+                          onPressed: () {
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            } else {
+                              Navigator.of(context).pushNamed('/orga');
+                            }
+                          },
+                          icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                          label: const Text('Retour'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white.withValues(alpha: 0.8),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 18),
                       ConstrainedBox(

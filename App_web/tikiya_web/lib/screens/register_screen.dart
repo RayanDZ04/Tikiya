@@ -86,7 +86,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TikiyaLogo(showPro: isOrganizerMode),
+            Center(
+              child: TikiyaLogo(showPro: isOrganizerMode),
+            ),
             const SizedBox(height: 10),
             Text(
               'Inscription',
@@ -110,33 +112,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               validator: (v) => (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
             ),
             const SizedBox(height: 16),
-            if (!widget.isOrganizerMode) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Text('Je suis :', style: Theme.of(context).textTheme.titleMedium),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    ChoiceChip(
-                      label: const Text('Participant'),
-                      selected: _role == 'participant',
-                      onSelected: _loading ? null : (_) => setState(() => _role = 'participant'),
-                    ),
-                    ChoiceChip(
-                      label: const Text('Organisateur'),
-                      selected: _role == 'organizer',
-                      onSelected: _loading ? null : (_) => setState(() => _role = 'organizer'),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ] else ...[
+            if (isOrganizerMode) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Text(

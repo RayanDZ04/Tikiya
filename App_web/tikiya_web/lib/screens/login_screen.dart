@@ -77,7 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TikiyaLogo(showPro: isOrganizerMode),
+            Center(
+              child: TikiyaLogo(showPro: isOrganizerMode),
+            ),
             const SizedBox(height: 10),
             Text(
               'Connexion',
