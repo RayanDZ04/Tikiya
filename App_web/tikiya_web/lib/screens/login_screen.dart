@@ -3,16 +3,20 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/session_store.dart';
 import '../ui/auth_layout.dart';
+import '../ui/tikiya_colors.dart';
 import '../ui/tikiya_form_widgets.dart';
+import '../widgets/top_navigation_bar.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
   final SessionStore sessionStore;
+  final bool isOrganizerMode;
 
   const LoginScreen({
     super.key,
     required this.authService,
     required this.sessionStore,
+    this.isOrganizerMode = false,
   });
 
   @override
@@ -61,13 +65,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final routeName = ModalRoute.of(context)?.settings.name;
+    final isOrganizerRoute = routeName == '/orga-login';
+    final isOrganizerMode = widget.isOrganizerMode || isOrganizerRoute;
+
     return AuthLayout(
+      backgroundColor: isOrganizerMode ? TikiyaColors.grisFonce : TikiyaColors.bleuProfond,
+      activeNav: isOrganizerMode ? TopNavSection.organizers : null,
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const TikiyaLogo(),
+            TikiyaLogo(showPro: isOrganizerMode),
             const SizedBox(height: 10),
             Text(
               'Connexion',
@@ -123,7 +133,11 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 10),
             TextButton(
-              onPressed: _loading ? null : () => Navigator.of(context).pushReplacementNamed('/register'),
+              onPressed: _loading
+                  ? null
+                  : () => Navigator.of(context).pushReplacementNamed(
+                        isOrganizerMode ? '/orga-register' : '/register',
+                      ),
               child: const Text("Pas de compte ? S'inscrire"),
             ),
           ],

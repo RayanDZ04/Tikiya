@@ -5,9 +5,16 @@ import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
 
 class OrgaPublicLandingScreen extends StatefulWidget {
-  final VoidCallback onCta;
+  final VoidCallback onLogin;
+  final VoidCallback onRegister;
+  final VoidCallback onNeeds;
 
-  const OrgaPublicLandingScreen({super.key, required this.onCta});
+  const OrgaPublicLandingScreen({
+    super.key,
+    required this.onLogin,
+    required this.onRegister,
+    required this.onNeeds,
+  });
 
   @override
   State<OrgaPublicLandingScreen> createState() => _OrgaPublicLandingScreenState();
@@ -17,14 +24,22 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF070A14),
+      backgroundColor: TikiyaColors.grisFonce,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth >= 980;
 
           return Stack(
             children: [
-              const Positioned.fill(child: LandingBackground()),
+              Positioned.fill(
+                child: LandingBackground(
+                  baseColor: TikiyaColors.grisFonce,
+                  darkColor: const Color(0xFF111111),
+                  showPatternBands: true,
+                  bandBaseColor: const Color(0xFF2B2B2B),
+                  bandAccentColor: const Color(0xFF9E9E9E),
+                ),
+              ),
               SafeArea(
                 child: Center(
                   child: ConstrainedBox(
@@ -37,7 +52,7 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                             children: [
                               const _BrandTitle(),
                               const Spacer(),
-                              _TopLoginButton(onPressed: widget.onCta),
+                              _TopLoginButton(onPressed: widget.onLogin),
                             ],
                           ),
                           const SizedBox(height: 28),
@@ -46,8 +61,8 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                           ),
                           const SizedBox(height: 18),
                           _CtaActions(
-                            onPrimary: widget.onCta,
-                            onSecondary: widget.onCta,
+                            onPrimary: widget.onRegister,
+                            onSecondary: widget.onNeeds,
                           ),
                         ],
                       ),
@@ -132,11 +147,20 @@ class _BrandTitle extends StatelessWidget {
             text: '!',
             style: baseStyle.copyWith(color: TikiyaColors.bleuCyan),
           ),
+          TextSpan(
+            text: ' Pro',
+            style: baseStyle.copyWith(
+              fontSize: 24,
+              fontWeight: FontWeight.w300,
+              color: Colors.white.withOpacity(0.8),
+            ),
+          ),
         ],
       ),
     );
   }
 }
+
 
 class _TopLoginButton extends StatelessWidget {
   final VoidCallback onPressed;

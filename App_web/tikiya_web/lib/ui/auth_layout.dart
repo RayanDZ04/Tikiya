@@ -11,6 +11,7 @@ class AuthLayout extends StatelessWidget {
   final double sideBandWidth;
   final double sideBandOpacity;
   final TopNavSection? activeNav;
+  final Color backgroundColor;
 
   const AuthLayout({
     super.key,
@@ -20,12 +21,13 @@ class AuthLayout extends StatelessWidget {
     this.sideBandWidth = 64,
     this.sideBandOpacity = 0.16,
     this.activeNav,
+    this.backgroundColor = TikiyaColors.bleuProfond,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: TikiyaColors.bleuProfond,
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -123,8 +125,9 @@ class AuthLayout extends StatelessWidget {
 
 class TikiyaLogo extends StatelessWidget {
   final double fontSize;
+  final bool showPro;
 
-  const TikiyaLogo({super.key, this.fontSize = 32});
+  const TikiyaLogo({super.key, this.fontSize = 32, this.showPro = false});
 
   @override
   Widget build(BuildContext context) {
@@ -149,6 +152,16 @@ class TikiyaLogo extends StatelessWidget {
               letterSpacing: 0.8,
             ),
           ),
+          if (showPro)
+            TextSpan(
+              text: ' Pro',
+              style: GoogleFonts.montserrat(
+                fontSize: fontSize - 4,
+                fontWeight: FontWeight.w400,
+                color: TikiyaColors.grisFonce,
+                letterSpacing: 0.6,
+              ),
+            ),
         ],
       ),
       textAlign: TextAlign.center,

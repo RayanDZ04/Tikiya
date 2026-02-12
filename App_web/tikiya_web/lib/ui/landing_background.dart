@@ -6,7 +6,26 @@ import 'pattern_band.dart';
 import 'tikiya_colors.dart';
 
 class LandingBackground extends StatefulWidget {
-  const LandingBackground({super.key});
+  final Color? baseColor;
+  final Color? darkColor;
+  final Color? glowColor;
+  final Color? accentGlowColor;
+  final Color? streakColor;
+  final bool showPatternBands;
+  final Color? bandBaseColor;
+  final Color? bandAccentColor;
+
+  const LandingBackground({
+    super.key,
+    this.baseColor,
+    this.darkColor,
+    this.glowColor,
+    this.accentGlowColor,
+    this.streakColor,
+    this.showPatternBands = true,
+    this.bandBaseColor,
+    this.bandAccentColor,
+  });
 
   @override
   State<LandingBackground> createState() => _LandingBackgroundState();
@@ -52,8 +71,9 @@ class _LandingBackgroundState extends State<LandingBackground> with SingleTicker
                       center: gradientCenter,
                       radius: 1.05,
                       colors: [
-                        TikiyaColors.bleuProfond.withValues(alpha: 0.95),
-                        const Color(0xFF070A14),
+                        (widget.baseColor ?? TikiyaColors.bleuProfond)
+                            .withValues(alpha: 0.95),
+                        widget.darkColor ?? const Color(0xFF070A14),
                       ],
                     ),
                   ),
@@ -64,18 +84,18 @@ class _LandingBackgroundState extends State<LandingBackground> with SingleTicker
               Positioned(
                 left: -140 + 28 * wave2,
                 top: 120 + 22 * wave,
-                child: const _GlowBlob(
+                child: _GlowBlob(
                   size: 280,
-                  color: TikiyaColors.bleuCyan,
+                  color: widget.glowColor ?? TikiyaColors.bleuCyan,
                   opacity: 0.14,
                 ),
               ),
               Positioned(
                 right: -120 + 18 * wave,
                 top: 40 + 18 * wave3,
-                child: const _GlowBlob(
+                child: _GlowBlob(
                   size: 220,
-                  color: Color(0xFF3B82F6),
+                  color: widget.accentGlowColor ?? const Color(0xFF3B82F6),
                   opacity: 0.12,
                 ),
               ),
@@ -104,9 +124,12 @@ class _LandingBackgroundState extends State<LandingBackground> with SingleTicker
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [
-                          TikiyaColors.bleuCyan.withValues(alpha: 0.0),
-                          TikiyaColors.bleuCyan.withValues(alpha: streakAlpha),
-                          TikiyaColors.bleuCyan.withValues(alpha: 0.0),
+                          (widget.streakColor ?? TikiyaColors.bleuCyan)
+                              .withValues(alpha: 0.0),
+                          (widget.streakColor ?? TikiyaColors.bleuCyan)
+                              .withValues(alpha: streakAlpha),
+                          (widget.streakColor ?? TikiyaColors.bleuCyan)
+                              .withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -137,29 +160,35 @@ class _LandingBackgroundState extends State<LandingBackground> with SingleTicker
                 ),
               ),
 
-              // Animated moucharabieh-like side bands
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: _AnimatedPatternBand(
-                  animation: _controller,
-                  width: 120,
-                  baseOpacity: 0.10,
-                  phase: 0.0,
+              if (widget.showPatternBands) ...[
+                // Animated moucharabieh-like side bands
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: _AnimatedPatternBand(
+                    animation: _controller,
+                    width: 120,
+                    baseOpacity: 0.10,
+                    phase: 0.0,
+                    bandBaseColor: widget.bandBaseColor,
+                    bandAccentColor: widget.bandAccentColor,
+                  ),
                 ),
-              ),
-              Positioned(
-                right: 0,
-                top: 0,
-                bottom: 0,
-                child: _AnimatedPatternBand(
-                  animation: _controller,
-                  width: 120,
-                  baseOpacity: 0.10,
-                  phase: 0.55,
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: _AnimatedPatternBand(
+                    animation: _controller,
+                    width: 120,
+                    baseOpacity: 0.10,
+                    phase: 0.55,
+                    bandBaseColor: widget.bandBaseColor,
+                    bandAccentColor: widget.bandAccentColor,
+                  ),
                 ),
-              ),
+              ],
             ],
           );
         },
@@ -204,12 +233,16 @@ class _AnimatedPatternBand extends StatelessWidget {
   final double width;
   final double baseOpacity;
   final double phase;
+  final Color? bandBaseColor;
+  final Color? bandAccentColor;
 
   const _AnimatedPatternBand({
     required this.animation,
     required this.width,
     required this.baseOpacity,
     required this.phase,
+    this.bandBaseColor,
+    this.bandAccentColor,
   });
 
   @override
@@ -243,7 +276,12 @@ class _AnimatedPatternBand extends StatelessWidget {
             child: ShaderMask(
               blendMode: BlendMode.srcATop,
               shaderCallback: (rect) => shimmer.createShader(rect),
-              child: PatternBand(width: width, opacity: opacity),
+              child: PatternBand(
+                width: width,
+                opacity: opacity,
+                baseColor: bandBaseColor ?? TikiyaColors.bleuProfond,
+                accentColor: bandAccentColor ?? TikiyaColors.bleuCyan,
+              ),
             ),
           );
         },

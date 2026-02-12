@@ -7,11 +7,15 @@ import 'tikiya_colors.dart';
 class PatternBand extends StatelessWidget {
   final double width;
   final double opacity;
+  final Color baseColor;
+  final Color accentColor;
 
   const PatternBand({
     super.key,
     this.width = 120,
     this.opacity = 0.22,
+    this.baseColor = TikiyaColors.bleuProfond,
+    this.accentColor = TikiyaColors.bleuCyan,
   });
 
   @override
@@ -20,7 +24,11 @@ class PatternBand extends StatelessWidget {
       child: SizedBox(
         width: width,
         child: CustomPaint(
-          painter: _PatternPainter(opacity: opacity),
+          painter: _PatternPainter(
+            opacity: opacity,
+            baseColor: baseColor,
+            accentColor: accentColor,
+          ),
         ),
       ),
     );
@@ -29,19 +37,25 @@ class PatternBand extends StatelessWidget {
 
 class _PatternPainter extends CustomPainter {
   final double opacity;
+  final Color baseColor;
+  final Color accentColor;
 
-  const _PatternPainter({required this.opacity});
+  const _PatternPainter({
+    required this.opacity,
+    required this.baseColor,
+    required this.accentColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     // Base background gradient-ish
     final bg = Paint()
-      ..shader = const LinearGradient(
+      ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          Color(0xFF0B1C3E),
-          Color(0xFF0B1C3E),
+          baseColor,
+          baseColor,
         ],
       ).createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, bg);
@@ -85,7 +99,7 @@ class _PatternPainter extends CustomPainter {
         canvas.drawPath(inner, line..strokeWidth = 1.6);
 
         // Small cross flower
-        final petal = Paint()..color = TikiyaColors.bleuCyan.withValues(alpha: opacity * 0.65);
+        final petal = Paint()..color = accentColor.withValues(alpha: opacity * 0.65);
         canvas.save();
         canvas.translate(cx, cy);
         for (var i = 0; i < 4; i++) {
@@ -132,6 +146,8 @@ class _PatternPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _PatternPainter oldDelegate) {
-    return oldDelegate.opacity != opacity;
+    return oldDelegate.opacity != opacity ||
+        oldDelegate.baseColor != baseColor ||
+        oldDelegate.accentColor != accentColor;
   }
 }

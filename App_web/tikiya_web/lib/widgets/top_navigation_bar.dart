@@ -37,12 +37,16 @@ class TopNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final routeName = ModalRoute.of(context)?.settings.name;
+    final showProBrand = routeName == '/orga-login' || routeName == '/orga-register';
     final brandStyle = GoogleFonts.montserrat(
       textStyle: textTheme.titleLarge,
       fontSize: 28,
       fontWeight: FontWeight.bold,
       letterSpacing: 0.4,
     );
+
+    final showNavLinks = !showProBrand;
 
     return Row(
       children: [
@@ -57,58 +61,69 @@ class TopNavigationBar extends StatelessWidget {
                 text: '!',
                 style: brandStyle.copyWith(color: TikiyaColors.bleuCyan),
               ),
+              if (showProBrand)
+                TextSpan(
+                  text: ' Pro',
+                  style: brandStyle.copyWith(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
+                ),
             ],
           ),
         ),
         const SizedBox(width: 18),
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Always keep page names visible; on small screens, allow horizontal scrolling.
-              final spacing = constraints.maxWidth >= 520 ? 14.0 : 8.0;
+          child: showNavLinks
+              ? LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Always keep page names visible; on small screens, allow horizontal scrolling.
+                    final spacing = constraints.maxWidth >= 520 ? 14.0 : 8.0;
 
-              return Align(
-                alignment: Alignment.center,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _NavLink(
-                          label: 'Découvrir',
-                          isActive: active == TopNavSection.discover,
-                          onTap: () => _go(context, '/'),
-                        ),
-                        SizedBox(width: spacing),
-                        _NavLink(
-                          label: 'Événements',
-                          isActive: active == TopNavSection.events,
-                          onTap: () => _go(context, '/events'),
-                        ),
-                        SizedBox(width: spacing),
-                        if (showParticipants) ...[
-                          _NavLink(
-                            label: 'Participants',
-                            isActive: active == TopNavSection.participants,
-                            onTap: () => _go(context, '/participant'),
+                    return Align(
+                      alignment: Alignment.center,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _NavLink(
+                                label: 'Découvrir',
+                                isActive: active == TopNavSection.discover,
+                                onTap: () => _go(context, '/'),
+                              ),
+                              SizedBox(width: spacing),
+                              _NavLink(
+                                label: 'Événements',
+                                isActive: active == TopNavSection.events,
+                                onTap: () => _go(context, '/events'),
+                              ),
+                              SizedBox(width: spacing),
+                              if (showParticipants) ...[
+                                _NavLink(
+                                  label: 'Participants',
+                                  isActive: active == TopNavSection.participants,
+                                  onTap: () => _go(context, '/participant'),
+                                ),
+                                SizedBox(width: spacing),
+                              ],
+                              _NavLink(
+                                label: 'Aide',
+                                isActive: active == TopNavSection.help,
+                                onTap: () => _go(context, '/help'),
+                              ),
+                            ],
                           ),
-                          SizedBox(width: spacing),
-                        ],
-                        _NavLink(
-                          label: 'Aide',
-                          isActive: active == TopNavSection.help,
-                          onTap: () => _go(context, '/help'),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
+                      ),
+                    );
+                  },
+                )
+              : const SizedBox.shrink(),
         ),
         if (trailing != null) ...[
           trailing!,
@@ -117,27 +132,39 @@ class TopNavigationBar extends StatelessWidget {
             builder: (context, constraints) {
               final screenWidth = MediaQuery.of(context).size.width;
               final showOrganizerCta = screenWidth >= 520;
+              final routeName = ModalRoute.of(context)?.settings.name;
+              final organizerAuthRoute =
+                  routeName == '/orga-login' || routeName == '/orga-register';
+              final organizerCtaLabel = organizerAuthRoute
+                  ? 'Je suis participant'
+                  : 'Je suis organisateur';
+                final organizerCtaUrl = organizerAuthRoute
+                  ? '${html.window.location.origin}/#/participant'
+                  : '${html.window.location.origin}/#/orga';
+              final showAuthButtons = !organizerAuthRoute;
 
               return Wrap(
                 spacing: 8,
                 children: [
                   if (showOrganizerCta)
                     _PillButton(
-                      label: 'Je suis organisateur',
-                      onPressed: () => html.window
-                          .open('${html.window.location.origin}/#/orga', '_blank'),
+                      label: organizerCtaLabel,
+                      onPressed: () => html.window.open(organizerCtaUrl, '_blank'),
+                      variant: _PillVariant.ghost,
+                      trailingIcon: Icons.north_east_rounded,
+                    ),
+                  if (showAuthButtons) ...[
+                    _PillButton(
+                      label: 'Se connecter',
+                      onPressed: onLogin ?? () => _go(context, '/login'),
                       variant: _PillVariant.ghost,
                     ),
-                  _PillButton(
-                    label: 'Se connecter',
-                    onPressed: onLogin ?? () => _go(context, '/login'),
-                    variant: _PillVariant.ghost,
-                  ),
-                  _PillButton(
-                    label: 'S\'inscrire',
-                    onPressed: onRegister ?? () => _go(context, '/register'),
-                    variant: _PillVariant.primary,
-                  ),
+                    _PillButton(
+                      label: 'S\'inscrire',
+                      onPressed: onRegister ?? () => _go(context, '/register'),
+                      variant: _PillVariant.primary,
+                    ),
+                  ],
                 ],
               );
             },
@@ -188,11 +215,13 @@ class _PillButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final _PillVariant variant;
+  final IconData? trailingIcon;
 
   const _PillButton({
     required this.label,
     required this.onPressed,
     required this.variant,
+    this.trailingIcon,
   });
 
   @override
@@ -212,7 +241,7 @@ class _PillButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             shape: const RoundedRectangleBorder(borderRadius: borderRadius),
           ),
-          child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+          child: _PillLabel(label: label, trailingIcon: trailingIcon),
         ),
       );
     }
@@ -225,7 +254,30 @@ class _PillButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: const RoundedRectangleBorder(borderRadius: borderRadius),
       ),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+      child: _PillLabel(label: label, trailingIcon: trailingIcon),
+    );
+  }
+}
+
+class _PillLabel extends StatelessWidget {
+  final String label;
+  final IconData? trailingIcon;
+
+  const _PillLabel({required this.label, this.trailingIcon});
+
+  @override
+  Widget build(BuildContext context) {
+    if (trailingIcon == null) {
+      return Text(label, style: const TextStyle(fontWeight: FontWeight.w700));
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(width: 8),
+        Icon(trailingIcon, size: 16),
+      ],
     );
   }
 }

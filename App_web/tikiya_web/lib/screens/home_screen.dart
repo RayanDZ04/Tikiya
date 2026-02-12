@@ -318,11 +318,14 @@ class _HeroBottomBlock extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Center(
-          child: _PrimaryButton(
-            label: 'Voir tous les événements',
-            onPressed: () => Navigator.of(context).pushNamed('/events'),
-            icon: Icons.arrow_forward_rounded,
+        Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Center(
+            child: _PrimaryButton(
+              label: 'Voir tous les événements',
+              onPressed: () => Navigator.of(context).pushNamed('/events'),
+              icon: Icons.arrow_forward_rounded,
+            ),
           ),
         ),
       ],
@@ -343,26 +346,16 @@ class _PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
-        color: TikiyaColors.bleuCyanPremium,
-        boxShadow: const [
-          BoxShadow(color: Color(0x44000000), blurRadius: 18, offset: Offset(0, 10)),
-        ],
-      ),
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: icon == null ? const SizedBox.shrink() : Icon(icon, size: 18),
-        label: Text(label),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-          textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
-        ),
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: icon == null ? const SizedBox.shrink() : Icon(icon, size: 18),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.28)),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
       ),
     );
   }

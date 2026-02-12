@@ -26,7 +26,9 @@ class OrgaEntryScreen extends StatelessWidget {
 
         if (user == null) {
           return OrgaPublicLandingScreen(
-            onCta: () => Navigator.of(context).pushNamed('/login'),
+            onLogin: () => Navigator.of(context).pushNamed('/orga-login'),
+            onRegister: () => Navigator.of(context).pushNamed('/orga-register'),
+            onNeeds: () => Navigator.of(context).pushNamed('/orga-needs'),
           );
         }
 

@@ -3,16 +3,20 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/session_store.dart';
 import '../ui/auth_layout.dart';
+import '../ui/tikiya_colors.dart';
 import '../ui/tikiya_form_widgets.dart';
+import '../widgets/top_navigation_bar.dart';
 
 class RegisterScreen extends StatefulWidget {
   final AuthService authService;
   final SessionStore sessionStore;
+  final bool isOrganizerMode;
 
   const RegisterScreen({
     super.key,
     required this.authService,
     required this.sessionStore,
+    this.isOrganizerMode = false,
   });
 
   @override
@@ -24,9 +28,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
 
-  String _role = 'participant';
+  late String _role;
   bool _loading = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _role = widget.isOrganizerMode ? 'organizer' : 'participant';
+  }
 
   @override
   void dispose() {
@@ -64,13 +74,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final routeName = ModalRoute.of(context)?.settings.name;
+    final isOrganizerRoute = routeName == '/orga-register';
+    final isOrganizerMode = widget.isOrganizerMode || isOrganizerRoute;
+
     return AuthLayout(
+      backgroundColor: isOrganizerMode ? TikiyaColors.grisFonce : TikiyaColors.bleuProfond,
+      activeNav: isOrganizerMode ? TopNavSection.organizers : null,
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const TikiyaLogo(),
+            TikiyaLogo(showPro: isOrganizerMode),
             const SizedBox(height: 10),
             Text(
               'Inscription',
@@ -94,31 +110,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
               validator: (v) => (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
             ),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Text('Je suis :', style: Theme.of(context).textTheme.titleMedium),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  ChoiceChip(
-                    label: const Text('Participant'),
-                    selected: _role == 'participant',
-                    onSelected: _loading ? null : (_) => setState(() => _role = 'participant'),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Organisateur'),
-                    selected: _role == 'organizer',
-                    onSelected: _loading ? null : (_) => setState(() => _role = 'organizer'),
-                  ),
-                ],
+            if (!widget.isOrganizerMode) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text('Je suis :', style: Theme.of(context).textTheme.titleMedium),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    ChoiceChip(
+                      label: const Text('Participant'),
+                      selected: _role == 'participant',
+                      onSelected: _loading ? null : (_) => setState(() => _role = 'participant'),
+                    ),
+                    ChoiceChip(
+                      label: const Text('Organisateur'),
+                      selected: _role == 'organizer',
+                      onSelected: _loading ? null : (_) => setState(() => _role = 'organizer'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ] else ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text(
+                  'Compte organisateur',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -151,7 +178,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 10),
             TextButton(
-              onPressed: _loading ? null : () => Navigator.of(context).pushReplacementNamed('/login'),
+              onPressed: _loading
+                  ? null
+                  : () => Navigator.of(context).pushReplacementNamed(
+                        isOrganizerMode ? '/orga-login' : '/login',
+                      ),
               child: const Text('Déjà un compte ? Se connecter'),
             ),
           ],
