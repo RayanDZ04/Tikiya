@@ -215,19 +215,24 @@ class TikiyaLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final locale = Localizations.localeOf(context);
+    final isAr = locale.languageCode == 'ar';
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     final baseText = l10n.t('app_title');
-    final baseStyle = GoogleFonts.montserrat(
+    final baseStyle = (isAr ? GoogleFonts.cairo : GoogleFonts.montserrat)(
       fontSize: fontSize,
       fontWeight: FontWeight.w700,
       color: TikiyaColors.bleuProfond,
-      letterSpacing: 0.8,
+      letterSpacing: isAr ? 0.0 : 0.8,
+      height: isAr ? 1.15 : 1.0,
     );
     final accentStyle = baseStyle.copyWith(color: TikiyaColors.bleuCyan);
-    final proStyle = GoogleFonts.montserrat(
+    final proStyle = (isAr ? GoogleFonts.cairo : GoogleFonts.montserrat)(
       fontSize: fontSize - 4,
       fontWeight: FontWeight.w400,
       color: TikiyaColors.grisFonce,
-      letterSpacing: 0.6,
+      letterSpacing: isAr ? 0.0 : 0.6,
+      height: isAr ? 1.15 : 1.0,
     );
 
     final baseSpan = TextSpan(
@@ -238,7 +243,26 @@ class TikiyaLogo extends StatelessWidget {
     );
 
     if (!showPro) {
-      return Text.rich(baseSpan, textAlign: textAlign);
+      return Text.rich(
+        baseSpan,
+        textAlign: textAlign,
+        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      );
+    }
+
+    // RTL/Arabic: avoid LTR-centered overlay math (it looks off in Arabic).
+    // Render a clean "Pro | Tikiya!" composition.
+    if (isRtl || isAr) {
+      return Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(text: 'Pro | ', style: proStyle),
+            baseSpan,
+          ],
+        ),
+        textAlign: textAlign,
+        textDirection: TextDirection.rtl,
+      );
     }
 
     final basePainter = TextPainter(

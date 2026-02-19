@@ -117,6 +117,7 @@ class _HeroBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -134,7 +135,7 @@ class _HeroBody extends StatelessWidget {
           children: [
             Positioned(
               right: isRtl ? null : 150,
-              left: isRtl ? 150 : null,
+              left: isRtl ? (isAr ? 200 : 150) : null,
               bottom: -100,
               child: IgnorePointer(
                 child: SizedBox(
@@ -146,13 +147,18 @@ class _HeroBody extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned.fill(
+            Positioned(
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: isAr ? 150 : 0,
               child: Align(
                 alignment: isRtl ? Alignment.topRight : Alignment.topLeft,
                 child: _LeftColumn(
                   bottomPadding: bottomPadding,
                   l10n: l10n,
                   isRtl: isRtl,
+                  isWide: isWide,
                 ),
               ),
             ),
@@ -171,11 +177,14 @@ class _BrandTitle extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final l10n = context.l10n;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final baseStyle = GoogleFonts.montserrat(
+    final locale = Localizations.localeOf(context);
+    final isAr = locale.languageCode == 'ar';
+    final baseStyle = (isAr ? GoogleFonts.cairo : GoogleFonts.montserrat)(
       textStyle: textTheme.titleLarge,
       fontSize: 28,
       fontWeight: FontWeight.bold,
-      letterSpacing: 0.4,
+      letterSpacing: isAr ? 0.0 : 0.4,
+      height: isAr ? 1.15 : null,
       color: Colors.white,
     );
 
@@ -273,20 +282,25 @@ class _LeftColumn extends StatelessWidget {
   final double bottomPadding;
   final AppLocalizations l10n;
   final bool isRtl;
+  final bool isWide;
 
   const _LeftColumn({
     required this.bottomPadding,
     required this.l10n,
     required this.isRtl,
+    this.isWide = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final extraOffset = (isAr && isWide) ? -200.0 : 0.0;
 
     return Align(
       alignment: isRtl ? Alignment.topRight : Alignment.topLeft,
       child: SingleChildScrollView(
+        clipBehavior: Clip.none,
         padding: EdgeInsets.only(bottom: bottomPadding),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
@@ -294,52 +308,80 @@ class _LeftColumn extends StatelessWidget {
             crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              Text(
-                l10n.t('orga_public_title'),
-                textAlign: isRtl ? TextAlign.right : TextAlign.left,
-                style: textTheme.displaySmall?.copyWith(
-                  height: 1.1,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                l10n.t('orga_public_subtitle'),
-                textAlign: isRtl ? TextAlign.right : TextAlign.left,
-                style: textTheme.bodyLarge?.copyWith(
-                  height: 1.55,
-                  color: Colors.white.withValues(alpha: 0.72),
-                  fontWeight: FontWeight.w500,
+              Transform.translate(
+                offset: Offset(isAr ? -150.0 + extraOffset : 0.0, 0),
+                child: Column(
+                  crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.t('orga_public_title'),
+                      textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                      style: textTheme.displaySmall?.copyWith(
+                        height: 1.1,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.55),
+                            blurRadius: 18,
+                            offset: const Offset(0, 4),
+                          ),
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.30),
+                            blurRadius: 6,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      l10n.t('orga_public_subtitle'),
+                      textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                      style: textTheme.bodyLarge?.copyWith(
+                        height: 1.55,
+                        color: Colors.white.withValues(alpha: 0.72),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 26),
-              _FeatureItem(
-                icon: Icons.dashboard_outlined,
-                title: l10n.t('orga_feature1_title'),
-                subtitle: l10n.t('orga_feature1_sub'),
-                isRtl: isRtl,
-              ),
-              const SizedBox(height: 16),
-              _FeatureItem(
-                icon: Icons.insights_outlined,
-                title: l10n.t('orga_feature2_title'),
-                subtitle: l10n.t('orga_feature2_sub'),
-                isRtl: isRtl,
-              ),
-              const SizedBox(height: 16),
-              _FeatureItem(
-                icon: Icons.add_box_outlined,
-                title: l10n.t('orga_feature3_title'),
-                subtitle: l10n.t('orga_feature3_sub'),
-                isRtl: isRtl,
-              ),
-              const SizedBox(height: 16),
-              _FeatureItem(
-                icon: Icons.tune_outlined,
-                title: l10n.t('orga_feature4_title'),
-                subtitle: l10n.t('orga_feature4_sub'),
-                isRtl: isRtl,
+              Transform.translate(
+                offset: Offset(isAr ? -150.0 + extraOffset : 0.0, 0),
+                child: Column(
+                  crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  children: [
+                    _FeatureItem(
+                      icon: Icons.dashboard_outlined,
+                      title: l10n.t('orga_feature1_title'),
+                      subtitle: l10n.t('orga_feature1_sub'),
+                      isRtl: isRtl,
+                    ),
+                    const SizedBox(height: 16),
+                    _FeatureItem(
+                      icon: Icons.insights_outlined,
+                      title: l10n.t('orga_feature2_title'),
+                      subtitle: l10n.t('orga_feature2_sub'),
+                      isRtl: isRtl,
+                    ),
+                    const SizedBox(height: 16),
+                    _FeatureItem(
+                      icon: Icons.add_box_outlined,
+                      title: l10n.t('orga_feature3_title'),
+                      subtitle: l10n.t('orga_feature3_sub'),
+                      isRtl: isRtl,
+                    ),
+                    const SizedBox(height: 16),
+                    _FeatureItem(
+                      icon: Icons.tune_outlined,
+                      title: l10n.t('orga_feature4_title'),
+                      subtitle: l10n.t('orga_feature4_sub'),
+                      isRtl: isRtl,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

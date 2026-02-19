@@ -38,11 +38,14 @@ class TopNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final l10n = context.l10n;
-    final brandStyle = GoogleFonts.montserrat(
+    final locale = Localizations.localeOf(context);
+    final isAr = locale.languageCode == 'ar';
+    final brandStyle = (isAr ? GoogleFonts.cairo : GoogleFonts.montserrat)(
       textStyle: textTheme.titleLarge,
       fontSize: 28,
       fontWeight: FontWeight.bold,
-      letterSpacing: 0.4,
+      letterSpacing: isAr ? 0.0 : 0.4,
+      height: isAr ? 1.15 : null,
     );
 
     const showNavLinks = true;

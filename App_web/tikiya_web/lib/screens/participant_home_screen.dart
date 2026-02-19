@@ -139,7 +139,7 @@ class _FeatureGrid extends StatelessWidget {
                   subtitle: l10n.t('participant_feature1_sub'),
                   asset: 'assets/Qr.png',
                   imageViewportHeight: imageViewportHeight,
-                  imageAlignment: Alignment.topCenter,
+                  imageAlignment: wide ? Alignment.topCenter : Alignment.topLeft,
                   imageScale: 1.08,
                   imageYOffset: 10.0,
                 ),
@@ -148,7 +148,7 @@ class _FeatureGrid extends StatelessWidget {
                   subtitle: l10n.t('participant_feature2_sub'),
                   asset: 'assets/Market.png',
                   imageViewportHeight: imageViewportHeight,
-                  imageAlignment: Alignment.topCenter,
+                  imageAlignment: wide ? Alignment.topCenter : Alignment.topLeft,
                   imageScale: 1.22,
                 ),
                 _FeatureCard(
@@ -156,7 +156,7 @@ class _FeatureGrid extends StatelessWidget {
                   subtitle: l10n.t('participant_feature3_sub'),
                   asset: 'assets/Pay.png',
                   imageViewportHeight: imageViewportHeight,
-                  imageAlignment: Alignment.topCenter,
+                  imageAlignment: wide ? Alignment.topCenter : Alignment.topLeft,
                   imageScale: 1.28,
                   imageYOffset: 50.0,
                 ),
@@ -177,6 +177,7 @@ class _FeatureCard extends StatelessWidget {
   final Alignment imageAlignment;
   final double imageScale;
   final double imageYOffset;
+  final double imageXOffset;
 
   const _FeatureCard({
     required this.title,
@@ -186,6 +187,7 @@ class _FeatureCard extends StatelessWidget {
     this.imageAlignment = Alignment.center,
     this.imageScale = 1.0,
     this.imageYOffset = 0.0,
+    this.imageXOffset = 0.0,
   });
 
   @override
@@ -198,6 +200,7 @@ class _FeatureCard extends StatelessWidget {
       imageAlignment: imageAlignment,
       imageScale: imageScale,
       imageYOffset: imageYOffset,
+      imageXOffset: imageXOffset,
     );
   }
 }
@@ -210,6 +213,7 @@ class _HoverFeatureCard extends StatefulWidget {
   final Alignment imageAlignment;
   final double imageScale;
   final double imageYOffset;
+  final double imageXOffset;
 
   const _HoverFeatureCard({
     required this.title,
@@ -219,6 +223,7 @@ class _HoverFeatureCard extends StatefulWidget {
     this.imageAlignment = Alignment.center,
     this.imageScale = 1.0,
     this.imageYOffset = 0.0,
+    this.imageXOffset = 0.0,
   });
 
   @override
@@ -319,7 +324,7 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
                           child: Align(
                             alignment: widget.imageAlignment,
                             child: Transform.translate(
-                              offset: Offset(0, widget.imageYOffset),
+                              offset: Offset(widget.imageXOffset, widget.imageYOffset),
                               child: Transform.scale(
                                 scale: widget.imageScale,
                                 child: Image.asset(
