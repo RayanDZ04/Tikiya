@@ -7,14 +7,10 @@ import '../l10n/app_localizations.dart';
 import '../widgets/language_menu.dart';
 
 class OrgaPublicLandingScreen extends StatefulWidget {
-  final VoidCallback onLogin;
-  final VoidCallback onRegister;
   final VoidCallback onNeeds;
 
   const OrgaPublicLandingScreen({
     super.key,
-    required this.onLogin,
-    required this.onRegister,
     required this.onNeeds,
   });
 
@@ -56,8 +52,9 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                             children: [
                               if (isRtl) ...[
                                 _TopLoginButton(
-                                  onPressed: widget.onLogin,
-                                  label: l10n.t('cta_login'),
+                                  onPressed: () => Navigator.of(context).pushNamed('/participant'),
+                                  label: l10n.t('cta_im_participant'),
+                                  trailingIcon: Icons.north_east_rounded,
                                 ),
                                 const SizedBox(width: 10),
                                 const LanguageMenu(),
@@ -69,8 +66,9 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                                 const LanguageMenu(),
                                 const SizedBox(width: 10),
                                 _TopLoginButton(
-                                  onPressed: widget.onLogin,
-                                  label: l10n.t('cta_login'),
+                                  onPressed: () => Navigator.of(context).pushNamed('/participant'),
+                                  label: l10n.t('cta_im_participant'),
+                                  trailingIcon: Icons.north_east_rounded,
                                 ),
                               ],
                             ],
@@ -78,10 +76,23 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                           const SizedBox(height: 28),
                           Expanded(child: _HeroBody(isWide: isWide, l10n: l10n)),
                           const SizedBox(height: 18),
-                          _CtaActions(
-                            onPrimary: widget.onRegister,
-                            onSecondary: widget.onNeeds,
-                            l10n: l10n,
+                          // Only keep "Échanger sur vos besoins" for the static-only launch.
+                          Center(
+                            child: Transform.translate(
+                              offset: const Offset(0, -20),
+                              child: Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                alignment: isRtl ? WrapAlignment.end : WrapAlignment.center,
+                                children: [
+                                  _CtaButton(
+                                    label: l10n.t('orga_cta_secondary'),
+                                    onPressed: widget.onNeeds,
+                                    variant: _CtaVariant.ghost,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -195,11 +206,23 @@ class _BrandTitle extends StatelessWidget {
 class _TopLoginButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String label;
+  final IconData? trailingIcon;
 
-  const _TopLoginButton({required this.onPressed, required this.label});
+  const _TopLoginButton({required this.onPressed, required this.label, this.trailingIcon});
 
   @override
   Widget build(BuildContext context) {
+    final labelWidget = trailingIcon == null
+        ? Text(label, style: const TextStyle(fontWeight: FontWeight.w700))
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+              const SizedBox(width: 8),
+              Icon(trailingIcon, size: 18),
+            ],
+          );
+
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
@@ -208,7 +231,7 @@ class _TopLoginButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+      child: labelWidget,
     );
   }
 }

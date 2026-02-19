@@ -6,13 +6,26 @@ ifeq ($(COMPOSE_CMD),)
 	COMPOSE_CMD := docker compose
 endif
 
-ANDROID_SDK_ROOT ?= $(shell if [ -d "$$HOME/Android/Sdk" ]; then echo $$HOME/Android/Sdk; elif [ -n "$$ANDROID_SDK_ROOT" ]; then echo $$ANDROID_SDK_ROOT; elif [ -n "$$ANDROID_HOME" ]; then echo $$ANDROID_HOME; elif [ -d "$$HOME/.buildozer/android/platform/android-sdk" ]; then echo $$HOME/.buildozer/android/platform/android-sdk; fi)
+ANDROID_SDK_CANDIDATES := \
+	$(shell if [ -d "$$HOME/Android/Sdk" ]; then echo $$HOME/Android/Sdk; fi) \
+	$(shell if [ -d "$$HOME/Android/sdk" ]; then echo $$HOME/Android/sdk; fi) \
+	$(ANDROID_SDK_ROOT) \
+	$(ANDROID_HOME) \
+	$(shell if [ -d "$$HOME/.buildozer/android/platform/android-sdk" ]; then echo $$HOME/.buildozer/android/platform/android-sdk; fi)
+DETECTED_ANDROID_SDK_ROOT := $(shell for d in $(ANDROID_SDK_CANDIDATES); do \
+	if [ -n "$$d" ] && [ -x "$$d/emulator/emulator" ] && [ -x "$$d/platform-tools/adb" ]; then echo $$d; break; fi; \
+done)
+ifneq ($(DETECTED_ANDROID_SDK_ROOT),)
+ANDROID_SDK_ROOT := $(DETECTED_ANDROID_SDK_ROOT)
+endif
 ANDROID_HOME ?= $(ANDROID_SDK_ROOT)
 ADB ?= $(ANDROID_SDK_ROOT)/platform-tools/adb
 EMULATOR ?= $(ANDROID_SDK_ROOT)/emulator/emulator
 AVD_NAME ?= Pixel_7_Pro
 EMULATOR_ARGS ?= -netdelay none -netspeed full -gpu auto
-EMULATOR_ENV ?= DISPLAY=$(DISPLAY) XAUTHORITY=$(XAUTHORITY) QT_QPA_PLATFORM=xcb ANDROID_SDK_ROOT=$(ANDROID_SDK_ROOT) ANDROID_HOME=$(ANDROID_HOME)
+EMULATOR_ARGS_BLACK ?= -no-snapshot -wipe-data -gpu swiftshader_indirect -accel auto -netdelay none -netspeed full
+EMULATOR_DISPLAY ?= $(DISPLAY)
+EMULATOR_ENV ?= DISPLAY=$(EMULATOR_DISPLAY) XAUTHORITY=$(XAUTHORITY) QT_QPA_PLATFORM=xcb ANDROID_SDK_ROOT=$(ANDROID_SDK_ROOT) ANDROID_HOME=$(ANDROID_HOME)
 EMULATOR_LOG ?= .emulator.log
 ADB_WAIT_TIMEOUT ?= 180
 ADB_SERIAL_CMD = $(ADB) devices | awk '/^emulator-/{print $$1; exit}'
@@ -21,7 +34,7 @@ PKG_ORGA ?= com.tikiya.orga
 PKG_MOBILE_OLD ?= com.example.app_mobile
 PKG_ORGA_OLD ?= com.example.tikiya_orga
 
-.PHONY: build android app app_orga clean app_clean web web_mobile web_orga
+.PHONY: build android android_fix android_display0 android_display1 android_fix_display0 android_fix_display1 app app_orga clean app_clean web web_mobile web_orga dev dev_down dev_logs
 
 IMAGE_MOBILE ?= tikiya-android_build_mobile:latest
 IMAGE_ORGA ?= tikiya-android_build_organisateur:latest
@@ -36,13 +49,16 @@ endef
 # Build Android APK + AAB for both apps via Docker
 build:
 	@if [ -z "$(DOCKER)" ]; then echo "Docker est requis"; exit 1; fi
-	$(COMPOSE_CMD) build android_build_mobile android_build_organisateur
-	$(call export_build,$(IMAGE_MOBILE),./App_mobile)
-	$(call export_build,$(IMAGE_ORGA),./App_mobile_organisateur)
+	$(COMPOSE_CMD) run --rm android_build_mobile
+	$(COMPOSE_CMD) run --rm android_build_organisateur
 
 # Start Android Studio emulator (local)
 android:
-	@if [ -z "$(ANDROID_SDK_ROOT)" ]; then echo "ANDROID_SDK_ROOT introuvable"; exit 1; fi
+	@if [ -z "$(ANDROID_SDK_ROOT)" ]; then \
+		echo "ANDROID_SDK_ROOT introuvable"; \
+		echo "Définis ANDROID_SDK_ROOT ou ANDROID_HOME (ex: $$HOME/Android/Sdk)"; \
+		exit 1; \
+	fi
 	@if [ ! -x "$(EMULATOR)" ]; then echo "Emulator introuvable: $(EMULATOR)"; exit 1; fi
 	@if [ ! -x "$(ADB)" ]; then echo "ADB introuvable: $(ADB)"; exit 1; fi
 	@serial=$$($(ADB_SERIAL_CMD)); \
@@ -50,24 +66,53 @@ android:
 	 echo "Lancement AVD: $(AVD_NAME)"; \
 	 $(EMULATOR_ENV) $(EMULATOR) -avd $(AVD_NAME) $(EMULATOR_ARGS) > $(EMULATOR_LOG) 2>&1 & \
 	 echo "Log emulateur: $(EMULATOR_LOG)"; \
-	 timeout $(ADB_WAIT_TIMEOUT) sh -c 'while [ -z "$$($(ADB_SERIAL_CMD))" ]; do sleep 2; done' \
+	 timeout $(ADB_WAIT_TIMEOUT) sh -c "while [ -z \"$$($(ADB_SERIAL_CMD))\" ]; do sleep 2; done" \
 	   || (echo "Emulateur non démarré"; tail -n 200 $(EMULATOR_LOG); exit 1); \
 	 serial=$$($(ADB_SERIAL_CMD)); \
 	 $(ADB) -s $$serial wait-for-device; \
 	 echo "Emulateur prêt"
 
+android_fix:
+	@if [ -z "$(ANDROID_SDK_ROOT)" ]; then \
+		echo "ANDROID_SDK_ROOT introuvable"; \
+		echo "Définis ANDROID_SDK_ROOT ou ANDROID_HOME (ex: $$HOME/Android/Sdk)"; \
+		exit 1; \
+	fi
+	@if [ ! -x "$(EMULATOR)" ]; then echo "Emulator introuvable: $(EMULATOR)"; exit 1; fi
+	@if [ ! -x "$(ADB)" ]; then echo "ADB introuvable: $(ADB)"; exit 1; fi
+	@serial=$$($(ADB_SERIAL_CMD)); \
+	 if [ -n "$$serial" ]; then echo "Emulateur déjà actif: $$serial"; exit 0; fi; \
+	 echo "Lancement AVD (fix écran noir): $(AVD_NAME)"; \
+	 $(EMULATOR_ENV) $(EMULATOR) -avd $(AVD_NAME) $(EMULATOR_ARGS_BLACK) > $(EMULATOR_LOG) 2>&1 & \
+	 echo "Log emulateur: $(EMULATOR_LOG)"; \
+	 timeout $(ADB_WAIT_TIMEOUT) sh -c "while [ -z \"$$($(ADB_SERIAL_CMD))\" ]; do sleep 2; done" \
+	   || (echo "Emulateur non démarré"; tail -n 200 $(EMULATOR_LOG); exit 1); \
+	 serial=$$($(ADB_SERIAL_CMD)); \
+	 $(ADB) -s $$serial wait-for-device; \
+	 echo "Emulateur prêt"
+
+android_display0:
+	$(MAKE) android EMULATOR_DISPLAY=:0
+
+android_display1:
+	$(MAKE) android EMULATOR_DISPLAY=:1
+
+android_fix_display0:
+	$(MAKE) android_fix EMULATOR_DISPLAY=:0
+
+android_fix_display1:
+	$(MAKE) android_fix EMULATOR_DISPLAY=:1
+
 # Build and install App_mobile APK via Docker on the running emulator
 app: android
-	$(COMPOSE_CMD) build android_build_mobile
-	$(call export_build,$(IMAGE_MOBILE),./App_mobile)
+	$(COMPOSE_CMD) run --rm android_build_mobile
 	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi; \
 	 for pkg in $(PKG_MOBILE) $(PKG_MOBILE_OLD); do $(ADB) -s $$serial uninstall $$pkg >/dev/null 2>&1 || true; done; \
 	 $(ADB) -s $$serial install -r $(PWD)/App_mobile/build/app/outputs/flutter-apk/app-release.apk
 
 # Build and install App_mobile_organisateur APK via Docker on the running emulator
 app_orga: android
-	$(COMPOSE_CMD) build android_build_organisateur
-	$(call export_build,$(IMAGE_ORGA),./App_mobile_organisateur)
+	$(COMPOSE_CMD) run --rm android_build_organisateur
 	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi; \
 	 for pkg in $(PKG_ORGA) $(PKG_ORGA_OLD); do $(ADB) -s $$serial uninstall $$pkg >/dev/null 2>&1 || true; done; \
 	 $(ADB) -s $$serial install -r $(PWD)/App_mobile_organisateur/build/app/outputs/flutter-apk/app-release.apk
@@ -88,3 +133,12 @@ web_mobile:
 
 web_orga:
 	./scripts/serve_web_orga.sh
+
+dev:
+	$(COMPOSE_CMD) -f docker-compose.yml -f docker-compose.dev.yml up --build
+
+dev_down:
+	$(COMPOSE_CMD) -f docker-compose.yml -f docker-compose.dev.yml down -v
+
+dev_logs:
+	$(COMPOSE_CMD) -f docker-compose.yml -f docker-compose.dev.yml logs -f

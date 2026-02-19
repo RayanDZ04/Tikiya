@@ -35,8 +35,6 @@ class HomeScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _TopNav(
-                                onLogin: () => Navigator.of(context).pushNamed('/login'),
-                                onRegister: () => Navigator.of(context).pushNamed('/register'),
                               ),
                               const SizedBox(height: 44),
                               LayoutBuilder(
@@ -195,20 +193,12 @@ class _RenderMeasureSize extends RenderProxyBox {
 
 
 class _TopNav extends StatelessWidget {
-  final VoidCallback onLogin;
-  final VoidCallback onRegister;
-
-  const _TopNav({
-    required this.onLogin,
-    required this.onRegister,
-  });
+  const _TopNav();
 
   @override
   Widget build(BuildContext context) {
     return TopNavigationBar(
       active: TopNavSection.discover,
-      onLogin: onLogin,
-      onRegister: onRegister,
     );
   }
 }

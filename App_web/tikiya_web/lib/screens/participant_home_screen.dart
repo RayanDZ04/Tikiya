@@ -29,8 +29,6 @@ class ParticipantHomeScreen extends StatelessWidget {
                     children: [
                       TopNavigationBar(
                         active: TopNavSection.participants,
-                        onLogin: () => Navigator.of(context).pushNamed('/login'),
-                        onRegister: () => Navigator.of(context).pushNamed('/register'),
                       ),
                       const SizedBox(height: 44),
                       Expanded(

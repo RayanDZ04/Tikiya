@@ -2,15 +2,7 @@ FROM ghcr.io/cirruslabs/flutter:stable
 
 WORKDIR /app
 
-COPY pubspec.yaml pubspec.lock* ./
-RUN flutter pub get
+ENV PUB_CACHE=/root/.pub-cache
+ENV GRADLE_USER_HOME=/root/.gradle
 
-COPY . .
-
-# Ensure Android project is supported by Flutter tooling and set app label
-RUN flutter create --platforms=android . \
-    && sed -i 's/android:label="[^"]*"/android:label="Tikiya Orga"/' android/app/src/main/AndroidManifest.xml
-
-# Build Android APK and App Bundle
-RUN flutter build apk --release \
-    && flutter build appbundle --release
+CMD ["bash", "-lc", "flutter pub get && flutter build apk --release && flutter build appbundle --release"]

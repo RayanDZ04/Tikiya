@@ -23,16 +23,6 @@ class LandingScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
           ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pushNamed('/login'),
-            child: Text(l10n.t('cta_login')),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).pushNamed('/register'),
-            child: Text(l10n.t('cta_register')),
-          ),
           const SizedBox(height: 16),
           Text(
             l10n.t('landing_note'),

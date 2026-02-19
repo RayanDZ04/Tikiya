@@ -8,8 +8,10 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:tikiya_web/app_theme.dart';
+import 'package:tikiya_web/l10n/app_localizations.dart';
 import 'package:tikiya_web/screens/home_screen.dart';
 
 void main() {
@@ -17,12 +19,20 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.build(),
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
         home: const HomeScreen(),
       ),
     );
     await tester.pump();
 
-    expect(find.text('Se connecter'), findsOneWidget);
-    expect(find.text("S'inscrire"), findsOneWidget);
+    expect(find.text('Se connecter'), findsNothing);
+    expect(find.text("S'inscrire"), findsNothing);
   });
 }

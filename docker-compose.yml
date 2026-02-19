@@ -49,6 +49,9 @@ services:
       dockerfile: Dockerfile.android
     volumes:
       - ./App_mobile/build:/app/build
+      - ./App_mobile:/app
+      - flutter_pub_cache:/root/.pub-cache
+      - gradle_cache:/root/.gradle
 
   android_build_organisateur:
     build:
@@ -56,6 +59,11 @@ services:
       dockerfile: Dockerfile.android
     volumes:
       - ./App_mobile_organisateur/build:/app/build
+      - ./App_mobile_organisateur:/app
+      - flutter_pub_cache:/root/.pub-cache
+      - gradle_cache:/root/.gradle
 
 volumes:
   db_data:
+  flutter_pub_cache:
+  gradle_cache:

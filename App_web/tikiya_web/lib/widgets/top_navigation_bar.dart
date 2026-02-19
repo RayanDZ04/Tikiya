@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:html' as html;
 
 import '../ui/tikiya_colors.dart';
 import '../l10n/app_localizations.dart';
@@ -39,8 +38,6 @@ class TopNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final l10n = context.l10n;
-    final routeName = ModalRoute.of(context)?.settings.name;
-    final showProBrand = routeName == '/orga-login' || routeName == '/orga-register';
     final brandStyle = GoogleFonts.montserrat(
       textStyle: textTheme.titleLarge,
       fontSize: 28,
@@ -48,7 +45,7 @@ class TopNavigationBar extends StatelessWidget {
       letterSpacing: 0.4,
     );
 
-    final showNavLinks = !showProBrand;
+    const showNavLinks = true;
 
     return Row(
       children: [
@@ -63,15 +60,6 @@ class TopNavigationBar extends StatelessWidget {
                 text: '!',
                 style: brandStyle.copyWith(color: TikiyaColors.bleuCyan),
               ),
-              if (showProBrand)
-                TextSpan(
-                  text: ' Pro',
-                  style: brandStyle.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                ),
             ],
           ),
         ),
@@ -130,15 +118,11 @@ class TopNavigationBar extends StatelessWidget {
               final screenWidth = MediaQuery.of(context).size.width;
               final showOrganizerCta = screenWidth >= 520;
               final routeName = ModalRoute.of(context)?.settings.name;
-              final organizerAuthRoute =
-                  routeName == '/orga-login' || routeName == '/orga-register';
-                final organizerCtaLabel = organizerAuthRoute
+              final isOrganizerSection = routeName == '/orga' || routeName == '/orga-needs';
+              final organizerCtaLabel = isOrganizerSection
                   ? l10n.t('cta_im_participant')
                   : l10n.t('cta_im_organizer');
-                final organizerCtaUrl = organizerAuthRoute
-                  ? '${html.window.location.origin}/#/participant'
-                  : '${html.window.location.origin}/#/orga';
-              final showAuthButtons = !organizerAuthRoute;
+                final organizerCtaRoute = isOrganizerSection ? '/participant' : '/orga';
 
               return Wrap(
                 spacing: 8,
@@ -147,22 +131,10 @@ class TopNavigationBar extends StatelessWidget {
                   if (showOrganizerCta)
                     _PillButton(
                       label: organizerCtaLabel,
-                      onPressed: () => html.window.open(organizerCtaUrl, '_blank'),
+                      onPressed: () => _go(context, organizerCtaRoute),
                       variant: _PillVariant.ghost,
                       trailingIcon: Icons.north_east_rounded,
                     ),
-                  if (showAuthButtons) ...[
-                    _PillButton(
-                      label: l10n.t('cta_login'),
-                      onPressed: onLogin ?? () => _go(context, '/login'),
-                      variant: _PillVariant.ghost,
-                    ),
-                    _PillButton(
-                      label: l10n.t('cta_register'),
-                      onPressed: onRegister ?? () => _go(context, '/register'),
-                      variant: _PillVariant.primary,
-                    ),
-                  ],
                 ],
               );
             },

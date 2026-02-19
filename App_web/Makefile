@@ -12,10 +12,10 @@ help:
 		"  clean     Flutter clean"
 
 web:
-	./scripts/serve_web_mobile.sh
+	WEB_HOST=$(WEB_HOST) WEB_PORT=$(WEB_PORT) ./scripts/serve_web_mobile.sh
 
 web-wasm:
-	WASM=1 ./scripts/serve_web_mobile.sh
+	WEB_HOST=$(WEB_HOST) WEB_PORT=$(WEB_PORT) WASM=1 ./scripts/serve_web_mobile.sh
 
 clean:
 	cd $(APP_DIR) && flutter clean
