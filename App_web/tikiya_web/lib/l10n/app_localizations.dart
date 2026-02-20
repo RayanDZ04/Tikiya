@@ -59,7 +59,7 @@ class AppLocalizations {
           'Les événements à venir seront bientôt disponibles.\nRevenez plus tard pour découvrir nos prochains événements !',
       'participant_title': 'Simplifiez vos sorties\navec Tikiya',
       'participant_subtitle':
-          'Accédez à vos billets, QR code et événements en un seul endroit.',
+          'Accédez bientôt à vos billets, QR code et événements en un seul endroit.',
       'participant_feature1_title': 'Billet QR code\nsécurisé',
       'participant_feature1_sub': 'Votre billet généré\ninstantanément.',
       'participant_feature2_title': 'Billets\nMarketplace',
