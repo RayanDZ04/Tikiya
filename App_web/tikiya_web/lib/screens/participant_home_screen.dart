@@ -442,7 +442,7 @@ class _BientotBadge extends StatelessWidget {
                 ),
               ),
               Text(
-                'Bientôt',
+                context.l10n.t('participant_badge_soon'),
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.92),
                   fontSize: 17,

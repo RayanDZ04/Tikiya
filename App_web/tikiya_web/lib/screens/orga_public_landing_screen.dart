@@ -57,6 +57,12 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                                   trailingIcon: Icons.north_east_rounded,
                                 ),
                                 const SizedBox(width: 10),
+                                _TopLoginButton(
+                                  onPressed: () => Navigator.of(context).pushNamed('/contact'),
+                                  label: l10n.t('cta_contact'),
+                                  trailingIcon: Icons.mail_outline_rounded,
+                                ),
+                                const SizedBox(width: 10),
                                 const LanguageMenu(),
                                 const Spacer(),
                                 const _BrandTitle(),
@@ -64,6 +70,12 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
                                 const _BrandTitle(),
                                 const Spacer(),
                                 const LanguageMenu(),
+                                const SizedBox(width: 10),
+                                _TopLoginButton(
+                                  onPressed: () => Navigator.of(context).pushNamed('/contact'),
+                                  label: l10n.t('cta_contact'),
+                                  trailingIcon: Icons.mail_outline_rounded,
+                                ),
                                 const SizedBox(width: 10),
                                 _TopLoginButton(
                                   onPressed: () => Navigator.of(context).pushNamed('/participant'),
@@ -127,7 +139,7 @@ class _HeroBody extends StatelessWidget {
 
         final visualWidth = desiredWidth.clamp(0.0, constraints.maxWidth);
         final bottomPadding = isWide ? 6.0 : 220.0;
-        final visualScale = isWide ? 1.08 : 1.0;
+        final visualScale = isWide ? 1.03 : 1.0;
         final visualYOffset = isWide ? 29.0 : 0.0;
 
         if (!isWide) {
@@ -146,7 +158,7 @@ class _HeroBody extends StatelessWidget {
                 SizedBox(
                   height: 360,
                   child: IgnorePointer(
-                    child: _RightVisual(scale: 1.5, yOffset: 0),
+                    child: _RightVisual(scale: 1.42, yOffset: 0),
                   ),
                 ),
               ],

@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'app_theme.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/locale_controller.dart';
+import 'screens/contact_screen.dart';
 import 'screens/events_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/landing_screen.dart';
@@ -50,6 +51,7 @@ class TikiyaWebApp extends StatelessWidget {
             '/': (_) => const HomeScreen(),
             '/landing': (_) => const LandingScreen(),
             '/events': (_) => const EventsScreen(),
+            '/contact': (_) => const ContactScreen(),
             '/orga-needs': (_) => const OrgaNeedsScreen(),
             '/participant': (_) => const ParticipantHomeScreen(),
             '/orga': (_) => OrgaEntryScreen(sessionStore: _sessionStore),
