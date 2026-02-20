@@ -1,8 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../ui/landing_background.dart';
 import '../widgets/top_navigation_bar.dart';
 import '../l10n/app_localizations.dart';
+import '../ui/tikiya_colors.dart';
 
 class ParticipantHomeScreen extends StatelessWidget {
   const ParticipantHomeScreen({super.key});
@@ -305,6 +308,31 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
                       ),
                     ),
                   ),
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.28),
+                      ),
+                    ),
+                  ),
+                  // Vignette : bords très sombres, centre dégagé → profondeur derrière le badge
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          center: Alignment.center,
+                          radius: 0.80,
+                          colors: [
+                            Colors.transparent,
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.55),
+                            Colors.black.withValues(alpha: 0.82),
+                          ],
+                          stops: const [0.0, 0.35, 0.70, 1.0],
+                        ),
+                      ),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                     child: Column(
@@ -354,9 +382,75 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
                       ],
                     ),
                   ),
+                  const Positioned.fill(
+                    child: Center(child: _BientotBadge()),
+                  ),
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BientotBadge extends StatelessWidget {
+  const _BientotBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: TikiyaColors.bleuCyan.withValues(alpha: 0.60),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: TikiyaColors.bleuCyan.withValues(alpha: 0.25),
+                blurRadius: 20,
+                spreadRadius: 0,
+                offset: Offset.zero,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 6,
+            children: [
+              Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: TikiyaColors.bleuCyan,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: TikiyaColors.bleuCyan.withValues(alpha: 0.80),
+                      blurRadius: 6,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                'Bientôt',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.92),
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
           ),
         ),
       ),
