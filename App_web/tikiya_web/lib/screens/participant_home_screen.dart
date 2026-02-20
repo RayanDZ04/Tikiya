@@ -318,23 +318,25 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
                           style: titleStyle,
                         ),
                           const SizedBox(height: 4),
-                        SizedBox(
-                          height: widget.imageViewportHeight,
-                          width: double.infinity,
-                          child: Align(
-                            alignment: widget.imageAlignment,
-                            child: Transform.translate(
-                              offset: Offset(widget.imageXOffset, widget.imageYOffset),
-                              child: Transform.scale(
-                                scale: widget.imageScale,
-                                child: Image.asset(
-                                  widget.asset,
-                                  fit: BoxFit.contain,
-                                  filterQuality: FilterQuality.high,
-                                  errorBuilder: (context, error, stackTrace) => Icon(
-                                    Icons.image_not_supported_outlined,
-                                    color: Colors.white.withValues(alpha: 0.70),
-                                    size: 40,
+                        ClipRect(
+                          child: SizedBox(
+                            height: widget.imageViewportHeight,
+                            width: double.infinity,
+                            child: Align(
+                              alignment: widget.imageAlignment,
+                              child: Transform.translate(
+                                offset: Offset(widget.imageXOffset, widget.imageYOffset),
+                                child: Transform.scale(
+                                  scale: widget.imageScale,
+                                  child: Image.asset(
+                                    widget.asset,
+                                    fit: BoxFit.contain,
+                                    filterQuality: FilterQuality.high,
+                                    errorBuilder: (context, error, stackTrace) => Icon(
+                                      Icons.image_not_supported_outlined,
+                                      color: Colors.white.withValues(alpha: 0.70),
+                                      size: 40,
+                                    ),
                                   ),
                                 ),
                               ),

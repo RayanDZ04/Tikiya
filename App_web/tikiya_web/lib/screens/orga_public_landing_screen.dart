@@ -130,6 +130,30 @@ class _HeroBody extends StatelessWidget {
         final visualScale = isWide ? 1.08 : 1.0;
         final visualYOffset = isWide ? 29.0 : 0.0;
 
+        if (!isWide) {
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                _LeftColumn(
+                  bottomPadding: 0,
+                  l10n: l10n,
+                  isRtl: isRtl,
+                  isWide: false,
+                  scrollable: false,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 360,
+                  child: IgnorePointer(
+                    child: _RightVisual(scale: 1.5, yOffset: 0),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
         return Stack(
           clipBehavior: Clip.none,
           children: [
@@ -283,12 +307,14 @@ class _LeftColumn extends StatelessWidget {
   final AppLocalizations l10n;
   final bool isRtl;
   final bool isWide;
+  final bool scrollable;
 
   const _LeftColumn({
     required this.bottomPadding,
     required this.l10n,
     required this.isRtl,
     this.isWide = false,
+    this.scrollable = true,
   });
 
   @override
@@ -296,97 +322,102 @@ class _LeftColumn extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final extraOffset = (isAr && isWide) ? -200.0 : 0.0;
+    final arOffset = (isAr && isWide) ? -150.0 + extraOffset : 0.0;
+
+    final body = ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 560),
+      child: Column(
+        crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          Transform.translate(
+            offset: Offset(arOffset, 0),
+            child: Column(
+              crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.t('orga_public_title'),
+                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                  style: textTheme.displaySmall?.copyWith(
+                    height: 1.1,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        blurRadius: 18,
+                        offset: const Offset(0, 4),
+                      ),
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.30),
+                        blurRadius: 6,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  l10n.t('orga_public_subtitle'),
+                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                  style: textTheme.bodyLarge?.copyWith(
+                    height: 1.55,
+                    color: Colors.white.withValues(alpha: 0.72),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 26),
+          Transform.translate(
+            offset: Offset(arOffset, 0),
+            child: Column(
+              crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                _FeatureItem(
+                  icon: Icons.dashboard_outlined,
+                  title: l10n.t('orga_feature1_title'),
+                  subtitle: l10n.t('orga_feature1_sub'),
+                  isRtl: isRtl,
+                ),
+                const SizedBox(height: 16),
+                _FeatureItem(
+                  icon: Icons.insights_outlined,
+                  title: l10n.t('orga_feature2_title'),
+                  subtitle: l10n.t('orga_feature2_sub'),
+                  isRtl: isRtl,
+                ),
+                const SizedBox(height: 16),
+                _FeatureItem(
+                  icon: Icons.add_box_outlined,
+                  title: l10n.t('orga_feature3_title'),
+                  subtitle: l10n.t('orga_feature3_sub'),
+                  isRtl: isRtl,
+                ),
+                const SizedBox(height: 16),
+                _FeatureItem(
+                  icon: Icons.tune_outlined,
+                  title: l10n.t('orga_feature4_title'),
+                  subtitle: l10n.t('orga_feature4_sub'),
+                  isRtl: isRtl,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
 
     return Align(
       alignment: isRtl ? Alignment.topRight : Alignment.topLeft,
-      child: SingleChildScrollView(
-        clipBehavior: Clip.none,
-        padding: EdgeInsets.only(bottom: bottomPadding),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: Column(
-            crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
-              Transform.translate(
-                offset: Offset(isAr ? -150.0 + extraOffset : 0.0, 0),
-                child: Column(
-                  crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.t('orga_public_title'),
-                      textAlign: isRtl ? TextAlign.right : TextAlign.left,
-                      style: textTheme.displaySmall?.copyWith(
-                        height: 1.1,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.55),
-                            blurRadius: 18,
-                            offset: const Offset(0, 4),
-                          ),
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.30),
-                            blurRadius: 6,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      l10n.t('orga_public_subtitle'),
-                      textAlign: isRtl ? TextAlign.right : TextAlign.left,
-                      style: textTheme.bodyLarge?.copyWith(
-                        height: 1.55,
-                        color: Colors.white.withValues(alpha: 0.72),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 26),
-              Transform.translate(
-                offset: Offset(isAr ? -150.0 + extraOffset : 0.0, 0),
-                child: Column(
-                  crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                  children: [
-                    _FeatureItem(
-                      icon: Icons.dashboard_outlined,
-                      title: l10n.t('orga_feature1_title'),
-                      subtitle: l10n.t('orga_feature1_sub'),
-                      isRtl: isRtl,
-                    ),
-                    const SizedBox(height: 16),
-                    _FeatureItem(
-                      icon: Icons.insights_outlined,
-                      title: l10n.t('orga_feature2_title'),
-                      subtitle: l10n.t('orga_feature2_sub'),
-                      isRtl: isRtl,
-                    ),
-                    const SizedBox(height: 16),
-                    _FeatureItem(
-                      icon: Icons.add_box_outlined,
-                      title: l10n.t('orga_feature3_title'),
-                      subtitle: l10n.t('orga_feature3_sub'),
-                      isRtl: isRtl,
-                    ),
-                    const SizedBox(height: 16),
-                    _FeatureItem(
-                      icon: Icons.tune_outlined,
-                      title: l10n.t('orga_feature4_title'),
-                      subtitle: l10n.t('orga_feature4_sub'),
-                      isRtl: isRtl,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: scrollable
+          ? SingleChildScrollView(
+              clipBehavior: Clip.none,
+              padding: EdgeInsets.only(bottom: bottomPadding),
+              child: body,
+            )
+          : body,
     );
   }
 }

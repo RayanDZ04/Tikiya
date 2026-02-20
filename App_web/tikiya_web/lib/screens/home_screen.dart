@@ -41,39 +41,24 @@ class HomeScreen extends StatelessWidget {
                                 builder: (context, constraints) {
                                   final wide = constraints.maxWidth >= 920;
                                   if (!wide) {
-                                    final left = _HeroCopy(
-                                      textTheme: textTheme,
-                                      l10n: l10n,
-                                      compactTitle: true,
-                                    );
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 30),
-                                      child: Stack(
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          Positioned(
-                                            right: 0,
-                                            top: 0,
-                                            child: IgnorePointer(
-                                              child: ConstrainedBox(
-                                                constraints: const BoxConstraints(maxWidth: 420),
-                                                child: Transform.translate(
-                                                  offset: const Offset(0, -40),
-                                                  child: const _PhoneMock(),
-                                                ),
-                                              ),
-                                            ),
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        _HeroCopy(
+                                          textTheme: textTheme,
+                                          l10n: l10n,
+                                          compactTitle: true,
+                                        ),
+                                        const SizedBox(height: 28),
+                                        Center(
+                                          child: ConstrainedBox(
+                                            constraints: const BoxConstraints(maxWidth: 340, maxHeight: 380),
+                                            child: const _PhoneMock(),
                                           ),
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              left,
-                                              const SizedBox(height: 25),
-                                              _HeroBottomBlock(l10n: l10n),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _HeroBottomBlock(l10n: l10n),
+                                      ],
                                     );
                                   }
 
