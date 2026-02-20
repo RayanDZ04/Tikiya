@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
 import '../l10n/app_localizations.dart';
+import '../services/seo_meta.dart';
 import '../widgets/language_menu.dart';
 
 class OrgaPublicLandingScreen extends StatefulWidget {
@@ -23,6 +24,10 @@ class _OrgaPublicLandingScreenState extends State<OrgaPublicLandingScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    SeoMeta.set(
+      title: l10n.t('seo_orga_title'),
+      description: l10n.t('seo_orga_description'),
+    );
     return Scaffold(
       backgroundColor: TikiyaColors.grisFonce,
       body: LayoutBuilder(
@@ -301,7 +306,7 @@ class _RightVisual extends StatelessWidget {
             child: Transform.scale(
               scale: scale,
               child: Image.asset(
-                'assets/ordi.png',
+                'assets/ordi.webp',
                 fit: BoxFit.contain,
                 alignment: Alignment.bottomCenter,
                 filterQuality: FilterQuality.high,

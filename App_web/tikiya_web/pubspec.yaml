@@ -67,14 +67,14 @@ flutter:
 
   assets:
     - assets/ticket_logo.webp
-    - assets/moucharabieh.png
-    - assets/Iphone.png
-    - assets/ordi.png
+    - assets/moucharabieh.webp
+    - assets/Iphone.webp
+    - assets/ordi.webp
     - assets/playstore.webp
     - assets/apple.png
-    - assets/Qr.png
-    - assets/Market.png
-    - assets/Pay.png
+    - assets/Qr.webp
+    - assets/Market.webp
+    - assets/Pay.webp
 
   # To add assets to your application, add an assets section, like this:
   # assets:

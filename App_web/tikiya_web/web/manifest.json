@@ -1,11 +1,11 @@
 {
-    "name": "tikiya_web",
-    "short_name": "tikiya_web",
+    "name": "Tikiya",
+    "short_name": "Tikiya",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Le futur des événements en Algérie.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

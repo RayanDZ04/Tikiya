@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/seo_meta.dart';
 import '../ui/landing_background.dart';
 import '../ui/tikiya_colors.dart';
 import '../widgets/language_menu.dart';
@@ -13,6 +14,10 @@ class ContactScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    SeoMeta.set(
+      title: l10n.t('seo_contact_title'),
+      description: l10n.t('seo_contact_description'),
+    );
 
     return Scaffold(
       backgroundColor: TikiyaColors.grisFonce,

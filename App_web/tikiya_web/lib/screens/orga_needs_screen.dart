@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../ui/landing_background.dart';
 import '../ui/tikiya_colors.dart';
 import '../l10n/app_localizations.dart';
+import '../services/api_client.dart';
+import '../services/organizer_needs_service.dart';
 import '../widgets/language_menu.dart';
 
 class OrgaNeedsScreen extends StatefulWidget {
@@ -21,6 +23,10 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
   final _email = TextEditingController();
   final _phone = TextEditingController();
   final _instagram = TextEditingController();
+  final _service = OrganizerNeedsService(ApiClient());
+  bool _submitting = false;
+
+  @override
   void dispose() {
     _firstName.dispose();
     _lastName.dispose();
@@ -28,6 +34,45 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
     _phone.dispose();
     _instagram.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_submitting) return;
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _submitting = true);
+    final l10n = context.l10n;
+    try {
+      await _service.submit(
+        firstName: _firstName.text.trim(),
+        lastName: _lastName.text.trim(),
+        email: _email.text.trim(),
+        phone: _phone.text.trim(),
+        instagram: _instagram.text.trim(),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.t('orga_needs_success'))),
+      );
+      _formKey.currentState?.reset();
+      _firstName.clear();
+      _lastName.clear();
+      _email.clear();
+      _phone.clear();
+      _instagram.clear();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message.isNotEmpty ? e.message : l10n.t('orga_needs_error'))),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.t('orga_needs_error'))),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
@@ -136,6 +181,10 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                           _DarkTextField(
                                             controller: _firstName,
                                             hintText: l10n.t('hint_first_name'),
+                                            validator: (v) =>
+                                                (v == null || v.trim().isEmpty)
+                                                    ? l10n.t('field_required')
+                                                    : null,
                                           ),
                                         ],
                                       ),
@@ -146,6 +195,10 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                           _DarkTextField(
                                             controller: _lastName,
                                             hintText: l10n.t('hint_last_name'),
+                                            validator: (v) =>
+                                                (v == null || v.trim().isEmpty)
+                                                    ? l10n.t('field_required')
+                                                    : null,
                                           ),
                                         ],
                                       ),
@@ -161,6 +214,13 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                             controller: _email,
                                             hintText: l10n.t('hint_email'),
                                             keyboardType: TextInputType.emailAddress,
+                                            validator: (v) {
+                                              final value = (v ?? '').trim();
+                                              if (value.isEmpty) return l10n.t('field_required');
+                                              final ok = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+                                                  .hasMatch(value);
+                                              return ok ? null : l10n.t('field_invalid_email');
+                                            },
                                           ),
                                         ],
                                       ),
@@ -172,6 +232,10 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                             controller: _phone,
                                             hintText: l10n.t('hint_phone'),
                                             keyboardType: TextInputType.phone,
+                                            validator: (v) =>
+                                                (v == null || v.trim().isEmpty)
+                                                    ? l10n.t('field_required')
+                                                    : null,
                                           ),
                                         ],
                                       ),
@@ -181,12 +245,16 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                     _DarkTextField(
                                       controller: _instagram,
                                       hintText: l10n.t('hint_website'),
+                                      validator: (v) =>
+                                          (v == null || v.trim().isEmpty)
+                                              ? l10n.t('field_required')
+                                              : null,
                                     ),
                                     const SizedBox(height: 22),
                                     SizedBox(
                                       height: 48,
                                       child: ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: _submitting ? null : _submit,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.white,
                                           foregroundColor: Colors.black,
@@ -194,10 +262,16 @@ class _OrgaNeedsScreenState extends State<OrgaNeedsScreen> {
                                             borderRadius: BorderRadius.circular(10),
                                           ),
                                         ),
-                                        child: Text(
-                                          l10n.t('orga_needs_submit'),
-                                          style: const TextStyle(fontWeight: FontWeight.w700),
-                                        ),
+                                        child: _submitting
+                                            ? const SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child: CircularProgressIndicator(strokeWidth: 2),
+                                              )
+                                            : Text(
+                                                l10n.t('orga_needs_submit'),
+                                                style: const TextStyle(fontWeight: FontWeight.w700),
+                                              ),
                                       ),
                                     ),
                                   ],
@@ -317,11 +391,13 @@ class _DarkTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
 
   const _DarkTextField({
     required this.controller,
     required this.hintText,
     this.keyboardType,
+    this.validator,
   });
 
   @override
@@ -329,6 +405,7 @@ class _DarkTextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      validator: validator,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         filled: true,

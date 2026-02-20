@@ -153,7 +153,7 @@ class _AuthLayoutState extends State<AuthLayout> with SingleTickerProviderStateM
                                   child: Opacity(
                                     opacity: widget.sideBandOpacity,
                                     child: Image.asset(
-                                      'assets/moucharabieh.png',
+                                      'assets/moucharabieh.webp',
                                       fit: BoxFit.cover,
                                       alignment: Alignment.centerLeft,
                                     ),
@@ -167,7 +167,7 @@ class _AuthLayoutState extends State<AuthLayout> with SingleTickerProviderStateM
                                   child: Opacity(
                                     opacity: widget.sideBandOpacity,
                                     child: Image.asset(
-                                      'assets/moucharabieh.png',
+                                      'assets/moucharabieh.webp',
                                       fit: BoxFit.cover,
                                       alignment: Alignment.centerRight,
                                     ),

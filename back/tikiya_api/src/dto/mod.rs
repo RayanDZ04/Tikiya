@@ -47,6 +47,20 @@ pub struct LogoutRequest {
     pub refresh_token: String,
 }
 
+#[derive(Debug, Deserialize, Validate, Clone)]
+pub struct OrganizerNeedsRequest {
+    #[validate(length(min = 1, max = 120))]
+    pub first_name: String,
+    #[validate(length(min = 1, max = 120))]
+    pub last_name: String,
+    #[validate(email)]
+    pub email: String,
+    #[validate(length(min = 3, max = 64))]
+    pub phone: String,
+    #[validate(length(min = 1, max = 255))]
+    pub instagram: String,
+}
+
 #[derive(Debug, Serialize)]
 pub struct AuthResponse {
     pub user: UserResponse,

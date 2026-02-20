@@ -92,6 +92,7 @@ pub fn build_router(state: AppState) -> Router {
         .merge(routes::auth::router())
         .merge(routes::me::router())
         .merge(routes::oauth::router())
+        .merge(routes::organizer_needs::router())
         .with_state(state)
         .layer(middleware)
         .layer(from_fn_with_state(hsts_enabled, security_headers))

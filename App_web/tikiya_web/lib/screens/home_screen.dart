@@ -6,6 +6,7 @@ import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
 import '../widgets/top_navigation_bar.dart';
 import '../l10n/app_localizations.dart';
+import '../services/seo_meta.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,6 +15,10 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final l10n = context.l10n;
+    SeoMeta.set(
+      title: l10n.t('seo_home_title'),
+      description: l10n.t('seo_home_description'),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFF070A14),
@@ -281,7 +286,7 @@ class _PhoneMock extends StatelessWidget {
             ),
           ),
           Image.asset(
-            'assets/Iphone.png',
+            'assets/Iphone.webp',
             fit: BoxFit.contain,
             filterQuality: FilterQuality.high,
           ),

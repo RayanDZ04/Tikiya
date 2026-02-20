@@ -4,6 +4,7 @@ import '../ui/tikiya_colors.dart';
 import '../ui/landing_background.dart';
 import '../widgets/top_navigation_bar.dart';
 import '../l10n/app_localizations.dart';
+import '../services/seo_meta.dart';
 
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
@@ -12,6 +13,10 @@ class EventsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final l10n = context.l10n;
+    SeoMeta.set(
+      title: l10n.t('seo_events_title'),
+      description: l10n.t('seo_events_description'),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFF070A14),

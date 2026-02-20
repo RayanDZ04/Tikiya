@@ -6,6 +6,7 @@ import '../ui/landing_background.dart';
 import '../widgets/top_navigation_bar.dart';
 import '../l10n/app_localizations.dart';
 import '../ui/tikiya_colors.dart';
+import '../services/seo_meta.dart';
 
 class ParticipantHomeScreen extends StatelessWidget {
   const ParticipantHomeScreen({super.key});
@@ -14,6 +15,10 @@ class ParticipantHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final l10n = context.l10n;
+    SeoMeta.set(
+      title: l10n.t('seo_participant_title'),
+      description: l10n.t('seo_participant_description'),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFF070A14),
@@ -140,7 +145,7 @@ class _FeatureGrid extends StatelessWidget {
                 _FeatureCard(
                   title: l10n.t('participant_feature1_title'),
                   subtitle: l10n.t('participant_feature1_sub'),
-                  asset: 'assets/Qr.png',
+                  asset: 'assets/Qr.webp',
                   imageViewportHeight: imageViewportHeight,
                   imageAlignment: wide ? Alignment.topCenter : Alignment.topLeft,
                   imageScale: 1.08,
@@ -149,7 +154,7 @@ class _FeatureGrid extends StatelessWidget {
                 _FeatureCard(
                   title: l10n.t('participant_feature2_title'),
                   subtitle: l10n.t('participant_feature2_sub'),
-                  asset: 'assets/Market.png',
+                  asset: 'assets/Market.webp',
                   imageViewportHeight: imageViewportHeight,
                   imageAlignment: wide ? Alignment.topCenter : Alignment.topLeft,
                   imageScale: 1.22,
@@ -157,7 +162,7 @@ class _FeatureGrid extends StatelessWidget {
                 _FeatureCard(
                   title: l10n.t('participant_feature3_title'),
                   subtitle: l10n.t('participant_feature3_sub'),
-                  asset: 'assets/Pay.png',
+                  asset: 'assets/Pay.webp',
                   imageViewportHeight: imageViewportHeight,
                   imageAlignment: wide ? Alignment.topCenter : Alignment.topLeft,
                   imageScale: 1.28,

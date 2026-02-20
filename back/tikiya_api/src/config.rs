@@ -19,6 +19,12 @@ pub struct AppConfig {
     pub google_client_id: String,
     pub google_client_secret: String,
     pub google_redirect_uri: String,
+    pub smtp_host: String,
+    pub smtp_port: u16,
+    pub smtp_username: String,
+    pub smtp_password: String,
+    pub smtp_from: String,
+    pub organizer_needs_to_email: String,
 }
 
 impl AppConfig {
@@ -105,6 +111,16 @@ impl AppConfig {
         let google_client_id = env::var("GOOGLE_CLIENT_ID").unwrap_or_default();
         let google_client_secret = env::var("GOOGLE_CLIENT_SECRET").unwrap_or_default();
         let google_redirect_uri = env::var("GOOGLE_REDIRECT_URI").unwrap_or_default();
+        let smtp_host = env::var("SMTP_HOST").unwrap_or_default();
+        let smtp_port = env::var("SMTP_PORT")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(587);
+        let smtp_username = env::var("SMTP_USERNAME").unwrap_or_default();
+        let smtp_password = env::var("SMTP_PASSWORD").unwrap_or_default();
+        let smtp_from = env::var("SMTP_FROM").unwrap_or_else(|_| "noreply@tikiya.dz".to_string());
+        let organizer_needs_to_email = env::var("ORGANIZER_NEEDS_TO_EMAIL")
+            .unwrap_or_else(|_| "rayanbenhabiles9@gmail.com".to_string());
 
         Self {
             port,
@@ -124,6 +140,12 @@ impl AppConfig {
             google_client_id,
             google_client_secret,
             google_redirect_uri,
+            smtp_host,
+            smtp_port,
+            smtp_username,
+            smtp_password,
+            smtp_from,
+            organizer_needs_to_email,
         }
     }
 }

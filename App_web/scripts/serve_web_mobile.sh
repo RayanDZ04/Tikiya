@@ -84,4 +84,38 @@ fi
 
 echo
 printf 'Serving build/web on http://%s:%s/\n' "$WEB_HOST" "$WEB_PORT"
-python3 -m http.server "$WEB_PORT" --bind "$WEB_HOST" --directory build/web
+python3 - "$WEB_HOST" "$WEB_PORT" <<'PY'
+import os
+import posixpath
+from functools import partial
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import unquote, urlsplit
+import sys
+
+HOST = sys.argv[1]
+PORT = int(sys.argv[2])
+DIRECTORY = os.path.join(os.getcwd(), 'build', 'web')
+
+
+class SpaHandler(SimpleHTTPRequestHandler):
+  def do_GET(self):
+    path = urlsplit(self.path).path
+    if path == '/favicon.ico' and os.path.exists(os.path.join(DIRECTORY, 'favicon.png')):
+      self.path = '/favicon.png'
+      return super().do_GET()
+
+    clean_path = posixpath.normpath(unquote(path))
+    full_path = os.path.join(DIRECTORY, clean_path.lstrip('/'))
+    has_extension = os.path.splitext(clean_path)[1] != ''
+
+    if clean_path not in ('', '/') and (not has_extension) and (not os.path.exists(full_path)):
+      self.path = '/index.html'
+
+    return super().do_GET()
+
+
+handler = partial(SpaHandler, directory=DIRECTORY)
+with ThreadingHTTPServer((HOST, PORT), handler) as httpd:
+  print(f'SPA server ready on http://{HOST}:{PORT}/ (root: {DIRECTORY})')
+  httpd.serve_forever()
+PY

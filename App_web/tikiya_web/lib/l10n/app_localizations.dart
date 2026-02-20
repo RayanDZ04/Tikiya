@@ -48,6 +48,21 @@ class AppLocalizations {
       'home_app_store': "Bientôt disponible sur l’App Store",
       'home_view_events': 'Voir tous les événements',
       'home_phone_semantics': 'Aperçu de l’application mobile',
+        'seo_home_title': 'Billetterie en ligne en Algérie – Concerts & Événements | Tikiya',
+        'seo_home_description':
+          'Découvrez bientôt Tikiya, la plateforme de billets et d’événements en Algérie. Accès sécurisé QR code et espace organisateurs.',
+        'seo_events_title': 'Événements en Algérie – Catalogue en cours de lancement | Tikiya',
+        'seo_events_description':
+          'Le catalogue Tikiya se construit avec nos premiers organisateurs partenaires. Proposez votre événement ou soyez alerté au lancement.',
+        'seo_participant_title': 'Mes billets QR code – entrée rapide | Tikiya',
+        'seo_participant_description':
+          'Accédez bientôt à vos billets, QR code et événements en un seul endroit avec Tikiya.',
+        'seo_orga_title': 'Tikiya Pro – Billetterie pour organisateurs en Algérie | Accès pilote',
+        'seo_orga_description':
+          'Rejoignez les partenaires fondateurs de Tikiya Pro. Gestion d’événements, billetterie et outils pro en lancement progressif.',
+        'seo_contact_title': 'Contact Tikiya | Billetterie en Algérie',
+        'seo_contact_description':
+          'Contactez l’équipe Tikiya pour vos questions sur la plateforme, les événements et le programme partenaires.',
       'events_title': 'Catalogue en cours de lancement en Algérie',
       'events_subtitle':
           'Découvrez et réservez vos prochains événements: concerts,\nsoirées, spectacles et plus encore.',
@@ -80,12 +95,16 @@ class AppLocalizations {
       'field_email': 'E-mail*',
       'field_phone': 'Téléphone*',
       'field_website': 'Site web*',
+      'field_required': 'Champ requis',
+      'field_invalid_email': 'Adresse e-mail invalide',
       'hint_first_name': 'Ryad',
       'hint_last_name': 'Mahrez',
       'hint_email': 'votre@email-pro.dz',
       'hint_phone': '+213 # ## ## ## ##',
       'hint_website': 'Liens de votre site',
       'orga_needs_submit': 'Soumettre mes informations',
+      'orga_needs_success': 'Merci ! Vos informations ont été envoyées.',
+      'orga_needs_error': 'Impossible d\'envoyer le formulaire pour le moment.',
       'orga_public_title': 'Tikiya Pro arrive\nDevenez partenaire fondateur',
       'orga_public_subtitle':
           'Proposez vos événements, boostez vos ventes et\naccédez aux meilleures statistiques avec\nun panel organisateur intuitif.',
@@ -130,6 +149,21 @@ class AppLocalizations {
       'home_app_store': 'Coming soon on the App Store',
       'home_view_events': 'See all events',
       'home_phone_semantics': 'Mobile app preview',
+        'seo_home_title': 'Online ticketing in Algeria – Concerts & Events | Tikiya',
+        'seo_home_description':
+          'Discover Tikiya soon, the ticketing and events platform in Algeria with secure QR code access and organizer tools.',
+        'seo_events_title': 'Events in Algeria – Catalog launching soon | Tikiya',
+        'seo_events_description':
+          'The Tikiya catalog is being built with our first partner organizers. Submit your event or get notified at launch.',
+        'seo_participant_title': 'My QR code tickets – fast entry | Tikiya',
+        'seo_participant_description':
+          'Soon access your tickets, QR code and events in one place with Tikiya.',
+        'seo_orga_title': 'Tikiya Pro – Ticketing for organizers in Algeria | Pilot access',
+        'seo_orga_description':
+          'Join Tikiya Pro founding partners. Event management, ticketing and pro tools in progressive rollout.',
+        'seo_contact_title': 'Contact Tikiya | Ticketing in Algeria',
+        'seo_contact_description':
+          'Contact the Tikiya team for questions about the platform, events and partner onboarding.',
       'events_title': 'Catalog launching soon in Algeria',
       'events_subtitle':
           'Discover and book your next events: concerts,\nparties, shows and more.',
@@ -160,12 +194,16 @@ class AppLocalizations {
       'field_email': 'Email*',
       'field_phone': 'Phone*',
       'field_website': 'Website*',
+      'field_required': 'Required field',
+      'field_invalid_email': 'Invalid email address',
       'hint_first_name': 'Ryad',
       'hint_last_name': 'Mahrez',
       'hint_email': 'your@pro-email.dz',
       'hint_phone': '+213 # ## ## ## ##',
       'hint_website': 'Your website link',
       'orga_needs_submit': 'Submit my information',
+      'orga_needs_success': 'Thanks! Your information has been sent.',
+      'orga_needs_error': 'Unable to send the form right now.',
       'orga_public_title': 'Tikiya Pro is coming\nbecome a founding partner',
       'orga_public_subtitle':
           'List your events, boost sales and\naccess the best stats with\nan intuitive organizer dashboard.',
@@ -209,6 +247,21 @@ class AppLocalizations {
       'home_app_store': 'قريبًا على App Store',
       'home_view_events': 'عرض كل الفعاليات',
       'home_phone_semantics': 'معاينة تطبيق الهاتف',
+        'seo_home_title': 'بيع التذاكر عبر الإنترنت في الجزائر – حفلات وفعاليات | تيكيا',
+        'seo_home_description':
+          'اكتشف قريبًا تيكيا، منصة التذاكر والفعاليات في الجزائر مع دخول آمن عبر QR ومساحة خاصة بالمنظمين.',
+        'seo_events_title': 'فعاليات في الجزائر – الكتالوج قيد الإطلاق | تيكيا',
+        'seo_events_description':
+          'يتم بناء كتالوج تيكيا مع أول شركائنا من المنظمين. أضف فعاليتك أو فعّل التنبيه عند الإطلاق.',
+        'seo_participant_title': 'تذاكر QR الخاصة بي – دخول سريع | تيكيا',
+        'seo_participant_description':
+          'قريبًا ستصل إلى تذاكرك ورمز QR والفعاليات في مكان واحد مع تيكيا.',
+        'seo_orga_title': 'تيكيا برو – حلول التذاكر للمنظمين في الجزائر | وصول تجريبي',
+        'seo_orga_description':
+          'انضم إلى الشركاء المؤسسين في تيكيا برو. إدارة فعاليات وتذاكر وأدوات احترافية بإطلاق تدريجي.',
+        'seo_contact_title': 'اتصل بتيكيا | التذاكر في الجزائر',
+        'seo_contact_description':
+          'تواصل مع فريق تيكيا لأي استفسار حول المنصة والفعاليات وبرنامج الشركاء.',
       'events_title': 'إطلاق الكتالوج قريبًا في الجزائر',
       'events_subtitle':
           'اكتشف واحجز فعالياتك القادمة: حفلات موسيقية،\nسهرات، عروض وأكثر.',
@@ -239,12 +292,16 @@ class AppLocalizations {
       'field_email': 'البريد الإلكتروني*',
       'field_phone': 'الهاتف*',
       'field_website': 'الموقع الإلكتروني*',
+      'field_required': 'هذا الحقل مطلوب',
+      'field_invalid_email': 'البريد الإلكتروني غير صالح',
       'hint_first_name': 'Ryad',
       'hint_last_name': 'Mahrez',
       'hint_email': 'your@pro-email.dz',
       'hint_phone': '+213 # ## ## ## ##',
       'hint_website': 'رابط موقعك',
       'orga_needs_submit': 'إرسال معلوماتي',
+      'orga_needs_success': 'شكرًا! تم إرسال معلوماتك.',
+      'orga_needs_error': 'تعذر إرسال النموذج الآن.',
       'orga_public_title': 'تيكيا برو قادمة\nكن شريكًا مؤسسًا',
       'orga_public_subtitle':
           'اعرض فعالياتك، عزّز مبيعاتك\nواطّلع على أفضل الإحصاءات عبر\nلوحة منظّم سهلة الاستخدام.',
