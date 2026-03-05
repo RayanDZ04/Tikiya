@@ -182,4 +182,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get signupSuccess => 'تم إنشاء الحساب، يمكنك تسجيل الدخول';
+
+  @override
+  String get roleSelectionTitle => 'Qui êtes-vous ?';
+
+  @override
+  String get roleSelectionSubtitle =>
+      'Choisissez votre profil pour créer votre compte';
+
+  @override
+  String get roleParticipant => 'Participant';
+
+  @override
+  String get roleParticipantDesc =>
+      'Je veux découvrir et réserver des événements';
+
+  @override
+  String get roleOrganisateur => 'Organisateur';
+
+  @override
+  String get roleOrganisateurDesc => 'Je veux créer et gérer des événements';
+
+  @override
+  String get orgaSignupTitle => 'Inscription organisateur';
+
+  @override
+  String get orgaCompanyLabel => 'Nom de l\'entreprise';
+
+  @override
+  String get orgaCompanyRequired =>
+      'Veuillez entrer le nom de votre entreprise';
+
+  @override
+  String get orgaPhoneLabel => 'Numéro de téléphone';
+
+  @override
+  String get orgaPhoneRequired => 'Veuillez entrer votre numéro de téléphone';
+
+  @override
+  String get orgaWebsiteLabel => 'Site web (optionnel)';
+
+  @override
+  String get orgaProEmailLabel => 'Email professionnel';
 }

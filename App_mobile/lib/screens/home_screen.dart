@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    const Color bleuProfond = Color(0xFF1A237E);
+    const Color bleuProfond = Color(0xFF0B1C3E);
     const Color bleuCyan = Color(0xFF00ACC1);
     const Color grisClair = Color(0xFFF5F7FA);
     const Color blanc = Colors.white;
@@ -73,7 +73,26 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.only(top: 76, bottom: 56),
               child: Stack(
                 children: [
-                  // Top-right auth area (white, no bubble)
+                  // Top-left: bouton S'inscrire quand non connecté
+                  Positioned(
+                    left: 16,
+                    top: -15,
+                    child: ValueListenableBuilder<UserSession?>(
+                      valueListenable: SessionStore.I.session,
+                      builder: (context, session, _) {
+                        if (session != null) return const SizedBox.shrink();
+                        return TextButton(
+                          onPressed: () => Navigator.pushNamed(context, '/register-role'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: blanc,
+                            textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                          ),
+                          child: Text(l10n.authRegister),
+                        );
+                      },
+                    ),
+                  ),
+                  // Top-right: username+logout quand connecté, sinon juste la langue
                   Positioned(
                     right: 16,
                     top: -15,
@@ -81,30 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       valueListenable: SessionStore.I.session,
                       builder: (context, session, _) {
                         if (session == null) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              TextButton(
-                                onPressed: () => Navigator.pushNamed(context, '/login'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: blanc,
-                                  textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-                                ),
-                                child: Text(l10n.authLogin),
-                              ),
-                              const SizedBox(width: 6),
-                              TextButton(
-                                onPressed: () => Navigator.pushNamed(context, '/register'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: blanc,
-                                  textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-                                ),
-                                child: Text(l10n.authRegister),
-                              ),
-                              const SizedBox(width: 6),
-                              const LanguageSwitch(foregroundColor: blanc),
-                            ],
-                          );
+                          return const LanguageSwitch(foregroundColor: blanc);
                         }
                         final display = (session.username?.isNotEmpty ?? false)
                           ? session.username!
@@ -232,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               border: Border.all(color: const Color(0xFFE3E8EF)),
                               boxShadow: const [
                                 BoxShadow(
-                                  color: Color.fromRGBO(26, 35, 126, 0.10),
+                                  color: Color.fromRGBO(11, 28, 62, 0.10),
                                   blurRadius: 24,
                                   offset: Offset(0, 6),
                                 ),
@@ -333,31 +329,35 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 900),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isWide = constraints.maxWidth > 700;
-                      final children = <Widget>[
-                        sectionCard(title: l10n.filterMusic, subtitle: l10n.noResults),
-                        sectionCard(title: l10n.filterCulture, subtitle: l10n.noResults),
-                        sectionCard(title: l10n.filterEntertainment, subtitle: l10n.noResults),
-                        sectionCard(title: l10n.filterPopular, subtitle: l10n.noResults),
-                      ];
-                      if (isWide) {
-                        return GridView.count(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: children,
+                  child: ValueListenableBuilder<UserSession?>(
+                    valueListenable: SessionStore.I.session,
+                    builder: (context, session, _) => LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isWide = constraints.maxWidth > 700;
+                        final children = <Widget>[
+                          sectionCard(title: l10n.filterMusic, subtitle: l10n.noResults),
+                          sectionCard(title: l10n.filterCulture, subtitle: l10n.noResults),
+                          sectionCard(title: l10n.filterEntertainment, subtitle: l10n.noResults),
+                          if (session != null)
+                            sectionCard(title: l10n.filterPopular, subtitle: l10n.noResults),
+                        ];
+                        if (isWide) {
+                          return GridView.count(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: children,
+                          );
+                        }
+                        return Column(
+                          children: [
+                            for (final c in children) ...[c, const SizedBox(height: 16)],
+                          ],
                         );
-                      }
-                      return Column(
-                        children: [
-                          for (final c in children) ...[c, const SizedBox(height: 16)],
-                        ],
-                      );
-                    },
+                      },
+                    ),
                   ),
                 ),
               ),

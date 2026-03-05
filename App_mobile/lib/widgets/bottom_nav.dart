@@ -7,7 +7,7 @@ class BottomNav extends StatelessWidget {
   const BottomNav({super.key, this.current});
   final String? current; // route key: 'home','tickets','market','orga','profile','login'
 
-  static const Color bleuProfon = Color(0xFF1A237E);
+  static const Color bleuProfon = Color(0xFF0B1C3E);
   static const Color grisClair = Color(0xFFE0E0E0);
 
   @override
@@ -20,7 +20,7 @@ class BottomNav extends StatelessWidget {
     List<_NavItem> items = [
       _NavItem('home', l10n.navHome, Icons.home, onTap: () => Navigator.pushReplacementNamed(context, '/')),
     ];
-    if (!isLogged || role != 'organisateur') {
+    if (isLogged && role != 'organisateur') {
       items.add(
         _NavItem('tickets', l10n.navTickets, Icons.confirmation_num,
             onTap: () => Navigator.pushReplacementNamed(context, '/tickets')),
@@ -90,7 +90,7 @@ class _NavButton extends StatelessWidget {
   final bool active;
   final VoidCallback onTap;
 
-  static const Color bleuProfon = Color(0xFF1A237E);
+  static const Color bleuProfon = Color(0xFF0B1C3E);
 
   @override
   Widget build(BuildContext context) {

@@ -20,6 +20,7 @@ ANDROID_SDK_ROOT := $(DETECTED_ANDROID_SDK_ROOT)
 endif
 ANDROID_HOME ?= $(ANDROID_SDK_ROOT)
 ADB ?= $(ANDROID_SDK_ROOT)/platform-tools/adb
+FLUTTER := $(shell command -v flutter 2>/dev/null || find $$HOME/flutter/bin -name flutter 2>/dev/null | head -1)
 EMULATOR ?= $(ANDROID_SDK_ROOT)/emulator/emulator
 AVD_NAME ?= Pixel_7_Pro
 EMULATOR_ARGS ?= -netdelay none -netspeed full -gpu auto
@@ -34,7 +35,7 @@ PKG_ORGA ?= com.tikiya.orga
 PKG_MOBILE_OLD ?= com.example.app_mobile
 PKG_ORGA_OLD ?= com.example.tikiya_orga
 
-.PHONY: build android android_fix android_display0 android_display1 android_fix_display0 android_fix_display1 app app_orga clean app_clean web web_mobile web_orga dev dev_down dev_logs
+.PHONY: build android android_fix android_display0 android_display1 android_fix_display0 android_fix_display1 app app_orga dev_app dev_app_orga clean app_clean web web_mobile web_orga dev dev_down dev_logs
 
 IMAGE_MOBILE ?= tikiya-android_build_mobile:latest
 IMAGE_ORGA ?= tikiya-android_build_organisateur:latest
@@ -103,19 +104,43 @@ android_fix_display0:
 android_fix_display1:
 	$(MAKE) android_fix EMULATOR_DISPLAY=:1
 
-# Build and install App_mobile APK via Docker on the running emulator
+# Build and install App_mobile APK on the running emulator
 app: android
-	$(COMPOSE_CMD) run --rm android_build_mobile
+	@if [ -n "$(FLUTTER)" ]; then \
+	  echo "Build local Flutter (App_mobile)..."; \
+	  cd $(PWD)/App_mobile && $(FLUTTER) build apk --release; \
+	else \
+	  echo "Flutter introuvable en local, build via Docker..."; \
+	  $(COMPOSE_CMD) run --rm android_build_mobile; \
+	  find $(PWD)/App_mobile/build -user root -exec chown $(USER):$(USER) {} + 2>/dev/null || true; \
+	fi
 	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi; \
 	 for pkg in $(PKG_MOBILE) $(PKG_MOBILE_OLD); do $(ADB) -s $$serial uninstall $$pkg >/dev/null 2>&1 || true; done; \
 	 $(ADB) -s $$serial install -r $(PWD)/App_mobile/build/app/outputs/flutter-apk/app-release.apk
 
-# Build and install App_mobile_organisateur APK via Docker on the running emulator
+# Build and install App_mobile_organisateur APK on the running emulator
 app_orga: android
-	$(COMPOSE_CMD) run --rm android_build_organisateur
+	@if [ -n "$(FLUTTER)" ]; then \
+	  echo "Build local Flutter (App_mobile_organisateur)..."; \
+	  cd $(PWD)/App_mobile_organisateur && $(FLUTTER) build apk --release; \
+	else \
+	  echo "Flutter introuvable en local, build via Docker..."; \
+	  $(COMPOSE_CMD) run --rm android_build_organisateur; \
+	  find $(PWD)/App_mobile_organisateur/build -user root -exec chown $(USER):$(USER) {} + 2>/dev/null || true; \
+	fi
 	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi; \
 	 for pkg in $(PKG_ORGA) $(PKG_ORGA_OLD); do $(ADB) -s $$serial uninstall $$pkg >/dev/null 2>&1 || true; done; \
 	 $(ADB) -s $$serial install -r $(PWD)/App_mobile_organisateur/build/app/outputs/flutter-apk/app-release.apk
+
+# Flutter hot-reload dev mode (App_mobile) — r=reload R=restart q=quitter
+dev_app: android
+	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi
+	cd $(PWD)/App_mobile && $(FLUTTER) run --debug -d $$($(ADB_SERIAL_CMD))
+
+# Flutter hot-reload dev mode (App_mobile_organisateur)
+dev_app_orga: android
+	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi
+	cd $(PWD)/App_mobile_organisateur && $(FLUTTER) run --debug -d $$($(ADB_SERIAL_CMD))
 
 clean:
 	@serial=$$($(ADB_SERIAL_CMD)); if [ -n "$$serial" ]; then $(ADB) -s $$serial emu kill >/dev/null 2>&1 || true; fi

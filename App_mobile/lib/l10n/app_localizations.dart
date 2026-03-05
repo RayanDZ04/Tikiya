@@ -447,6 +447,84 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Inscrit, vous pouvez vous connecter'**
   String get signupSuccess;
+
+  /// No description provided for @roleSelectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui êtes-vous ?'**
+  String get roleSelectionTitle;
+
+  /// No description provided for @roleSelectionSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre profil pour créer votre compte'**
+  String get roleSelectionSubtitle;
+
+  /// No description provided for @roleParticipant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participant'**
+  String get roleParticipant;
+
+  /// No description provided for @roleParticipantDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux découvrir et réserver des événements'**
+  String get roleParticipantDesc;
+
+  /// No description provided for @roleOrganisateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organisateur'**
+  String get roleOrganisateur;
+
+  /// No description provided for @roleOrganisateurDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux créer et gérer des événements'**
+  String get roleOrganisateurDesc;
+
+  /// No description provided for @orgaSignupTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription organisateur'**
+  String get orgaSignupTitle;
+
+  /// No description provided for @orgaCompanyLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'entreprise'**
+  String get orgaCompanyLabel;
+
+  /// No description provided for @orgaCompanyRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer le nom de votre entreprise'**
+  String get orgaCompanyRequired;
+
+  /// No description provided for @orgaPhoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de téléphone'**
+  String get orgaPhoneLabel;
+
+  /// No description provided for @orgaPhoneRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer votre numéro de téléphone'**
+  String get orgaPhoneRequired;
+
+  /// No description provided for @orgaWebsiteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Site web (optionnel)'**
+  String get orgaWebsiteLabel;
+
+  /// No description provided for @orgaProEmailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email professionnel'**
+  String get orgaProEmailLabel;
 }
 
 class _AppLocalizationsDelegate

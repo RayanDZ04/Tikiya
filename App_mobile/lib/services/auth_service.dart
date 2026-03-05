@@ -45,6 +45,33 @@ class AuthService {
     return data;
   }
 
+  Future<Map<String, dynamic>> registerOrga({
+    required String email,
+    required String password,
+    required String company,
+    required String phone,
+    String? website,
+  }) async {
+    final uri = Uri.parse('$_baseUrl/register');
+    final body = <String, dynamic>{
+      'email': email,
+      'password': password,
+      'company': company,
+      'phone': phone,
+      'role': 'organisateur',
+      if (website != null && website.isNotEmpty) 'website': website,
+    };
+    final res = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+    _ensureOk(res);
+    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    _captureSession(data);
+    return data;
+  }
+
   Future<Map<String, dynamic>> loginWithGoogleIdToken(String idToken) async {
     final uri = Uri.parse('$_baseUrl/auth/google/mobile');
     final res = await http.post(

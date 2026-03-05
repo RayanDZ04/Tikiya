@@ -64,5 +64,20 @@
   "passwordMismatch": "Passwords do not match",
   "fixFields": "Please fix the fields",
   "signupProgress": "Signing up...",
-  "signupSuccess": "Signed up, you can now sign in"
+  "signupSuccess": "Signed up, you can now sign in",
+
+  "roleSelectionTitle": "Who are you?",
+  "roleSelectionSubtitle": "Choose your profile to create your account",
+  "roleParticipant": "Participant",
+  "roleParticipantDesc": "I want to discover and book events",
+  "roleOrganisateur": "Organiser",
+  "roleOrganisateurDesc": "I want to create and manage events",
+
+  "orgaSignupTitle": "Organiser sign up",
+  "orgaCompanyLabel": "Company name",
+  "orgaCompanyRequired": "Please enter your company name",
+  "orgaPhoneLabel": "Phone number",
+  "orgaPhoneRequired": "Please enter your phone number",
+  "orgaWebsiteLabel": "Website (optional)",
+  "orgaProEmailLabel": "Professional email"
 }

@@ -64,5 +64,20 @@
   "passwordMismatch": "Les mots de passe ne correspondent pas",
   "fixFields": "Veuillez corriger les champs",
   "signupProgress": "Inscription...",
-  "signupSuccess": "Inscrit, vous pouvez vous connecter"
+  "signupSuccess": "Inscrit, vous pouvez vous connecter",
+
+  "roleSelectionTitle": "Qui êtes-vous ?",
+  "roleSelectionSubtitle": "Choisissez votre profil pour créer votre compte",
+  "roleParticipant": "Participant",
+  "roleParticipantDesc": "Je veux découvrir et réserver des événements",
+  "roleOrganisateur": "Organisateur",
+  "roleOrganisateurDesc": "Je veux créer et gérer des événements",
+
+  "orgaSignupTitle": "Inscription organisateur",
+  "orgaCompanyLabel": "Nom de l'entreprise",
+  "orgaCompanyRequired": "Veuillez entrer le nom de votre entreprise",
+  "orgaPhoneLabel": "Numéro de téléphone",
+  "orgaPhoneRequired": "Veuillez entrer votre numéro de téléphone",
+  "orgaWebsiteLabel": "Site web (optionnel)",
+  "orgaProEmailLabel": "Email professionnel"
 }

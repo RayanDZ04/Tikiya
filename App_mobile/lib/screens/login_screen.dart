@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _auth = AuthService();
 
   // Couleurs approximatives des variables CSS du proto
-  static const Color bleuProfon = Color(0xFF1A237E);
+  static const Color bleuProfon = Color(0xFF0B1C3E);
   static const Color bleuCyan = Color(0xFF00ACC1);
   static const Color grisClair = Color(0xFFE0E0E0);
   static const Color grisFonce = Color(0xFF424242);
@@ -82,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: Border.all(color: grisClair),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color.fromRGBO(26, 35, 126, 0.10),
+                        color: Color.fromRGBO(11, 28, 62, 0.10),
                         blurRadius: 24,
                         offset: Offset(0, 4),
                       )
@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: GoogleFonts.montserrat(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF1A237E),
+                                color: const Color(0xFF0B1C3E),
                                 letterSpacing: 0.8,
                               ),
                             ),

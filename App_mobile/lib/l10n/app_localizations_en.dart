@@ -182,4 +182,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signupSuccess => 'Signed up, you can now sign in';
+
+  @override
+  String get roleSelectionTitle => 'Who are you?';
+
+  @override
+  String get roleSelectionSubtitle =>
+      'Choose your profile to create your account';
+
+  @override
+  String get roleParticipant => 'Participant';
+
+  @override
+  String get roleParticipantDesc => 'I want to discover and book events';
+
+  @override
+  String get roleOrganisateur => 'Organiser';
+
+  @override
+  String get roleOrganisateurDesc => 'I want to create and manage events';
+
+  @override
+  String get orgaSignupTitle => 'Organiser sign up';
+
+  @override
+  String get orgaCompanyLabel => 'Company name';
+
+  @override
+  String get orgaCompanyRequired => 'Please enter your company name';
+
+  @override
+  String get orgaPhoneLabel => 'Phone number';
+
+  @override
+  String get orgaPhoneRequired => 'Please enter your phone number';
+
+  @override
+  String get orgaWebsiteLabel => 'Website (optional)';
+
+  @override
+  String get orgaProEmailLabel => 'Professional email';
 }
