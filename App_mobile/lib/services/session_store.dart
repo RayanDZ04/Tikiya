@@ -26,6 +26,12 @@ class SessionStore {
   SessionStore._();
 
   static const String _prefsLocaleKey = 'app_locale';
+  static const String _prefsSessionId = 'session_id';
+  static const String _prefsSessionEmail = 'session_email';
+  static const String _prefsSessionUsername = 'session_username';
+  static const String _prefsSessionRole = 'session_role';
+  static const String _prefsSessionToken = 'session_access_token';
+  static const String _prefsSessionRefresh = 'session_refresh_token';
 
   final ValueNotifier<UserSession?> session = ValueNotifier<UserSession?>(null);
 
@@ -48,6 +54,52 @@ class SessionStore {
     }
   }
 
-  void setSession(UserSession? s) => session.value = s;
-  void clear() => session.value = null;
+  /// Persists session to SharedPreferences and sets it in memory.
+  Future<void> setSession(UserSession? s) async {
+    session.value = s;
+    final prefs = await SharedPreferences.getInstance();
+    if (s == null) {
+      await prefs.remove(_prefsSessionId);
+      await prefs.remove(_prefsSessionEmail);
+      await prefs.remove(_prefsSessionUsername);
+      await prefs.remove(_prefsSessionRole);
+      await prefs.remove(_prefsSessionToken);
+      await prefs.remove(_prefsSessionRefresh);
+    } else {
+      await prefs.setString(_prefsSessionId, s.id);
+      await prefs.setString(_prefsSessionEmail, s.email);
+      if (s.username != null) await prefs.setString(_prefsSessionUsername, s.username!);
+      if (s.role != null) await prefs.setString(_prefsSessionRole, s.role!);
+      await prefs.setString(_prefsSessionToken, s.accessToken);
+      if (s.refreshToken != null) await prefs.setString(_prefsSessionRefresh, s.refreshToken!);
+    }
+  }
+
+  /// Loads a previously persisted session from SharedPreferences.
+  Future<void> loadSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_prefsSessionToken);
+    final id = prefs.getString(_prefsSessionId);
+    final email = prefs.getString(_prefsSessionEmail);
+    if (token == null || token.isEmpty || id == null || email == null) return;
+    session.value = UserSession(
+      id: id,
+      email: email,
+      username: prefs.getString(_prefsSessionUsername),
+      role: prefs.getString(_prefsSessionRole),
+      accessToken: token,
+      refreshToken: prefs.getString(_prefsSessionRefresh),
+    );
+  }
+
+  Future<void> clear() async {
+    session.value = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefsSessionId);
+    await prefs.remove(_prefsSessionEmail);
+    await prefs.remove(_prefsSessionUsername);
+    await prefs.remove(_prefsSessionRole);
+    await prefs.remove(_prefsSessionToken);
+    await prefs.remove(_prefsSessionRefresh);
+  }
 }

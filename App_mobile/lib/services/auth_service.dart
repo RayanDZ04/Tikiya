@@ -17,7 +17,7 @@ class AuthService {
     );
     _ensureOk(res);
     final data = jsonDecode(res.body) as Map<String, dynamic>;
-    _captureSession(data);
+    await _captureSession(data);
     return data;
   }
 
@@ -41,7 +41,7 @@ class AuthService {
     );
     _ensureOk(res);
     final data = jsonDecode(res.body) as Map<String, dynamic>;
-    _captureSession(data);
+    await _captureSession(data);
     return data;
   }
 
@@ -68,7 +68,7 @@ class AuthService {
     );
     _ensureOk(res);
     final data = jsonDecode(res.body) as Map<String, dynamic>;
-    _captureSession(data);
+    await _captureSession(data);
     return data;
   }
 
@@ -81,7 +81,7 @@ class AuthService {
     );
     _ensureOk(res);
     final data = jsonDecode(res.body) as Map<String, dynamic>;
-    _captureSession(data);
+    await _captureSession(data);
     return data;
   }
 
@@ -91,7 +91,7 @@ class AuthService {
     }
   }
 
-  void _captureSession(Map<String, dynamic> data) {
+  Future<void> _captureSession(Map<String, dynamic> data) async {
     final user = (data['user'] as Map?) ?? (data['data'] as Map?) ?? {};
     final tokens = (data['tokens'] as Map?) ?? {};
     final fn = (user['first_name'] ?? user['firstName'])?.toString();
@@ -114,7 +114,7 @@ class AuthService {
       accessToken: (tokens['access_token'] ?? tokens['accessToken'] ?? '').toString(),
       refreshToken: (tokens['refresh_token'] ?? tokens['refreshToken'])?.toString(),
     );
-    SessionStore.I.setSession(session);
+    await SessionStore.I.setSession(session);
   }
 }
 

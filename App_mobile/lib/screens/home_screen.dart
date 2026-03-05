@@ -447,7 +447,17 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
         setState(() => _error = 'Impossible d\'ouvrir le navigateur.');
       }
     } catch (e) {
-      setState(() => _error = 'Erreur: $e');
+      final msg = e.toString();
+      // Extract backend detail if present (e.g. 5-ticket limit)
+      String display = 'Erreur lors du paiement.';
+      if (msg.contains('"detail":"')) {
+        final start = msg.indexOf('"detail":"') + 10;
+        final end = msg.indexOf('"', start);
+        if (end > start) display = msg.substring(start, end);
+      } else if (msg.contains('Impossible')) {
+        display = msg;
+      }
+      setState(() => _error = display);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

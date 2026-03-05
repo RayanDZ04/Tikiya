@@ -1,4 +1,4 @@
-use axum::{extract::State, http::HeaderMap, Json};
+use axum::{extract::State, http::HeaderMap, response::Html, Json};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -109,6 +109,21 @@ pub async fn create_checkout(
     // Chargily requires integer DZD (whole number)
     let amount = (event.price as i64).max(100); // minimum 100 DZD
 
+    // ── Enforce 5-ticket limit per participant per event ──────────────────────
+    let existing: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM tickets WHERE event_id = $1 AND user_id = $2 AND status NOT IN ('failed','canceled')",
+    )
+    .bind(req.event_id)
+    .bind(user_id)
+    .fetch_one(&state.db.pool)
+    .await?;
+
+    if existing >= 5 {
+        return Err(ApiError::Validation(
+            "Vous ne pouvez pas acheter plus de 5 billets pour le même événement.".to_string(),
+        ));
+    }
+
     // Create a pending ticket record first so we have an ID for metadata
     // Use gen_random_uuid() as temporary checkout_id (unique placeholder)
     let ticket_id: Uuid = sqlx::query_scalar(
@@ -162,8 +177,7 @@ pub async fn create_checkout(
         return Ok(Json(CreateCheckoutResponse {
             ticket_id,
             checkout_url: format!("https://pay.chargily.dz/test/mock/{}", ticket_id),
-        }));
-    }
+        }));    }
 
     let client = Client::new();
     let chargily_resp = client
@@ -330,4 +344,104 @@ pub async fn event_ticket_stats(
         sold: row.sold.unwrap_or(0),
         revenue: row.revenue.unwrap_or(0),
     }))
+}
+
+// ─── GET /payments/success  — redirect HTML → tikiya://payment/success ─────────
+/// Chargily redirige le navigateur ici après un paiement réussi.
+/// On marque directement le billet comme payé (utile en dev sans webhook).
+pub async fn payment_success(
+    State(state): State<AppState>,
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Html<String> {
+    let ticket_str = params.get("ticket").map(|s| s.as_str()).unwrap_or("");
+
+    // Mark ticket as paid — Chargily only reaches this URL on actual success.
+    if let Ok(ticket_id) = uuid::Uuid::parse_str(ticket_str) {
+        let _ = sqlx::query(
+            "UPDATE tickets SET status = 'paid', updated_at = now() WHERE id = $1 AND status = 'pending'",
+        )
+        .bind(ticket_id)
+        .execute(&state.db.pool)
+        .await;
+    }
+
+    Html(redirect_page(
+        &format!("tikiya://payment/success?ticket={}", ticket_str),
+        "Paiement confirmé",
+        "Votre billet est prêt. Retour à l'application...",
+        "#43A047",
+        "✓",
+    ))
+}
+
+// ─── GET /payments/failure  — redirect HTML → tikiya://payment/failure ─────────
+pub async fn payment_failure(
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Html<String> {
+    let ticket = params.get("ticket").map(|s| s.as_str()).unwrap_or("");
+    Html(redirect_page(
+        &format!("tikiya://payment/failure?ticket={}", ticket),
+        "Paiement échoué",
+        "Le paiement n'a pas abouti. Retour à l'application...",
+        "#EF5350",
+        "✗",
+    ))
+}
+
+fn redirect_page(deep_link: &str, title: &str, message: &str, color: &str, icon: &str) -> String {
+    format!(
+        r#"<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta http-equiv="refresh" content="1;url={deep_link}" />
+  <style>
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    body {{
+      background: #0B1C3E;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }}
+    .card {{
+      background: white;
+      border-radius: 24px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }}
+    .icon {{
+      width: 80px; height: 80px;
+      background: {color}1a;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 40px; color: {color};
+    }}
+    h1 {{ color: #0B1C3E; font-size: 20px; margin-bottom: 10px; }}
+    p {{ color: #607D8B; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }}
+    a {{
+      display: block; background: #0B1C3E; color: white;
+      text-decoration: none; padding: 14px 24px;
+      border-radius: 12px; font-weight: 700; font-size: 14px;
+    }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">{icon}</div>
+    <h1>{title}</h1>
+    <p>{message}</p>
+    <a href="{deep_link}">Retour à l'application</a>
+  </div>
+  <script>
+    setTimeout(function() {{ window.location.href = "{deep_link}"; }}, 800);
+  </script>
+</body>
+</html>"#
+    )
 }
