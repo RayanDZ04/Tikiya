@@ -25,6 +25,7 @@ pub struct AppConfig {
     pub smtp_password: String,
     pub smtp_from: String,
     pub organizer_needs_to_email: String,
+    pub public_base_url: String,
 }
 
 impl AppConfig {
@@ -69,7 +70,7 @@ impl AppConfig {
         let http_max_body_bytes = env::var("HTTP_MAX_BODY_BYTES")
             .ok()
             .and_then(|v| v.parse().ok())
-            .unwrap_or(1024 * 1024);
+            .unwrap_or(10 * 1024 * 1024); // 10 MB default (for image uploads)
 
         let rate_limit_per_second = env::var("RATE_LIMIT_PER_SECOND")
             .ok()
@@ -121,6 +122,8 @@ impl AppConfig {
         let smtp_from = env::var("SMTP_FROM").unwrap_or_else(|_| "noreply@tikiya.dz".to_string());
         let organizer_needs_to_email = env::var("ORGANIZER_NEEDS_TO_EMAIL")
             .unwrap_or_else(|_| "rayanbenhabiles9@gmail.com".to_string());
+        let public_base_url = env::var("PUBLIC_BASE_URL")
+            .unwrap_or_else(|_| format!("http://localhost:{}", port));
 
         Self {
             port,
@@ -146,6 +149,7 @@ impl AppConfig {
             smtp_password,
             smtp_from,
             organizer_needs_to_email,
+            public_base_url,
         }
     }
 }

@@ -35,7 +35,7 @@ PKG_ORGA ?= com.tikiya.orga
 PKG_MOBILE_OLD ?= com.example.app_mobile
 PKG_ORGA_OLD ?= com.example.tikiya_orga
 
-.PHONY: build android android_fix android_display0 android_display1 android_fix_display0 android_fix_display1 app app_orga dev_app dev_app_orga clean app_clean web web_mobile web_orga dev dev_down dev_logs
+.PHONY: build android android_fix android_display0 android_display1 android_fix_display0 android_fix_display1 app app_orga backend_up dev_app dev_app_orga run_app run_app_orga clean app_clean web web_mobile web_orga dev dev_down dev_logs
 
 IMAGE_MOBILE ?= tikiya-android_build_mobile:latest
 IMAGE_ORGA ?= tikiya-android_build_organisateur:latest
@@ -132,14 +132,37 @@ app_orga: android
 	 for pkg in $(PKG_ORGA) $(PKG_ORGA_OLD); do $(ADB) -s $$serial uninstall $$pkg >/dev/null 2>&1 || true; done; \
 	 $(ADB) -s $$serial install -r $(PWD)/App_mobile_organisateur/build/app/outputs/flutter-apk/app-release.apk
 
+# Démarre la DB + l'API en arrière-plan (si pas déjà up)
+backend_up:
+	@echo "Démarrage DB + API en arrière-plan..."
+	$(COMPOSE_CMD) -f docker-compose.yml -f docker-compose.dev.yml up --build -d db api
+	@echo "Backend lancé (accessible sur :8080 dans quelques secondes)"
+
 # Flutter hot-reload dev mode (App_mobile) — r=reload R=restart q=quitter
-dev_app: android
+# Lance l'emulateur ET le backend en parallèle, puis flutter run
+dev_app:
+	@$(MAKE) android &
+	@$(MAKE) backend_up &
+	@wait
 	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi
 	cd $(PWD)/App_mobile && $(FLUTTER) run --debug -d $$($(ADB_SERIAL_CMD))
 
 # Flutter hot-reload dev mode (App_mobile_organisateur)
-dev_app_orga: android
+dev_app_orga:
+	@$(MAKE) android &
+	@$(MAKE) backend_up &
+	@wait
 	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté"; exit 1; fi
+	cd $(PWD)/App_mobile_organisateur && $(FLUTTER) run --debug -d $$($(ADB_SERIAL_CMD))
+
+# Lance uniquement flutter run (émulateur + backend déjà démarrés)
+run_app:
+	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté, lance d'abord: make android"; exit 1; fi
+	cd $(PWD)/App_mobile && $(FLUTTER) run --debug -d $$($(ADB_SERIAL_CMD))
+
+# Lance uniquement flutter run organisateur (émulateur + backend déjà démarrés)
+run_app_orga:
+	@serial=$$($(ADB_SERIAL_CMD)); if [ -z "$$serial" ]; then echo "Aucun emulateur détecté, lance d'abord: make android"; exit 1; fi
 	cd $(PWD)/App_mobile_organisateur && $(FLUTTER) run --debug -d $$($(ADB_SERIAL_CMD))
 
 clean:

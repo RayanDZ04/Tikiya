@@ -25,6 +25,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db = db::Db::connect_with_max(&cfg.database_url, cfg.database_pool_max).await?;
     tracing::info!("db.connected");
 
+    // Run migrations automatically
+    sqlx::migrate!("./migrations")
+        .run(&db.pool)
+        .await
+        .map_err(|e| { tracing::error!(error = ?e, "migrations.failed"); e })?;
+    tracing::info!("migrations.applied");
+
     tracing::info!(port = %cfg.port, origins = ?cfg.allowed_origins, "config.loaded");
 
     let state = state::AppState {

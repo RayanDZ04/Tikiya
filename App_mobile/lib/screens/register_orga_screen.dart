@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
 import '../services/session_store.dart';
-import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
 
 class RegisterOrgaScreen extends StatefulWidget {
@@ -79,10 +78,7 @@ class _RegisterOrgaScreenState extends State<RegisterOrgaScreen> {
             : _websiteController.text.trim(),
       );
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const BottomNav()),
-        (route) => false,
-      );
+      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
     } catch (e) {
       setState(() {
         _error = e.toString();

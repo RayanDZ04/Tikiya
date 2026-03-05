@@ -525,6 +525,174 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Email professionnel'**
   String get orgaProEmailLabel;
+
+  /// No description provided for @orgaHomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes événements'**
+  String get orgaHomeTitle;
+
+  /// No description provided for @orgaEventsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un événement'**
+  String get orgaEventsTitle;
+
+  /// No description provided for @orgaEventsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun événement créé'**
+  String get orgaEventsEmpty;
+
+  /// No description provided for @orgaCreateEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un événement'**
+  String get orgaCreateEvent;
+
+  /// No description provided for @orgaAccountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon compte'**
+  String get orgaAccountTitle;
+
+  /// No description provided for @eventTitleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre de l\'événement'**
+  String get eventTitleLabel;
+
+  /// No description provided for @eventTitleRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer un titre'**
+  String get eventTitleRequired;
+
+  /// No description provided for @eventDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date et heure (YYYY-MM-DDTHH:MM:SSZ)'**
+  String get eventDateLabel;
+
+  /// No description provided for @eventDateRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer une date'**
+  String get eventDateRequired;
+
+  /// No description provided for @eventLocationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lieu'**
+  String get eventLocationLabel;
+
+  /// No description provided for @eventDescriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get eventDescriptionLabel;
+
+  /// No description provided for @eventPriceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix (DZD)'**
+  String get eventPriceLabel;
+
+  /// No description provided for @eventCapacityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capacité'**
+  String get eventCapacityLabel;
+
+  /// No description provided for @eventCreateSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événement créé !'**
+  String get eventCreateSuccess;
+
+  /// No description provided for @eventDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer cet événement ?'**
+  String get eventDeleteConfirm;
+
+  /// No description provided for @eventDeleteSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événement supprimé'**
+  String get eventDeleteSuccess;
+
+  /// No description provided for @delete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get delete;
+
+  /// No description provided for @confirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get confirm;
+
+  /// No description provided for @navDashboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tableau de bord'**
+  String get navDashboard;
+
+  /// No description provided for @dashboardWelcome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue,'**
+  String get dashboardWelcome;
+
+  /// No description provided for @dashboardTotalEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements'**
+  String get dashboardTotalEvents;
+
+  /// No description provided for @dashboardUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'À venir'**
+  String get dashboardUpcoming;
+
+  /// No description provided for @dashboardTotalCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Places totales'**
+  String get dashboardTotalCapacity;
+
+  /// No description provided for @dashboardPast.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passé'**
+  String get dashboardPast;
+
+  /// No description provided for @dashboardRevenue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu potentiel'**
+  String get dashboardRevenue;
+
+  /// No description provided for @dashboardQuickActions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions rapides'**
+  String get dashboardQuickActions;
+
+  /// No description provided for @dashboardMyEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes événements'**
+  String get dashboardMyEvents;
+
+  /// No description provided for @dashboardRecent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements récents'**
+  String get dashboardRecent;
 }
 
 class _AppLocalizationsDelegate

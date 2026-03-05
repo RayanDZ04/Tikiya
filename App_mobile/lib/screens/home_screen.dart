@@ -5,6 +5,7 @@ import '../l10n/l10n.dart';
 import '../services/session_store.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
+import 'orga_home_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Dispatch organizer to their dedicated home
+    final session = SessionStore.I.session.value;
+    if (session != null && session.role == 'organisateur') {
+      return const OrgaHomeScreen();
+    }
+
     final l10n = context.l10n;
     const Color bleuProfond = Color(0xFF0B1C3E);
     const Color bleuCyan = Color(0xFF00ACC1);

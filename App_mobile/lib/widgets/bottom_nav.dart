@@ -34,6 +34,10 @@ class BottomNav extends StatelessWidget {
     }
     if (isLogged && role == 'organisateur') {
       items.add(
+        _NavItem('dashboard', l10n.navDashboard, Icons.dashboard,
+            onTap: () => Navigator.pushReplacementNamed(context, '/dashboard')),
+      );
+      items.add(
         _NavItem('orga', l10n.navOrga, Icons.event,
             onTap: () => Navigator.pushReplacementNamed(context, '/orga')),
       );
@@ -43,7 +47,16 @@ class BottomNav extends StatelessWidget {
         isLogged ? 'profile' : 'login',
         isLogged ? l10n.navProfile : l10n.navLogin,
         Icons.person,
-          onTap: () => Navigator.pushReplacementNamed(context, isLogged ? '/profile' : '/login')),
+        onTap: () {
+          if (!isLogged) {
+            Navigator.pushReplacementNamed(context, '/login');
+          } else if (role == 'organisateur') {
+            Navigator.pushReplacementNamed(context, '/account');
+          } else {
+            Navigator.pushReplacementNamed(context, '/profile');
+          }
+        },
+      ),
     );
 
     return Container(

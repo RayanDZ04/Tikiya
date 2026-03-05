@@ -222,4 +222,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orgaProEmailLabel => 'Professional email';
+
+  @override
+  String get orgaHomeTitle => 'My events';
+
+  @override
+  String get orgaEventsTitle => 'Create an event';
+
+  @override
+  String get orgaEventsEmpty => 'No events created yet';
+
+  @override
+  String get orgaCreateEvent => 'Create an event';
+
+  @override
+  String get orgaAccountTitle => 'My account';
+
+  @override
+  String get eventTitleLabel => 'Event title';
+
+  @override
+  String get eventTitleRequired => 'Please enter a title';
+
+  @override
+  String get eventDateLabel => 'Date & time (YYYY-MM-DDTHH:MM:SSZ)';
+
+  @override
+  String get eventDateRequired => 'Please enter a date';
+
+  @override
+  String get eventLocationLabel => 'Location';
+
+  @override
+  String get eventDescriptionLabel => 'Description';
+
+  @override
+  String get eventPriceLabel => 'Price (DZD)';
+
+  @override
+  String get eventCapacityLabel => 'Capacity';
+
+  @override
+  String get eventCreateSuccess => 'Event created!';
+
+  @override
+  String get eventDeleteConfirm => 'Delete this event?';
+
+  @override
+  String get eventDeleteSuccess => 'Event deleted';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get navDashboard => 'Dashboard';
+
+  @override
+  String get dashboardWelcome => 'Welcome,';
+
+  @override
+  String get dashboardTotalEvents => 'Events';
+
+  @override
+  String get dashboardUpcoming => 'Upcoming';
+
+  @override
+  String get dashboardTotalCapacity => 'Total seats';
+
+  @override
+  String get dashboardPast => 'Past';
+
+  @override
+  String get dashboardRevenue => 'Potential revenue';
+
+  @override
+  String get dashboardQuickActions => 'Quick actions';
+
+  @override
+  String get dashboardMyEvents => 'My events';
+
+  @override
+  String get dashboardRecent => 'Recent events';
 }

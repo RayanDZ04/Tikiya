@@ -64,5 +64,16 @@
   "passwordMismatch": "كلمتا المرور غير متطابقتين",
   "fixFields": "الرجاء تصحيح الحقول",
   "signupProgress": "جارٍ إنشاء الحساب...",
-  "signupSuccess": "تم إنشاء الحساب، يمكنك تسجيل الدخول"
+  "signupSuccess": "تم إنشاء الحساب، يمكنك تسجيل الدخول",
+
+  "navDashboard": "لوحة القيادة",
+  "dashboardWelcome": "مرحباً،",
+  "dashboardTotalEvents": "الفعاليات",
+  "dashboardUpcoming": "القادمة",
+  "dashboardTotalCapacity": "إجمالي المقاعد",
+  "dashboardPast": "منتهية",
+  "dashboardRevenue": "الإيرادات المتوقعة",
+  "dashboardQuickActions": "إجراءات سريعة",
+  "dashboardMyEvents": "فعالياتي",
+  "dashboardRecent": "الفعاليات الأخيرة"
 }

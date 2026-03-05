@@ -7,6 +7,7 @@ use axum::{
     routing::get,
     Router,
 };
+use tower_http::services::ServeDir;
 use axum::middleware::{from_fn, from_fn_with_state, Next};
 use std::time::Duration;
 use axum::BoxError;
@@ -93,6 +94,9 @@ pub fn build_router(state: AppState) -> Router {
         .merge(routes::me::router())
         .merge(routes::oauth::router())
         .merge(routes::organizer_needs::router())
+        .merge(routes::events::router())
+        .merge(routes::upload::router())
+        .nest_service("/files", ServeDir::new("uploads"))
         .with_state(state)
         .layer(middleware)
         .layer(from_fn_with_state(hsts_enabled, security_headers))

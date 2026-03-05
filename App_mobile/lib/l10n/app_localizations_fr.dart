@@ -225,4 +225,88 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get orgaProEmailLabel => 'Email professionnel';
+
+  @override
+  String get orgaHomeTitle => 'Mes événements';
+
+  @override
+  String get orgaEventsTitle => 'Créer un événement';
+
+  @override
+  String get orgaEventsEmpty => 'Aucun événement créé';
+
+  @override
+  String get orgaCreateEvent => 'Créer un événement';
+
+  @override
+  String get orgaAccountTitle => 'Mon compte';
+
+  @override
+  String get eventTitleLabel => 'Titre de l\'événement';
+
+  @override
+  String get eventTitleRequired => 'Veuillez entrer un titre';
+
+  @override
+  String get eventDateLabel => 'Date et heure (YYYY-MM-DDTHH:MM:SSZ)';
+
+  @override
+  String get eventDateRequired => 'Veuillez entrer une date';
+
+  @override
+  String get eventLocationLabel => 'Lieu';
+
+  @override
+  String get eventDescriptionLabel => 'Description';
+
+  @override
+  String get eventPriceLabel => 'Prix (DZD)';
+
+  @override
+  String get eventCapacityLabel => 'Capacité';
+
+  @override
+  String get eventCreateSuccess => 'Événement créé !';
+
+  @override
+  String get eventDeleteConfirm => 'Supprimer cet événement ?';
+
+  @override
+  String get eventDeleteSuccess => 'Événement supprimé';
+
+  @override
+  String get delete => 'Supprimer';
+
+  @override
+  String get confirm => 'Confirmer';
+
+  @override
+  String get navDashboard => 'Tableau de bord';
+
+  @override
+  String get dashboardWelcome => 'Bienvenue,';
+
+  @override
+  String get dashboardTotalEvents => 'Événements';
+
+  @override
+  String get dashboardUpcoming => 'À venir';
+
+  @override
+  String get dashboardTotalCapacity => 'Places totales';
+
+  @override
+  String get dashboardPast => 'Passé';
+
+  @override
+  String get dashboardRevenue => 'Revenu potentiel';
+
+  @override
+  String get dashboardQuickActions => 'Actions rapides';
+
+  @override
+  String get dashboardMyEvents => 'Mes événements';
+
+  @override
+  String get dashboardRecent => 'Événements récents';
 }

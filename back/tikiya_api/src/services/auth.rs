@@ -41,11 +41,18 @@ impl AuthService {
     pub async fn register(&self, payload: RegisterRequest) -> Result<AuthResponse, ApiError> {
         let password_hash = self.hash_password(&payload.password).await?;
 
+        // Allowed roles: participant (default) or organisateur
+        let role = match payload.role.as_deref() {
+            Some("organisateur") => "organisateur",
+            _ => "client",
+        };
+
         let user = sqlx::query_as::<_, User>(
-            "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, password_hash, role, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
+            "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id, email, password_hash, role, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
         )
         .bind(&payload.email)
         .bind(password_hash)
+        .bind(role)
         .fetch_one(&self.state.db.pool)
         .await?;
 

@@ -7,6 +7,9 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/role_selection_screen.dart';
 import 'screens/register_orga_screen.dart';
+import 'screens/orga_events_screen.dart';
+import 'screens/orga_account_screen.dart';
+import 'screens/orga_dashboard_screen.dart';
 import 'services/session_store.dart';
 import 'l10n/app_localizations.dart';
 
@@ -62,6 +65,9 @@ class MyApp extends StatelessWidget {
             '/register-role': (context) => const RoleSelectionScreen(),
             '/register': (context) => const RegisterScreen(),
             '/register-orga': (context) => const RegisterOrgaScreen(),
+            '/orga': (context) => const OrgaEventsScreen(),
+            '/account': (context) => const OrgaAccountScreen(),
+            '/dashboard': (context) => const OrgaDashboardScreen(),
           },
         );
       },

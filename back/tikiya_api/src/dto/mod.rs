@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::models::User;
+use crate::models::{User, Event};
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct RegisterRequest {
@@ -11,6 +11,12 @@ pub struct RegisterRequest {
     pub email: String,
     #[validate(length(min = 8, max = 128))]
     pub password: String,
+    pub role: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub company: Option<String>,
+    pub phone: Option<String>,
+    pub website: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Validate, Clone)]
@@ -77,3 +83,51 @@ impl From<&User> for UserResponse {
         }
     }
 }
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct CreateEventRequest {
+    #[validate(length(min = 1, max = 255))]
+    pub title: String,
+    pub description: Option<String>,
+    pub location: Option<String>,
+    /// RFC3339 datetime string e.g. "2026-06-15T20:00:00Z"
+    #[validate(length(min = 1))]
+    pub event_date: String,
+    pub price: Option<f64>,
+    pub capacity: Option<i32>,
+    pub cover_url: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct EventResponse {
+    pub id: Uuid,
+    pub organizer_id: Uuid,
+    pub title: String,
+    pub description: String,
+    pub location: String,
+    pub event_date: DateTime<Utc>,
+    pub price: f64,
+    pub capacity: i32,
+    pub cover_url: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+impl From<Event> for EventResponse {
+    fn from(e: Event) -> Self {
+        Self {
+            id: e.id,
+            organizer_id: e.organizer_id,
+            title: e.title,
+            description: e.description,
+            location: e.location,
+            event_date: e.event_date,
+            price: e.price,
+            capacity: e.capacity,
+            cover_url: e.cover_url,
+            created_at: e.created_at,
+        }
+    }
+}
+

@@ -224,4 +224,88 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get orgaProEmailLabel => 'Email professionnel';
+
+  @override
+  String get orgaHomeTitle => 'Mes événements';
+
+  @override
+  String get orgaEventsTitle => 'Créer un événement';
+
+  @override
+  String get orgaEventsEmpty => 'Aucun événement créé';
+
+  @override
+  String get orgaCreateEvent => 'Créer un événement';
+
+  @override
+  String get orgaAccountTitle => 'Mon compte';
+
+  @override
+  String get eventTitleLabel => 'Titre de l\'événement';
+
+  @override
+  String get eventTitleRequired => 'Veuillez entrer un titre';
+
+  @override
+  String get eventDateLabel => 'Date et heure (YYYY-MM-DDTHH:MM:SSZ)';
+
+  @override
+  String get eventDateRequired => 'Veuillez entrer une date';
+
+  @override
+  String get eventLocationLabel => 'Lieu';
+
+  @override
+  String get eventDescriptionLabel => 'Description';
+
+  @override
+  String get eventPriceLabel => 'Prix (DZD)';
+
+  @override
+  String get eventCapacityLabel => 'Capacité';
+
+  @override
+  String get eventCreateSuccess => 'Événement créé !';
+
+  @override
+  String get eventDeleteConfirm => 'Supprimer cet événement ?';
+
+  @override
+  String get eventDeleteSuccess => 'Événement supprimé';
+
+  @override
+  String get delete => 'Supprimer';
+
+  @override
+  String get confirm => 'Confirmer';
+
+  @override
+  String get navDashboard => 'لوحة القيادة';
+
+  @override
+  String get dashboardWelcome => 'مرحباً،';
+
+  @override
+  String get dashboardTotalEvents => 'الفعاليات';
+
+  @override
+  String get dashboardUpcoming => 'القادمة';
+
+  @override
+  String get dashboardTotalCapacity => 'إجمالي المقاعد';
+
+  @override
+  String get dashboardPast => 'منتهية';
+
+  @override
+  String get dashboardRevenue => 'الإيرادات المتوقعة';
+
+  @override
+  String get dashboardQuickActions => 'إجراءات سريعة';
+
+  @override
+  String get dashboardMyEvents => 'فعالياتي';
+
+  @override
+  String get dashboardRecent => 'الفعاليات الأخيرة';
 }
