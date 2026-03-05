@@ -16,7 +16,10 @@ use crate::error::ApiError;
 use crate::models::User;
 use crate::state::AppState;
 
-const ACCESS_TOKEN_TTL_MINUTES: i64 = 15;
+/// Overridable via env ACCESS_TOKEN_TTL_MINUTES (default 1440 = 24 h)
+fn access_token_ttl_minutes(state: &AppState) -> i64 {
+    state.config.access_token_ttl_minutes
+}
 const REFRESH_TOKEN_TTL_DAYS: i64 = 30;
 
 pub struct AuthService {
@@ -174,7 +177,7 @@ impl AuthService {
 
     fn generate_access_token(&self, user_id: Uuid, email: &str) -> Result<String, ApiError> {
         let now = Utc::now();
-        let exp = now + Duration::minutes(ACCESS_TOKEN_TTL_MINUTES);
+        let exp = now + Duration::minutes(access_token_ttl_minutes(&self.state));
         let claims = Claims {
             sub: user_id,
             email: email.to_string(),

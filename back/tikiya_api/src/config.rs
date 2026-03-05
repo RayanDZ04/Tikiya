@@ -27,6 +27,7 @@ pub struct AppConfig {
     pub organizer_needs_to_email: String,
     pub public_base_url: String,
     pub chargily_api_key: String,
+    pub access_token_ttl_minutes: i64,
 }
 
 impl AppConfig {
@@ -128,6 +129,11 @@ impl AppConfig {
         let chargily_api_key = env::var("CHARGILY_API_KEY")
             .unwrap_or_else(|_| String::new());
 
+        let access_token_ttl_minutes = env::var("ACCESS_TOKEN_TTL_MINUTES")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(1440); // 24 h par défaut
+
         Self {
             port,
             allowed_origins,
@@ -154,6 +160,7 @@ impl AppConfig {
             organizer_needs_to_email,
             public_base_url,
             chargily_api_key,
+            access_token_ttl_minutes,
         }
     }
 }

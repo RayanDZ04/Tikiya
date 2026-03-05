@@ -127,3 +127,13 @@ INFO         | Destroyed VkDevice:0x5626fc6e8050
 INFO         | Destroyed VkInstance:0x562702ad0800 for application:'Chromium' engine:''.
 INFO         | Created VkInstance:0x5626f56b6000 for application:'Chromium' engine:''.
 INFO         | Created VkDevice:0x5626fd1be050 for application:'Chromium' instance:0x5626f56b6000. ASTC emulation:on CPU decoding:off.
+INFO         | Destroyed VkDevice:0x5626fd1be050
+INFO         | Destroyed VkInstance:0x5626f56b6000 for application:'Chromium' engine:''.
+INFO         | Created VkInstance:0x5626ff147800 for application:'Chromium' engine:''.
+INFO         | Created VkDevice:0x56270f726050 for application:'Chromium' instance:0x5626ff147800. ASTC emulation:on CPU decoding:off.
+INFO         | Destroyed VkDevice:0x56270f726050
+INFO         | Destroyed VkInstance:0x5626ff147800 for application:'Chromium' engine:''.
+INFO         | Created VkInstance:0x56270ac1a000 for application:'Chromium' engine:''.
+INFO         | Created VkDevice:0x562704110050 for application:'Chromium' instance:0x56270ac1a000. ASTC emulation:on CPU decoding:off.
+INFO         | Destroyed VkDevice:0x562704110050
+INFO         | Destroyed VkInstance:0x56270ac1a000 for application:'Chromium' engine:''.

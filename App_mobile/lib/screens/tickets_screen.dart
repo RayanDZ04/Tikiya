@@ -53,13 +53,20 @@ class _TicketsScreenState extends State<TicketsScreen>
   void _onPaymentSuccess() => setState(() => _future = _load());
 
   Future<_TicketsData> _load() async {
-    // Redirect to login if no session
-    if (SessionStore.I.session.value == null) {
-      throw _AuthRequiredException();
+    final sess = SessionStore.I.session.value;
+    if (sess == null) {
+      throw const _AuthRequiredException();
     }
-    // Les deux appels sont indépendants : si les événements échouent
-    // on affiche quand même les billets (sans nom d'événement).
-    final tickets = await PaymentService().myTickets();
+    final List<TicketModel> tickets;
+    try {
+      tickets = await PaymentService().myTickets();
+    } catch (e) {
+      if (e.toString().contains('401')) {
+        await SessionStore.I.clear();
+        throw const _AuthRequiredException();
+      }
+      rethrow;
+    }
     List<EventModel> events = [];
     try {
       events = await EventService().fetchAll();
@@ -341,7 +348,8 @@ class _GroupedTicketCard extends StatelessWidget {
                 ),
               ),
               // ── Main body ─────────────────────────────────────────────
-              IntrinsicHeight(
+              SizedBox(
+                height: 190,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -839,7 +847,7 @@ class _QrSlideDialogState extends State<_QrSlideDialog> {
             ),
             // ── PageView of QR codes ──────────────────────────────────────
             SizedBox(
-              height: 300,
+              height: 320,
               child: PageView.builder(
                 controller: _ctrl,
                 itemCount: tickets.length,

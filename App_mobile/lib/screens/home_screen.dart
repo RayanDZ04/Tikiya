@@ -57,46 +57,35 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.only(top: 76, bottom: 56),
               child: Stack(
                 children: [
-                  // Top-left: bouton S'inscrire quand non connecté
+                  // Top-left: prénom/pseudo si connecté, sinon bouton S'inscrire
                   Positioned(
                     left: 16,
                     top: -15,
                     child: ValueListenableBuilder<UserSession?>(
                       valueListenable: SessionStore.I.session,
                       builder: (context, session, _) {
-                        if (session != null) return const SizedBox.shrink();
-                        return TextButton(
-                          onPressed: () => Navigator.pushNamed(context, '/register-role'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: blanc,
-                            textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-                          ),
-                          child: Text(l10n.authRegister),
-                        );
-                      },
-                    ),
-                  ),
-                  // Top-right: username+logout quand connecté, sinon juste la langue
-                  Positioned(
-                    right: 16,
-                    top: -15,
-                    child: ValueListenableBuilder<UserSession?>(
-                      valueListenable: SessionStore.I.session,
-                      builder: (context, session, _) {
                         if (session == null) {
-                          return const LanguageSwitch(foregroundColor: blanc);
+                          return TextButton(
+                            onPressed: () => Navigator.pushNamed(context, '/register-role'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: blanc,
+                              textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                            ),
+                            child: Text(l10n.authRegister),
+                          );
                         }
                         final display = (session.username?.isNotEmpty ?? false)
-                          ? session.username!
-                          : (session.email.split('@').first);
+                            ? session.username!
+                            : session.email.split('@').first;
                         return Row(
                           mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
                               display,
                               style: GoogleFonts.montserrat(
-                                fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize ?? 16,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
                                 color: blanc,
                               ),
                             ),
@@ -105,11 +94,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               icon: const Icon(Icons.logout, size: 18, color: blanc),
                               tooltip: l10n.authLogout,
                             ),
-                            const LanguageSwitch(foregroundColor: blanc),
                           ],
                         );
                       },
                     ),
+                  ),
+                  // Top-right: langue uniquement
+                  const Positioned(
+                    right: 16,
+                    top: -15,
+                    child: LanguageSwitch(foregroundColor: blanc),
                   ),
                   // Centered title + search + filters toggle
                   Align(
