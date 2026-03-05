@@ -98,6 +98,8 @@ pub struct CreateEventRequest {
     pub price: Option<f64>,
     pub capacity: Option<i32>,
     pub cover_url: Option<String>,
+    /// musique | culture | divertissement
+    pub category: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -111,6 +113,7 @@ pub struct EventResponse {
     pub price: f64,
     pub capacity: i32,
     pub cover_url: Option<String>,
+    pub category: String,
     pub created_at: DateTime<Utc>,
 }
 
@@ -126,6 +129,7 @@ impl From<Event> for EventResponse {
             price: e.price,
             capacity: e.capacity,
             cover_url: e.cover_url,
+            category: e.category,
             created_at: e.created_at,
         }
     }

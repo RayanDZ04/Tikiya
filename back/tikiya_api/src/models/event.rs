@@ -13,5 +13,6 @@ pub struct Event {
     pub price: f64,
     pub capacity: i32,
     pub cover_url: Option<String>,
+    pub category: String,
     pub created_at: DateTime<Utc>,
 }

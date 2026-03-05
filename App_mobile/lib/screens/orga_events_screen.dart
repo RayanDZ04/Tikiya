@@ -341,6 +341,13 @@ class _CreateEventSheetState extends State<_CreateEventSheet> {
   File? _pickedImage;
   bool _uploading = false;
   bool _loading = false;
+  String _selectedCategory = 'musique';
+
+  static const List<Map<String, String>> _categories = [
+    {'value': 'musique',        'label': 'Musique'},
+    {'value': 'culture',        'label': 'Culture'},
+    {'value': 'divertissement', 'label': 'Divertissement'},
+  ];
 
   @override
   void dispose() {
@@ -410,6 +417,7 @@ class _CreateEventSheetState extends State<_CreateEventSheet> {
             ? null
             : int.tryParse(_capacityCtrl.text.trim()),
         coverUrl: coverUrl,
+        category: _selectedCategory,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -470,6 +478,50 @@ class _CreateEventSheetState extends State<_CreateEventSheet> {
                 ),
               ),
               const SizedBox(height: 20),
+              // ── Catégorie ─────────────────────────────────────────────
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F7FA),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedCategory,
+                    isExpanded: true,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      color: bleuProfond,
+                    ),
+                    icon: const Icon(Icons.keyboard_arrow_down, color: bleuCyan),
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedCategory = val);
+                    },
+                    items: _categories
+                        .map((c) => DropdownMenuItem(
+                              value: c['value'],
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    c['value'] == 'musique'
+                                        ? Icons.music_note
+                                        : c['value'] == 'culture'
+                                            ? Icons.museum
+                                            : Icons.celebration,
+                                    color: bleuCyan,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(c['label']!,
+                                      style: GoogleFonts.montserrat(fontSize: 14)),
+                                ],
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
               _buildField(
                 controller: _titleCtrl,
                 label: l10n.eventTitleLabel,

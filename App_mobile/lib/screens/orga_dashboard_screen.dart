@@ -26,6 +26,15 @@ class _OrgaDashboardScreenState extends State<OrgaDashboardScreen> {
     _future = EventService().fetchMine();
   }
 
+  void _showEventDetail(BuildContext context, EventModel event) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _EventDetailSheet(event: event),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -156,7 +165,10 @@ class _OrgaDashboardScreenState extends State<OrgaDashboardScreen> {
                         ),
                         const SizedBox(height: 12),
                         ...events.take(3).map(
-                              (e) => _RecentEventRow(event: e),
+                              (e) => _RecentEventRow(
+                                event: e,
+                                onDetail: () => _showEventDetail(context, e),
+                              ),
                             ),
                       ],
                       const SizedBox(height: 24),
@@ -251,8 +263,9 @@ class _StatCard extends StatelessWidget {
 
 // ── Recent event row ───────────────────────────────────────────────────────────
 class _RecentEventRow extends StatelessWidget {
-  const _RecentEventRow({required this.event});
+  const _RecentEventRow({required this.event, required this.onDetail});
   final EventModel event;
+  final VoidCallback onDetail;
 
   static const Color bleuCyan = Color(0xFF00ACC1);
   static const Color bleuProfond = Color(0xFF0B1C3E);
@@ -311,24 +324,370 @@ class _RecentEventRow extends StatelessWidget {
               ],
             ),
           ),
-          if (event.price > 0)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: onDetail,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: bleuCyan,
+                color: bleuProfond,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                '${event.price.toStringAsFixed(0)} DZD',
+                'Détail',
                 style: GoogleFonts.montserrat(
                   color: Colors.white,
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
   }
+}
+
+// ── Event detail bottom sheet ──────────────────────────────────────────────────
+class _EventDetailSheet extends StatelessWidget {
+  const _EventDetailSheet({required this.event});
+  final EventModel event;
+
+  static const Color bleuProfond = Color(0xFF0B1C3E);
+  static const Color bleuCyan = Color(0xFF00ACC1);
+  static const Color vert = Color(0xFF66BB6A);
+  static const Color orange = Color(0xFFFFA726);
+
+  @override
+  Widget build(BuildContext context) {
+    // Pour l'instant sold = 0 (à brancher sur l'API billets)
+    const int sold = 0;
+    final int capacity = event.capacity;
+    final int remaining = (capacity - sold).clamp(0, capacity);
+    final double fillRate = capacity > 0 ? sold / capacity : 0.0;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.88,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (_, controller) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: ListView(
+          controller: controller,
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          children: [
+            // ── Drag handle ───────────────────────────────────────────────
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ── Titre ─────────────────────────────────────────────────────
+            Text(
+              event.title,
+              style: GoogleFonts.montserrat(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: bleuProfond,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${event.eventDate.day.toString().padLeft(2, '0')}/'
+              '${event.eventDate.month.toString().padLeft(2, '0')}/'
+              '${event.eventDate.year}'
+              '${event.location.isNotEmpty ? ' · ${event.location}' : ''}',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                color: bleuProfond.withValues(alpha: 0.5),
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // ── Donut chart ───────────────────────────────────────────────
+            Center(
+              child: SizedBox(
+                width: 200,
+                height: 200,
+                child: CustomPaint(
+                  painter: _DonutPainter(
+                    fillRate: fillRate,
+                    filledColor: bleuCyan,
+                    emptyColor: const Color(0xFFE8EDF5),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${(fillRate * 100).toStringAsFixed(0)}%',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: bleuProfond,
+                          ),
+                        ),
+                        Text(
+                          'remplissage',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            color: bleuProfond.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // ── Stat cards ────────────────────────────────────────────────
+            Row(
+              children: [
+                _DetailStat(
+                  icon: Icons.confirmation_num_outlined,
+                  value: '$sold',
+                  label: 'Billets vendus',
+                  color: bleuCyan,
+                ),
+                const SizedBox(width: 12),
+                _DetailStat(
+                  icon: Icons.event_seat_outlined,
+                  value: '$remaining',
+                  label: 'Billets restants',
+                  color: vert,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _DetailStat(
+                  icon: Icons.people_outline,
+                  value: '$capacity',
+                  label: 'Capacité totale',
+                  color: bleuProfond,
+                ),
+                const SizedBox(width: 12),
+                _DetailStat(
+                  icon: Icons.attach_money,
+                  value: event.price > 0
+                      ? '${event.price.toStringAsFixed(0)} DZD'
+                      : 'Gratuit',
+                  label: 'Prix / billet',
+                  color: orange,
+                ),
+              ],
+            ),
+            const SizedBox(height: 28),
+
+            // ── Barre de remplissage ──────────────────────────────────────
+            Text(
+              'Taux de remplissage',
+              style: GoogleFonts.montserrat(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: bleuProfond,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              height: 14,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8EDF5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: fillRate.clamp(0.0, 1.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    gradient: const LinearGradient(
+                      colors: [bleuProfond, bleuCyan],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$sold vendus',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 11,
+                    color: bleuProfond.withValues(alpha: 0.5),
+                  ),
+                ),
+                Text(
+                  '$capacity places',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 11,
+                    color: bleuProfond.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+
+            if (event.price > 0 && sold > 0) ...[
+              const SizedBox(height: 28),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: bleuProfond,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Revenus générés',
+                      style: GoogleFonts.montserrat(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      '${(event.price * sold).toStringAsFixed(0)} DZD',
+                      style: GoogleFonts.montserrat(
+                        color: bleuCyan,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Detail stat tile ───────────────────────────────────────────────────────────
+class _DetailStat extends StatelessWidget {
+  const _DetailStat({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color color;
+
+  static const Color bleuProfond = Color(0xFF0B1C3E);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: GoogleFonts.montserrat(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: bleuProfond,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.montserrat(
+                fontSize: 11,
+                color: bleuProfond.withValues(alpha: 0.5),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Donut chart painter ────────────────────────────────────────────────────────
+class _DonutPainter extends CustomPainter {
+  const _DonutPainter({
+    required this.fillRate,
+    required this.filledColor,
+    required this.emptyColor,
+  });
+  final double fillRate;
+  final Color filledColor;
+  final Color emptyColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 16;
+    const strokeWidth = 22.0;
+    const startAngle = -1.5708; // -π/2 (top)
+
+    final bgPaint = Paint()
+      ..color = emptyColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final fgPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [filledColor, filledColor.withValues(alpha: 0.6)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Rect.fromCircle(center: center, radius: radius))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    // Background arc (full circle)
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      0,
+      6.2832,
+      false,
+      bgPaint,
+    );
+
+    // Foreground arc (fill rate)
+    if (fillRate > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        6.2832 * fillRate,
+        false,
+        fgPaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DonutPainter old) => old.fillRate != fillRate;
 }

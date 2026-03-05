@@ -13,6 +13,7 @@ class EventModel {
   final double price;
   final int capacity;
   final String? coverUrl;
+  final String category;
   final DateTime createdAt;
 
   EventModel({
@@ -25,6 +26,7 @@ class EventModel {
     required this.price,
     required this.capacity,
     this.coverUrl,
+    required this.category,
     required this.createdAt,
   });
 
@@ -38,6 +40,7 @@ class EventModel {
         price: (j['price'] as num).toDouble(),
         capacity: (j['capacity'] as int?) ?? 0,
         coverUrl: j['cover_url'] as String?,
+        category: (j['category'] as String?) ?? 'musique',
         createdAt: DateTime.parse(j['created_at'] as String),
       );
 }
@@ -83,10 +86,12 @@ class EventService {
     double? price,
     int? capacity,
     String? coverUrl,
+    String category = 'musique',
   }) async {
     final body = <String, dynamic>{
       'title': title,
       'event_date': eventDate,
+      'category': category,
       if (description != null && description.isNotEmpty) 'description': description,
       if (location != null && location.isNotEmpty) 'location': location,
       if (price != null) 'price': price,

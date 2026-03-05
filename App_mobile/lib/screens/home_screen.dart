@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '_placeholders.dart';
 import '../l10n/l10n.dart';
 import '../services/session_store.dart';
+import '../services/event_service.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
 import 'orga_home_screen.dart';
@@ -16,6 +16,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _filtersOpen = false;
+  late Future<List<EventModel>> _eventsFuture;
+  String _activeFilter = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _eventsFuture = EventService().fetchAll();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,39 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
     const Color grisClair = Color(0xFFF5F7FA);
     const Color blanc = Colors.white;
     const Color grisFonce = Color(0xFF2E3A44);
-    final textTheme = Theme.of(context).textTheme;
-
-    Widget sectionCard({required String title, required String subtitle}) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: blanc,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(color: Color(0x12000000), blurRadius: 10, offset: Offset(0, 6)),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: bleuProfond)),
-            const SizedBox(height: 8),
-            Text(subtitle, style: textTheme.bodyMedium?.copyWith(color: grisFonce)),
-            const SizedBox(height: 12),
-            Container(
-              height: 80,
-              decoration: BoxDecoration(
-                color: grisClair,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE3E8EF)),
-              ),
-              alignment: Alignment.center,
-              child: Text(l10n.homeNoContentYet, style: textTheme.bodySmall),
-            ),
-          ],
-        ),
-      );
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -272,54 +247,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 12),
-                                Wrap(spacing: 12, runSpacing: 10, children: [
-                                  FilterChipPlaceholder(label: l10n.filterMusic),
-                                  FilterChipPlaceholder(label: l10n.filterCulture),
-                                  FilterChipPlaceholder(label: l10n.filterEntertainment),
-                                ]),
-                                const SizedBox(height: 14),
-                                Row(children: [
-                                  Expanded(child: LabeledInput(label: l10n.filterCity, hint: l10n.filterCityHint)),
-                                  const SizedBox(width: 12),
-                                  Expanded(child: LabeledInput(label: l10n.filterDate, hint: l10n.filterDateHint)),
-                                ]),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(color: bleuCyan),
-                                          foregroundColor: bleuCyan,
-                                          padding: const EdgeInsets.symmetric(vertical: 10),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                Wrap(spacing: 8, runSpacing: 8, children: [
+                                  for (final cat in [
+                                    {'value': '', 'label': 'Tous'},
+                                    {'value': 'musique', 'label': l10n.filterMusic},
+                                    {'value': 'culture', 'label': l10n.filterCulture},
+                                    {'value': 'divertissement', 'label': l10n.filterEntertainment},
+                                  ])
+                                    GestureDetector(
+                                      onTap: () => setState(() {
+                                        _activeFilter = cat['value']!;
+                                        _filtersOpen = false;
+                                      }),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: _activeFilter == cat['value'] ? bleuProfond : grisClair,
+                                          borderRadius: BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color: _activeFilter == cat['value'] ? bleuProfond : const Color(0xFFE3E8EF),
+                                          ),
                                         ),
-                                        onPressed: () {},
                                         child: Text(
-                                          l10n.homeFiltersReset,
-                                          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                                          cat['label']!,
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: _activeFilter == cat['value'] ? Colors.white : bleuProfond,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: bleuCyan,
-                                          foregroundColor: Colors.white,
-                                          elevation: 2,
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                        ),
-                                        onPressed: () {},
-                                        child: Text(
-                                          l10n.homeFiltersApply,
-                                          style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                ]),
                               ],
                             ),
                           ),
@@ -330,49 +289,224 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Main content centered with max width
+            // ── Events by category ─────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 900),
-                  child: ValueListenableBuilder<UserSession?>(
-                    valueListenable: SessionStore.I.session,
-                    builder: (context, session, _) => LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isWide = constraints.maxWidth > 700;
-                        final children = <Widget>[
-                          sectionCard(title: l10n.filterMusic, subtitle: l10n.noResults),
-                          sectionCard(title: l10n.filterCulture, subtitle: l10n.noResults),
-                          sectionCard(title: l10n.filterEntertainment, subtitle: l10n.noResults),
-                          if (session != null)
-                            sectionCard(title: l10n.filterPopular, subtitle: l10n.noResults),
-                        ];
-                        if (isWide) {
-                          return GridView.count(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            children: children,
+              child: FutureBuilder<List<EventModel>>(
+                future: _eventsFuture,
+                builder: (context, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: CircularProgressIndicator(color: Color(0xFF00ACC1))),
+                    );
+                  }
+                  final all = snap.data ?? [];
+                  final filtered = _activeFilter.isEmpty
+                      ? all
+                      : all.where((e) => e.category == _activeFilter).toList();
+
+                  if (filtered.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                        child: Text(
+                          l10n.homeNoContentYet,
+                          style: GoogleFonts.montserrat(
+                            color: const Color(0xFF0B1C3E).withValues(alpha: 0.4),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  // Group by category
+                  final categories = _activeFilter.isNotEmpty
+                      ? [_activeFilter]
+                      : ['musique', 'culture', 'divertissement'];
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final cat in categories) ...[
+                        () {
+                          final evts = filtered.where((e) => e.category == cat).toList();
+                          if (evts.isEmpty) return const SizedBox.shrink();
+                          final catLabel = cat == 'musique'
+                              ? l10n.filterMusic
+                              : cat == 'culture'
+                                  ? l10n.filterCulture
+                                  : l10n.filterEntertainment;
+                          final catIcon = cat == 'musique'
+                              ? Icons.music_note
+                              : cat == 'culture'
+                                  ? Icons.museum
+                                  : Icons.celebration;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 8),
+                              Row(children: [
+                                Icon(catIcon, color: const Color(0xFF00ACC1), size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  catLabel,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF0B1C3E),
+                                  ),
+                                ),
+                              ]),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                height: 220,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  clipBehavior: Clip.none,
+                                  itemCount: evts.length,
+                                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                                  itemBuilder: (_, i) => _ParticipantEventCard(event: evts[i]),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
                           );
-                        }
-                        return Column(
-                          children: [
-                            for (final c in children) ...[c, const SizedBox(height: 16)],
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
+                        }(),
+                      ],
+                    ],
+                  );
+                },
               ),
             ),
           ],
         ),
       ),
       bottomNavigationBar: const BottomNav(current: 'home'),
+    );
+  }
+}
+
+// ── Participant event card (horizontal scroll) ─────────────────────────────────
+class _ParticipantEventCard extends StatelessWidget {
+  const _ParticipantEventCard({required this.event});
+  final EventModel event;
+
+  static const Color bleuProfond = Color(0xFF0B1C3E);
+  static const Color bleuCyan = Color(0xFF00ACC1);
+
+  static String _fixUrl(String url) =>
+      url.replaceFirst('http://localhost', 'http://10.0.2.2');
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: Color(0x220B1C3E), blurRadius: 12, offset: Offset(0, 4))
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Cover image
+          SizedBox(
+            height: 110,
+            width: double.infinity,
+            child: event.coverUrl != null
+                ? Image.network(
+                    _fixUrl(event.coverUrl!),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _a, _b) => Container(
+                      color: const Color(0xFFF0F4FF),
+                      child: const Center(
+                        child: Icon(Icons.image_outlined, color: Color(0xFFB0BEC5), size: 32),
+                      ),
+                    ),
+                  )
+                : Container(
+                    color: const Color(0xFFF0F4FF),
+                    child: const Center(
+                      child: Icon(Icons.event, color: Color(0xFF00ACC1), size: 32),
+                    ),
+                  ),
+          ),
+          // Info
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.title,
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: bleuProfond,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  if (event.location.isNotEmpty)
+                    Row(children: [
+                      const Icon(Icons.place, size: 11, color: Color(0xFF90A4AE)),
+                      const SizedBox(width: 2),
+                      Expanded(
+                        child: Text(
+                          event.location,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 10,
+                            color: bleuProfond.withValues(alpha: 0.5),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ]),
+                  const Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${event.eventDate.day.toString().padLeft(2, '0')}/'
+                        '${event.eventDate.month.toString().padLeft(2, '0')}',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 10,
+                          color: bleuProfond.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: event.price > 0 ? bleuCyan : const Color(0xFF66BB6A),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          event.price > 0
+                              ? '${event.price.toStringAsFixed(0)} DZD'
+                              : 'Gratuit',
+                          style: GoogleFonts.montserrat(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

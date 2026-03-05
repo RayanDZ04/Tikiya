@@ -46,12 +46,22 @@ fn extract_user(headers: &HeaderMap, state: &AppState) -> Result<Uuid, ApiError>
 /// GET /events  — tous les événements (public, pour les participants)
 pub async fn list_all(
     State(state): State<AppState>,
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<EventResponse>>, ApiError> {
-    let rows = sqlx::query_as::<_, Event>(
-        "SELECT * FROM events ORDER BY event_date ASC",
-    )
-    .fetch_all(&state.db.pool)
-    .await?;
+    let rows = if let Some(cat) = params.get("category") {
+        sqlx::query_as::<_, Event>(
+            "SELECT * FROM events WHERE category = $1 ORDER BY event_date ASC",
+        )
+        .bind(cat)
+        .fetch_all(&state.db.pool)
+        .await?
+    } else {
+        sqlx::query_as::<_, Event>(
+            "SELECT * FROM events ORDER BY event_date ASC",
+        )
+        .fetch_all(&state.db.pool)
+        .await?
+    };
 
     Ok(Json(rows.into_iter().map(EventResponse::from).collect()))
 }
@@ -101,8 +111,8 @@ pub async fn create_event(
 
     let event = sqlx::query_as::<_, Event>(
         r#"INSERT INTO events
-            (organizer_id, title, description, location, event_date, price, capacity, cover_url)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+            (organizer_id, title, description, location, event_date, price, capacity, cover_url, category)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
            RETURNING *"#,
     )
     .bind(user_id)
@@ -113,6 +123,7 @@ pub async fn create_event(
     .bind(payload.price.unwrap_or(0.0))
     .bind(payload.capacity.unwrap_or(0))
     .bind(&payload.cover_url)
+    .bind(payload.category.as_deref().unwrap_or("musique"))
     .fetch_one(&state.db.pool)
     .await?;
 
