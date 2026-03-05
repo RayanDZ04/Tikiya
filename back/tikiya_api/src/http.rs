@@ -96,6 +96,7 @@ pub fn build_router(state: AppState) -> Router {
         .merge(routes::organizer_needs::router())
         .merge(routes::events::router())
         .merge(routes::upload::router())
+        .merge(routes::payments::router())
         .nest_service("/files", ServeDir::new("uploads"))
         .with_state(state)
         .layer(middleware)

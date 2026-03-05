@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/l10n.dart';
 import '../services/event_service.dart';
+import '../services/payment_service.dart';
 import '../services/session_store.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
@@ -350,22 +351,39 @@ class _RecentEventRow extends StatelessWidget {
 }
 
 // ── Event detail bottom sheet ──────────────────────────────────────────────────
-class _EventDetailSheet extends StatelessWidget {
+class _EventDetailSheet extends StatefulWidget {
   const _EventDetailSheet({required this.event});
   final EventModel event;
 
+  @override
+  State<_EventDetailSheet> createState() => _EventDetailSheetState();
+}
+
+class _EventDetailSheetState extends State<_EventDetailSheet> {
   static const Color bleuProfond = Color(0xFF0B1C3E);
   static const Color bleuCyan = Color(0xFF00ACC1);
   static const Color vert = Color(0xFF66BB6A);
   static const Color orange = Color(0xFFFFA726);
 
+  late Future<EventTicketStats> _statsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _statsFuture = PaymentService().eventStats(widget.event.id);
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Pour l'instant sold = 0 (à brancher sur l'API billets)
-    const int sold = 0;
-    final int capacity = event.capacity;
-    final int remaining = (capacity - sold).clamp(0, capacity);
-    final double fillRate = capacity > 0 ? sold / capacity : 0.0;
+    final event = widget.event;
+
+    return FutureBuilder<EventTicketStats>(
+      future: _statsFuture,
+      builder: (context, snap) {
+        final int sold = snap.data?.sold ?? 0;
+        final int capacity = event.capacity;
+        final int remaining = (capacity - sold).clamp(0, capacity);
+        final double fillRate = capacity > 0 ? sold / capacity : 0.0;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.88,
@@ -576,7 +594,9 @@ class _EventDetailSheet extends StatelessWidget {
           ],
         ),
       ),
-    );
+    );     // DraggableScrollableSheet
+      },   // FutureBuilder builder
+    );     // FutureBuilder
   }
 }
 

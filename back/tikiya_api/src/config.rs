@@ -26,6 +26,7 @@ pub struct AppConfig {
     pub smtp_from: String,
     pub organizer_needs_to_email: String,
     pub public_base_url: String,
+    pub chargily_api_key: String,
 }
 
 impl AppConfig {
@@ -124,6 +125,8 @@ impl AppConfig {
             .unwrap_or_else(|_| "rayanbenhabiles9@gmail.com".to_string());
         let public_base_url = env::var("PUBLIC_BASE_URL")
             .unwrap_or_else(|_| format!("http://localhost:{}", port));
+        let chargily_api_key = env::var("CHARGILY_API_KEY")
+            .unwrap_or_else(|_| String::new());
 
         Self {
             port,
@@ -150,6 +153,7 @@ impl AppConfig {
             smtp_from,
             organizer_needs_to_email,
             public_base_url,
+            chargily_api_key,
         }
     }
 }

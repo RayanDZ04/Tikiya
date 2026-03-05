@@ -113,3 +113,5 @@ INFO         | Created VkInstance:0x5626f50e3800 for application:'Chromium' engi
 INFO         | Created VkDevice:0x562706ffa050 for application:'Chromium' instance:0x5626f50e3800. ASTC emulation:on CPU decoding:off.
 INFO         | Destroyed VkDevice:0x562706ffa050
 INFO         | Destroyed VkInstance:0x5626f50e3800 for application:'Chromium' engine:''.
+INFO         | Created VkInstance:0x5626f4e62800 for application:'Chromium' engine:''.
+INFO         | Created VkDevice:0x5626fef44050 for application:'Chromium' instance:0x5626f4e62800. ASTC emulation:on CPU decoding:off.

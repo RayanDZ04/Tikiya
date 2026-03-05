@@ -10,6 +10,8 @@ services:
       PORT: 8080
       PUBLIC_BASE_URL: http://10.0.2.2:8080
       ORIGINS: http://localhost:3000,http://localhost:3001
+      # Chargily Pay — clés de test (dashboard.chargily.com)
+      CHARGILY_API_KEY: test_sk_lCH9O0pjUHHqxr5VrEjF6n1p5j0imGx1FynNrjfp
     depends_on:
       - db
     ports:

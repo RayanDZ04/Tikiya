@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../l10n/l10n.dart';
 import '../services/session_store.dart';
 import '../services/event_service.dart';
+import '../services/payment_service.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
 import 'orga_home_screen.dart';
@@ -367,7 +369,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   clipBehavior: Clip.none,
                                   itemCount: evts.length,
                                   separatorBuilder: (_, __) => const SizedBox(width: 12),
-                                  itemBuilder: (_, i) => _ParticipantEventCard(event: evts[i]),
+                                  itemBuilder: (ctx, i) => GestureDetector(
+                                    onTap: () => _showEventDetail(ctx, evts[i]),
+                                    child: _ParticipantEventCard(event: evts[i]),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -384,6 +389,384 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: const BottomNav(current: 'home'),
+    );
+  }
+}
+
+// ── Show event detail + buy ticket ────────────────────────────────────────────
+void _showEventDetail(BuildContext context, EventModel event) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => _EventDetailSheet(event: event),
+  );
+}
+
+// ── Event detail sheet with payment ───────────────────────────────────────────
+class _EventDetailSheet extends StatefulWidget {
+  const _EventDetailSheet({required this.event});
+  final EventModel event;
+
+  @override
+  State<_EventDetailSheet> createState() => _EventDetailSheetState();
+}
+
+class _EventDetailSheetState extends State<_EventDetailSheet> {
+  static const Color bleuProfond = Color(0xFF0B1C3E);
+  static const Color bleuCyan = Color(0xFF00ACC1);
+
+  bool _loading = false;
+  String? _error;
+  String _paymentMethod = 'edahabia';
+
+  static String _fixUrl(String url) =>
+      url.replaceFirst('http://localhost', 'http://10.0.2.2');
+
+  Future<void> _startPayment() async {
+    final session = SessionStore.I.session.value;
+    if (session == null) {
+      setState(() => _error = 'Connectez-vous pour acheter un billet.');
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final result = await PaymentService().createCheckout(
+        eventId: widget.event.id,
+        paymentMethod: _paymentMethod,
+      );
+      final uri = Uri.parse(result.checkoutUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        setState(() => _error = 'Impossible d\'ouvrir le navigateur.');
+      }
+    } catch (e) {
+      setState(() => _error = 'Erreur: $e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final event = widget.event;
+    return DraggableScrollableSheet(
+      initialChildSize: 0.72,
+      maxChildSize: 0.92,
+      minChildSize: 0.4,
+      builder: (_, controller) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // drag handle
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 4),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  controller: controller,
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                  children: [
+                    // Cover image
+                    if (event.coverUrl != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.network(
+                          _fixUrl(event.coverUrl!),
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _a, _b) => Container(
+                            height: 180,
+                            color: const Color(0xFFF0F4FF),
+                            child: const Center(
+                              child: Icon(Icons.image_outlined,
+                                  color: Color(0xFFB0BEC5), size: 40),
+                            ),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    // Title
+                    Text(
+                      event.title,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: bleuProfond,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Chips: location + date
+                    Wrap(spacing: 8, runSpacing: 6, children: [
+                      if (event.location.isNotEmpty)
+                        _InfoChip(
+                            icon: Icons.place_outlined,
+                            label: event.location),
+                      _InfoChip(
+                        icon: Icons.calendar_today_outlined,
+                        label:
+                            '${event.eventDate.day.toString().padLeft(2, '0')}/'
+                            '${event.eventDate.month.toString().padLeft(2, '0')}/'
+                            '${event.eventDate.year}',
+                      ),
+                    ]),
+                    const SizedBox(height: 12),
+                    // Description
+                    if (event.description.isNotEmpty) ...[
+                      Text(
+                        event.description,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 13,
+                          color: bleuProfond.withValues(alpha: 0.65),
+                          height: 1.55,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    // Price row
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0F7FF),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.local_activity_outlined,
+                              color: bleuCyan, size: 22),
+                          const SizedBox(width: 10),
+                          Text(
+                            event.price > 0
+                                ? '${event.price.toStringAsFixed(0)} DZD / billet'
+                                : 'Entrée gratuite',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: bleuProfond,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (event.price > 0) ...[
+                      const SizedBox(height: 20),
+                      // Payment method selector
+                      Text(
+                        'Moyen de paiement',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: bleuProfond,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          _PaymentMethodTile(
+                            label: 'EDAHABIA',
+                            icon: Icons.credit_card,
+                            selected: _paymentMethod == 'edahabia',
+                            onTap: () =>
+                                setState(() => _paymentMethod = 'edahabia'),
+                          ),
+                          const SizedBox(width: 10),
+                          _PaymentMethodTile(
+                            label: 'CIB',
+                            icon: Icons.account_balance_wallet_outlined,
+                            selected: _paymentMethod == 'cib',
+                            onTap: () =>
+                                setState(() => _paymentMethod = 'cib'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Error message
+                      if (_error != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            _error!,
+                            style: GoogleFonts.montserrat(
+                              color: Colors.redAccent,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      // Buy button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton.icon(
+                          onPressed: _loading ? null : _startPayment,
+                          icon: _loading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2),
+                                )
+                              : const Icon(Icons.payment,
+                                  color: Colors.white),
+                          label: Text(
+                            _loading ? 'Redirection...' : 'Acheter un billet',
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: bleuProfond,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Text(
+                          'Paiement sécurisé via Chargily Pay',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            color: bleuProfond.withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.check_circle_outline,
+                              color: Colors.white),
+                          label: Text(
+                            'Entrée gratuite — Réserver',
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF66BB6A),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F7FF),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 13, color: const Color(0xFF00ACC1)),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            color: const Color(0xFF0B1C3E),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _PaymentMethodTile extends StatelessWidget {
+  const _PaymentMethodTile({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const bleuProfond = Color(0xFF0B1C3E);
+    const bleuCyan = Color(0xFF00ACC1);
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: selected ? bleuProfond : const Color(0xFFF5F7FA),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected ? bleuProfond : const Color(0xFFE3E8EF),
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: selected ? bleuCyan : bleuProfond, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: selected ? Colors.white : bleuProfond,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
