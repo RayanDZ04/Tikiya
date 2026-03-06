@@ -120,6 +120,37 @@ class EventService {
     return json['url'] as String;
   }
 
+  /// PUT /events/:id — update event (organizer)
+  Future<EventModel> update({
+    required String id,
+    required String title,
+    required String eventDate,
+    String? description,
+    String? location,
+    double? price,
+    int? capacity,
+    String? coverUrl,
+    String category = 'musique',
+  }) async {
+    final body = <String, dynamic>{
+      'title': title,
+      'event_date': eventDate,
+      'category': category,
+      'description': description ?? '',
+      'location': location ?? '',
+      if (price != null) 'price': price,
+      if (capacity != null) 'capacity': capacity,
+      if (coverUrl != null) 'cover_url': coverUrl,
+    };
+    final res = await http.put(
+      Uri.parse('$_baseUrl/events/$id'),
+      headers: _authHeaders,
+      body: jsonEncode(body),
+    );
+    _check(res);
+    return EventModel.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
+  }
+
   /// DELETE /events/:id
   Future<void> delete(String id) async {
     final res = await http.delete(
