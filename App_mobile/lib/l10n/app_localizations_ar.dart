@@ -184,100 +184,97 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signupSuccess => 'تم إنشاء الحساب، يمكنك تسجيل الدخول';
 
   @override
-  String get roleSelectionTitle => 'Qui êtes-vous ?';
+  String get roleSelectionTitle => 'من أنت؟';
 
   @override
-  String get roleSelectionSubtitle =>
-      'Choisissez votre profil pour créer votre compte';
+  String get roleSelectionSubtitle => 'اختر ملفك الشخصي لإنشاء حساب';
 
   @override
-  String get roleParticipant => 'Participant';
+  String get roleParticipant => 'مشارك';
 
   @override
-  String get roleParticipantDesc =>
-      'Je veux découvrir et réserver des événements';
+  String get roleParticipantDesc => 'أريد اكتشاف وحجز الفعاليات';
 
   @override
-  String get roleOrganisateur => 'Organisateur';
+  String get roleOrganisateur => 'منظم';
 
   @override
-  String get roleOrganisateurDesc => 'Je veux créer et gérer des événements';
+  String get roleOrganisateurDesc => 'أريد إنشاء وإدارة الفعاليات';
 
   @override
-  String get orgaSignupTitle => 'Inscription organisateur';
+  String get orgaSignupTitle => 'تسجيل المنظم';
 
   @override
-  String get orgaCompanyLabel => 'Nom de l\'entreprise';
+  String get orgaCompanyLabel => 'اسم الشركة';
 
   @override
-  String get orgaCompanyRequired =>
-      'Veuillez entrer le nom de votre entreprise';
+  String get orgaCompanyRequired => 'الرجاء إدخال اسم شركتك';
 
   @override
-  String get orgaPhoneLabel => 'Numéro de téléphone';
+  String get orgaPhoneLabel => 'رقم الهاتف';
 
   @override
-  String get orgaPhoneRequired => 'Veuillez entrer votre numéro de téléphone';
+  String get orgaPhoneRequired => 'الرجاء إدخال رقم هاتفك';
 
   @override
-  String get orgaWebsiteLabel => 'Site web (optionnel)';
+  String get orgaWebsiteLabel => 'الموقع الإلكتروني (اختياري)';
 
   @override
-  String get orgaProEmailLabel => 'Email professionnel';
+  String get orgaProEmailLabel => 'البريد الإلكتروني المهني';
 
   @override
-  String get orgaHomeTitle => 'Mes événements';
+  String get orgaHomeTitle => 'فعالياتي';
 
   @override
-  String get orgaEventsTitle => 'Créer un événement';
+  String get orgaEventsTitle => 'إنشاء فعالية';
 
   @override
-  String get orgaEventsEmpty => 'Aucun événement créé';
+  String get orgaEventsEmpty => 'لا توجد فعاليات منشأة';
 
   @override
-  String get orgaCreateEvent => 'Créer un événement';
+  String get orgaCreateEvent => 'إنشاء فعالية';
 
   @override
-  String get orgaAccountTitle => 'Mon compte';
+  String get orgaAccountTitle => 'حسابي';
 
   @override
-  String get eventTitleLabel => 'Titre de l\'événement';
+  String get eventTitleLabel => 'عنوان الفعالية';
 
   @override
-  String get eventTitleRequired => 'Veuillez entrer un titre';
+  String get eventTitleRequired => 'الرجاء إدخال عنوان';
 
   @override
-  String get eventDateLabel => 'Date et heure (YYYY-MM-DDTHH:MM:SSZ)';
+  String get eventDateLabel => 'التاريخ والوقت';
 
   @override
-  String get eventDateRequired => 'Veuillez entrer une date';
+  String get eventDateRequired => 'الرجاء إدخال تاريخ';
 
   @override
-  String get eventLocationLabel => 'Lieu';
+  String get eventLocationLabel => 'المكان';
 
   @override
-  String get eventDescriptionLabel => 'Description';
+  String get eventDescriptionLabel => 'الوصف';
 
   @override
-  String get eventPriceLabel => 'Prix (DZD)';
+  String get eventPriceLabel => 'السعر (دج)';
 
   @override
-  String get eventCapacityLabel => 'Capacité';
+  String get eventCapacityLabel => 'السعة';
 
   @override
-  String get eventCreateSuccess => 'Événement créé !';
+  String get eventCreateSuccess => 'تم إنشاء الفعالية!';
 
   @override
-  String get eventDeleteConfirm => 'Supprimer cet événement ?';
+  String get eventDeleteConfirm => 'حذف هذه الفعالية؟';
 
   @override
-  String get eventDeleteSuccess => 'Événement supprimé';
+  String get eventDeleteSuccess => 'تم حذف الفعالية';
 
   @override
-  String get delete => 'Supprimer';
+  String get delete => 'حذف';
 
   @override
-  String get confirm => 'Confirmer';
+  String get confirm => 'تأكيد';
 
   @override
   String get navDashboard => 'لوحة القيادة';
@@ -308,4 +305,235 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dashboardRecent => 'الفعاليات الأخيرة';
+
+  @override
+  String get profilePseudo => 'اسم المستخدم';
+
+  @override
+  String get profileSettings => 'الإعدادات';
+
+  @override
+  String get settingsTitle => 'إعدادات الحساب';
+
+  @override
+  String get settingsChangeEmail => 'تغيير البريد الإلكتروني';
+
+  @override
+  String get settingsChangeEmailSub => 'تغيير بريد تسجيل الدخول';
+
+  @override
+  String get settingsChangePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get settingsChangePasswordSub => 'تغيير كلمة المرور الحالية';
+
+  @override
+  String get settingsEmailSuccess => 'تم تغيير البريد الإلكتروني بنجاح!';
+
+  @override
+  String get settingsPasswordSuccess => 'تم تغيير كلمة المرور بنجاح!';
+
+  @override
+  String get settingsNewEmail => 'البريد الإلكتروني الجديد';
+
+  @override
+  String get settingsCurrentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get settingsNewPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get settingsPasswordConfirm => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get settingsSaving => 'جارٍ الحفظ...';
+
+  @override
+  String get fieldRequired => 'هذا الحقل مطلوب';
+
+  @override
+  String get fieldEmailInvalid => 'بريد إلكتروني غير صالح';
+
+  @override
+  String get fieldMin8Chars => '8 أحرف على الأقل';
+
+  @override
+  String get editEventTitle => 'تعديل الفعالية';
+
+  @override
+  String get editEventSave => 'حفظ التغييرات';
+
+  @override
+  String get editEventSuccess => 'تم تعديل الفعالية!';
+
+  @override
+  String get editEventSaving => 'جارٍ التعديل...';
+
+  @override
+  String get eventImageAdd => 'أضف صورة';
+
+  @override
+  String get eventImageChange => 'تغيير الصورة';
+
+  @override
+  String get eventImageDelete => 'حذف الصورة';
+
+  @override
+  String get eventUploading => 'جارٍ رفع الصورة...';
+
+  @override
+  String get eventCreating => 'جارٍ الإنشاء...';
+
+  @override
+  String get paymentSecured => 'دفع آمن عبر Chargily Pay';
+
+  @override
+  String get paymentTickets => 'عدد التذاكر';
+
+  @override
+  String get paymentRemaining => 'تذكرة(تذاكر) متبقية';
+
+  @override
+  String get paymentTotal => 'المجموع';
+
+  @override
+  String get paymentBuyTicket => 'شراء تذكرة';
+
+  @override
+  String paymentBuyTickets(int n) {
+    return 'شراء $n تذاكر';
+  }
+
+  @override
+  String get paymentRedirecting => 'جارٍ التحويل...';
+
+  @override
+  String get paymentError => 'خطأ في الدفع.';
+
+  @override
+  String get paymentBrowserError => 'تعذر فتح المتصفح.';
+
+  @override
+  String get ticketsTitle => 'تذاكري';
+
+  @override
+  String get ticketsEmpty => 'لا توجد تذاكر حالياً';
+
+  @override
+  String get ticketsDownloadQr => 'تنزيل رمز QR';
+
+  @override
+  String get ticketsQrDownloaded => 'تم تنزيل رمز QR!';
+
+  @override
+  String get filterAll => 'الكل';
+
+  @override
+  String get freeEntry => 'دخول مجاني';
+
+  @override
+  String get paymentMethodLabel => 'طريقة الدفع';
+
+  @override
+  String get fieldPasswordSameAsCurrent =>
+      'يجب أن يختلف عن كلمة المرور الحالية';
+
+  @override
+  String get loginRequired => 'يرجى تسجيل الدخول لشراء تذكرة.';
+
+  @override
+  String pricePerTicketLabel(String price) {
+    return '$price د.ج / تذكرة';
+  }
+
+  @override
+  String get freeEntryReserveBtn => 'دخول مجاني — حجز';
+
+  @override
+  String get paymentSuccess => 'تم الدفع بنجاح!';
+
+  @override
+  String get paymentFailed => 'فشل الدفع';
+
+  @override
+  String get paymentSuccessMsg => 'تم تأكيد تذكرتك.\nابحث عنها في \"تذاكري\".';
+
+  @override
+  String get paymentFailedMsg =>
+      'تعذرت معالجة الدفع.\nالرجاء المحاولة مرة أخرى.';
+
+  @override
+  String get viewMyTickets => 'عرض تذاكري';
+
+  @override
+  String get backToHome => 'العودة للرئيسية';
+
+  @override
+  String get ticketsLoginRequired => 'سجّل دخولك لعرض تذاكرك.';
+
+  @override
+  String get ticketsLoadError => 'تعذر تحميل تذاكرك.';
+
+  @override
+  String get ticketStatusConfirmed => 'مؤكد';
+
+  @override
+  String get ticketStatusPending => 'قيد الانتظار';
+
+  @override
+  String get ticketStatusFailed => 'فشل';
+
+  @override
+  String get ticketStatusCanceled => 'ملغى';
+
+  @override
+  String get ticketSwipeQr => 'اسحب رموز QR';
+
+  @override
+  String get ticketTapZoom => 'انقر للتكبير';
+
+  @override
+  String get ticketsViewEvents => 'استعرض الأحداث';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get free => 'مجاني';
+
+  @override
+  String get eventLabel => 'الحدث';
+
+  @override
+  String get dashboardTicketsSold => 'التذاكر المباعة';
+
+  @override
+  String get dashboardTicketsRemaining => 'التذاكر المتبقية';
+
+  @override
+  String get dashboardPricePerTicket => 'السعر / تذكرة';
+
+  @override
+  String get dashboardFillRate => 'معدل الإشغال';
+
+  @override
+  String get dashboardRevenueGenerated => 'الإيرادات المولّدة';
+
+  @override
+  String get dashboardDetail => 'التفاصيل';
+
+  @override
+  String get alreadyAccount => 'هل لديك حساب بالفعل;';
+
+  @override
+  String get noAccount => 'ليس لديك حساب بعد؟';
+
+  @override
+  String get signupLink => 'التسجيل';
+
+  @override
+  String get role => 'الدور';
+
+  @override
+  String get organisateur => 'منظّم';
 }

@@ -248,7 +248,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get eventTitleRequired => 'Veuillez entrer un titre';
 
   @override
-  String get eventDateLabel => 'Date et heure (YYYY-MM-DDTHH:MM:SSZ)';
+  String get eventDateLabel => 'Date et heure';
 
   @override
   String get eventDateRequired => 'Veuillez entrer une date';
@@ -309,4 +309,236 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dashboardRecent => 'Événements récents';
+
+  @override
+  String get profilePseudo => 'Pseudo';
+
+  @override
+  String get profileSettings => 'Paramètres';
+
+  @override
+  String get settingsTitle => 'Paramètres du compte';
+
+  @override
+  String get settingsChangeEmail => 'Modifier l\'adresse email';
+
+  @override
+  String get settingsChangeEmailSub => 'Changer l\'email de connexion';
+
+  @override
+  String get settingsChangePassword => 'Modifier le mot de passe';
+
+  @override
+  String get settingsChangePasswordSub => 'Changer le mot de passe actuel';
+
+  @override
+  String get settingsEmailSuccess => 'Adresse email modifiée avec succès !';
+
+  @override
+  String get settingsPasswordSuccess => 'Mot de passe modifié avec succès !';
+
+  @override
+  String get settingsNewEmail => 'Nouvelle adresse email';
+
+  @override
+  String get settingsCurrentPassword => 'Mot de passe actuel';
+
+  @override
+  String get settingsNewPassword => 'Nouveau mot de passe';
+
+  @override
+  String get settingsPasswordConfirm => 'Confirmer le nouveau mot de passe';
+
+  @override
+  String get settingsSaving => 'Enregistrement...';
+
+  @override
+  String get fieldRequired => 'Champ requis';
+
+  @override
+  String get fieldEmailInvalid => 'Email invalide';
+
+  @override
+  String get fieldMin8Chars => 'Au moins 8 caractères';
+
+  @override
+  String get editEventTitle => 'Modifier l\'événement';
+
+  @override
+  String get editEventSave => 'Enregistrer les modifications';
+
+  @override
+  String get editEventSuccess => 'Événement modifié !';
+
+  @override
+  String get editEventSaving => 'Modification...';
+
+  @override
+  String get eventImageAdd => 'Ajouter une image';
+
+  @override
+  String get eventImageChange => 'Changer l\'image';
+
+  @override
+  String get eventImageDelete => 'Supprimer l\'image';
+
+  @override
+  String get eventUploading => 'Envoi image...';
+
+  @override
+  String get eventCreating => 'Création...';
+
+  @override
+  String get paymentSecured => 'Paiement sécurisé via Chargily Pay';
+
+  @override
+  String get paymentTickets => 'Nombre de billets';
+
+  @override
+  String get paymentRemaining => 'billet(s) restant(s)';
+
+  @override
+  String get paymentTotal => 'Total';
+
+  @override
+  String get paymentBuyTicket => 'Acheter un billet';
+
+  @override
+  String paymentBuyTickets(int n) {
+    return 'Acheter $n billets';
+  }
+
+  @override
+  String get paymentRedirecting => 'Redirection...';
+
+  @override
+  String get paymentError => 'Erreur lors du paiement.';
+
+  @override
+  String get paymentBrowserError => 'Impossible d\'ouvrir le navigateur.';
+
+  @override
+  String get ticketsTitle => 'Mes Billets';
+
+  @override
+  String get ticketsEmpty => 'Aucun billet pour le moment';
+
+  @override
+  String get ticketsDownloadQr => 'Télécharger QR';
+
+  @override
+  String get ticketsQrDownloaded => 'QR téléchargé !';
+
+  @override
+  String get filterAll => 'Tous';
+
+  @override
+  String get freeEntry => 'Entrée gratuite';
+
+  @override
+  String get paymentMethodLabel => 'Moyen de paiement';
+
+  @override
+  String get fieldPasswordSameAsCurrent =>
+      'Doit être différent du mot de passe actuel';
+
+  @override
+  String get loginRequired => 'Connectez-vous pour acheter un billet.';
+
+  @override
+  String pricePerTicketLabel(String price) {
+    return '$price DZD / billet';
+  }
+
+  @override
+  String get freeEntryReserveBtn => 'Entrée gratuite — Réserver';
+
+  @override
+  String get paymentSuccess => 'Paiement réussi !';
+
+  @override
+  String get paymentFailed => 'Paiement échoué';
+
+  @override
+  String get paymentSuccessMsg =>
+      'Votre billet a été confirmé.\nRetrouvez-le dans \"Mes Billets\".';
+
+  @override
+  String get paymentFailedMsg =>
+      'Le paiement n\'a pas pu être traité.\nVeuillez réessayer.';
+
+  @override
+  String get viewMyTickets => 'Voir mes billets';
+
+  @override
+  String get backToHome => 'Retour à l\'accueil';
+
+  @override
+  String get ticketsLoginRequired => 'Connectez-vous pour voir vos billets.';
+
+  @override
+  String get ticketsLoadError => 'Impossible de charger vos billets.';
+
+  @override
+  String get ticketStatusConfirmed => 'Confirmé';
+
+  @override
+  String get ticketStatusPending => 'En attente';
+
+  @override
+  String get ticketStatusFailed => 'Échoué';
+
+  @override
+  String get ticketStatusCanceled => 'Annulé';
+
+  @override
+  String get ticketSwipeQr => 'Glisser les QR';
+
+  @override
+  String get ticketTapZoom => 'Appuyer pour agrandir';
+
+  @override
+  String get ticketsViewEvents => 'Voir les événements';
+
+  @override
+  String get retry => 'Réessayer';
+
+  @override
+  String get free => 'Gratuit';
+
+  @override
+  String get eventLabel => 'ÉVÉNEMENT';
+
+  @override
+  String get dashboardTicketsSold => 'Billets vendus';
+
+  @override
+  String get dashboardTicketsRemaining => 'Billets restants';
+
+  @override
+  String get dashboardPricePerTicket => 'Prix / billet';
+
+  @override
+  String get dashboardFillRate => 'Taux de remplissage';
+
+  @override
+  String get dashboardRevenueGenerated => 'Revenus générés';
+
+  @override
+  String get dashboardDetail => 'Détail';
+
+  @override
+  String get alreadyAccount => 'Déjà un compte ?';
+
+  @override
+  String get noAccount => 'Pas encore de compte ?';
+
+  @override
+  String get signupLink => 'S\'inscrire';
+
+  @override
+  String get role => 'Rôle';
+
+  @override
+  String get organisateur => 'Organisateur';
 }

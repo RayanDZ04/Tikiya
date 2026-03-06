@@ -637,7 +637,7 @@ class _CreateEventSheetState extends State<_CreateEventSheet> {
                                 size: 36, color: Colors.grey[400]),
                             const SizedBox(height: 8),
                             Text(
-                              'Ajouter une image',
+                              l10n.eventImageAdd,
                               style: GoogleFonts.montserrat(
                                   color: Colors.grey[500], fontSize: 13),
                             ),
@@ -652,7 +652,7 @@ class _CreateEventSheetState extends State<_CreateEventSheet> {
                   child: TextButton.icon(
                     onPressed: () => setState(() => _pickedImage = null),
                     icon: const Icon(Icons.close, size: 14, color: Colors.red),
-                    label: Text('Supprimer',
+                    label: Text(l10n.delete,
                         style: GoogleFonts.montserrat(
                             color: Colors.red, fontSize: 12)),
                   ),
@@ -681,7 +681,7 @@ class _CreateEventSheetState extends State<_CreateEventSheet> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              _uploading ? 'Envoi image...' : 'Création...',
+                              _uploading ? l10n.eventUploading : l10n.eventCreating,
                               style: GoogleFonts.montserrat(fontSize: 14),
                             ),
                           ],
@@ -871,7 +871,7 @@ class _EditEventSheetState extends State<_EditEventSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Événement modifié !', style: GoogleFonts.montserrat()),
+            content: Text(context.l10n.editEventSuccess, style: GoogleFonts.montserrat()),
             backgroundColor: bleuCyan,
           ),
         );
@@ -893,6 +893,7 @@ class _EditEventSheetState extends State<_EditEventSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -916,7 +917,7 @@ class _EditEventSheetState extends State<_EditEventSheet> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Modifier l\'événement',
+                l10n.editEventTitle,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
@@ -963,28 +964,28 @@ class _EditEventSheetState extends State<_EditEventSheet> {
               const SizedBox(height: 14),
               _buildField(
                 controller: _titleCtrl,
-                label: 'Titre',
-                validator: (v) => (v == null || v.isEmpty) ? 'Titre requis' : null,
+                label: l10n.eventTitleLabel,
+                validator: (v) => (v == null || v.isEmpty) ? l10n.eventTitleRequired : null,
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _dateCtrl,
                 readOnly: true,
                 onTap: _pickDate,
-                decoration: _inputDeco('Date et heure'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Date requise' : null,
+                decoration: _inputDeco(l10n.eventDateLabel),
+                validator: (v) => (v == null || v.isEmpty) ? l10n.eventDateRequired : null,
               ),
               const SizedBox(height: 14),
-              _buildField(controller: _locationCtrl, label: 'Lieu'),
+              _buildField(controller: _locationCtrl, label: l10n.eventLocationLabel),
               const SizedBox(height: 14),
-              _buildField(controller: _descCtrl, label: 'Description', maxLines: 3),
+              _buildField(controller: _descCtrl, label: l10n.eventDescriptionLabel, maxLines: 3),
               const SizedBox(height: 14),
               Row(
                 children: [
                   Expanded(
                     child: _buildField(
                       controller: _priceCtrl,
-                      label: 'Prix (DZD)',
+                      label: l10n.eventPriceLabel,
                       keyboard: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
                     ),
@@ -993,7 +994,7 @@ class _EditEventSheetState extends State<_EditEventSheet> {
                   Expanded(
                     child: _buildField(
                       controller: _capacityCtrl,
-                      label: 'Capacité',
+                      label: l10n.eventCapacityLabel,
                       keyboard: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
@@ -1039,7 +1040,7 @@ class _EditEventSheetState extends State<_EditEventSheet> {
                                 Icon(Icons.add_photo_alternate_outlined,
                                     size: 36, color: Colors.grey[400]),
                                 const SizedBox(height: 8),
-                                Text('Changer l\'image',
+                                Text(l10n.eventImageChange,
                                     style: GoogleFonts.montserrat(
                                         color: Colors.grey[500], fontSize: 13)),
                               ],
@@ -1056,7 +1057,7 @@ class _EditEventSheetState extends State<_EditEventSheet> {
                       _existingCoverUrl = null;
                     }),
                     icon: const Icon(Icons.close, size: 14, color: Colors.red),
-                    label: Text('Supprimer l\'image',
+                    label: Text(l10n.eventImageDelete,
                         style: GoogleFonts.montserrat(color: Colors.red, fontSize: 12)),
                   ),
                 ),
@@ -1083,13 +1084,13 @@ class _EditEventSheetState extends State<_EditEventSheet> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              _uploading ? 'Envoi image...' : 'Modification...',
+                              _uploading ? l10n.eventUploading : l10n.editEventSaving,
                               style: GoogleFonts.montserrat(fontSize: 14),
                             ),
                           ],
                         )
                       : Text(
-                          'Enregistrer les modifications',
+                          l10n.editEventSave,
                           style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w700, fontSize: 15),
                         ),

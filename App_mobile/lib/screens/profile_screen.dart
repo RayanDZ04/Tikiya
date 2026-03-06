@@ -182,7 +182,7 @@ class ProfileScreen extends StatelessWidget {
                             children: [
                               _InfoRow(
                                 icon: Icons.person_outline,
-                                label: 'Pseudo',
+                                label: l10n.profilePseudo,
                                 value: display,
                               ),
                               Divider(
@@ -190,7 +190,7 @@ class ProfileScreen extends StatelessWidget {
                                   color: bleuProfond.withValues(alpha: 0.1)),
                               _InfoRow(
                                 icon: Icons.email_outlined,
-                                label: 'Email',
+                                label: l10n.emailLabel,
                                 value: session.email,
                               ),
                               Divider(
@@ -198,7 +198,7 @@ class ProfileScreen extends StatelessWidget {
                                   color: bleuProfond.withValues(alpha: 0.1)),
                               _ActionRow(
                                 icon: Icons.settings_outlined,
-                                label: 'Paramètres',
+                                label: l10n.profileSettings,
                                 onTap: () => showSettingsSheet(context),
                               ),
                             ],

@@ -306,4 +306,236 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardRecent => 'Recent events';
+
+  @override
+  String get profilePseudo => 'Username';
+
+  @override
+  String get profileSettings => 'Settings';
+
+  @override
+  String get settingsTitle => 'Account settings';
+
+  @override
+  String get settingsChangeEmail => 'Change email address';
+
+  @override
+  String get settingsChangeEmailSub => 'Change your login email';
+
+  @override
+  String get settingsChangePassword => 'Change password';
+
+  @override
+  String get settingsChangePasswordSub => 'Change your current password';
+
+  @override
+  String get settingsEmailSuccess => 'Email address changed successfully!';
+
+  @override
+  String get settingsPasswordSuccess => 'Password changed successfully!';
+
+  @override
+  String get settingsNewEmail => 'New email address';
+
+  @override
+  String get settingsCurrentPassword => 'Current password';
+
+  @override
+  String get settingsNewPassword => 'New password';
+
+  @override
+  String get settingsPasswordConfirm => 'Confirm new password';
+
+  @override
+  String get settingsSaving => 'Saving...';
+
+  @override
+  String get fieldRequired => 'Required field';
+
+  @override
+  String get fieldEmailInvalid => 'Invalid email';
+
+  @override
+  String get fieldMin8Chars => 'At least 8 characters';
+
+  @override
+  String get editEventTitle => 'Edit event';
+
+  @override
+  String get editEventSave => 'Save changes';
+
+  @override
+  String get editEventSuccess => 'Event updated!';
+
+  @override
+  String get editEventSaving => 'Saving...';
+
+  @override
+  String get eventImageAdd => 'Add an image';
+
+  @override
+  String get eventImageChange => 'Change image';
+
+  @override
+  String get eventImageDelete => 'Delete image';
+
+  @override
+  String get eventUploading => 'Uploading image...';
+
+  @override
+  String get eventCreating => 'Creating...';
+
+  @override
+  String get paymentSecured => 'Secured payment via Chargily Pay';
+
+  @override
+  String get paymentTickets => 'Number of tickets';
+
+  @override
+  String get paymentRemaining => 'ticket(s) remaining';
+
+  @override
+  String get paymentTotal => 'Total';
+
+  @override
+  String get paymentBuyTicket => 'Buy a ticket';
+
+  @override
+  String paymentBuyTickets(int n) {
+    return 'Buy $n tickets';
+  }
+
+  @override
+  String get paymentRedirecting => 'Redirecting...';
+
+  @override
+  String get paymentError => 'Payment error.';
+
+  @override
+  String get paymentBrowserError => 'Cannot open browser.';
+
+  @override
+  String get ticketsTitle => 'My Tickets';
+
+  @override
+  String get ticketsEmpty => 'No tickets yet';
+
+  @override
+  String get ticketsDownloadQr => 'Download QR';
+
+  @override
+  String get ticketsQrDownloaded => 'QR downloaded!';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get freeEntry => 'Free entry';
+
+  @override
+  String get paymentMethodLabel => 'Payment method';
+
+  @override
+  String get fieldPasswordSameAsCurrent =>
+      'Must be different from current password';
+
+  @override
+  String get loginRequired => 'Please log in to purchase a ticket.';
+
+  @override
+  String pricePerTicketLabel(String price) {
+    return '$price DZD / ticket';
+  }
+
+  @override
+  String get freeEntryReserveBtn => 'Free entry — Book';
+
+  @override
+  String get paymentSuccess => 'Payment successful!';
+
+  @override
+  String get paymentFailed => 'Payment failed';
+
+  @override
+  String get paymentSuccessMsg =>
+      'Your ticket has been confirmed.\nFind it in \"My Tickets\".';
+
+  @override
+  String get paymentFailedMsg =>
+      'The payment could not be processed.\nPlease try again.';
+
+  @override
+  String get viewMyTickets => 'View my tickets';
+
+  @override
+  String get backToHome => 'Back to home';
+
+  @override
+  String get ticketsLoginRequired => 'Log in to view your tickets.';
+
+  @override
+  String get ticketsLoadError => 'Unable to load your tickets.';
+
+  @override
+  String get ticketStatusConfirmed => 'Confirmed';
+
+  @override
+  String get ticketStatusPending => 'Pending';
+
+  @override
+  String get ticketStatusFailed => 'Failed';
+
+  @override
+  String get ticketStatusCanceled => 'Canceled';
+
+  @override
+  String get ticketSwipeQr => 'Swipe QR codes';
+
+  @override
+  String get ticketTapZoom => 'Tap to zoom';
+
+  @override
+  String get ticketsViewEvents => 'Browse events';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get free => 'Free';
+
+  @override
+  String get eventLabel => 'EVENT';
+
+  @override
+  String get dashboardTicketsSold => 'Tickets sold';
+
+  @override
+  String get dashboardTicketsRemaining => 'Tickets remaining';
+
+  @override
+  String get dashboardPricePerTicket => 'Price / ticket';
+
+  @override
+  String get dashboardFillRate => 'Fill rate';
+
+  @override
+  String get dashboardRevenueGenerated => 'Revenue generated';
+
+  @override
+  String get dashboardDetail => 'Detail';
+
+  @override
+  String get alreadyAccount => 'Already have an account?';
+
+  @override
+  String get noAccount => 'Don\'t have an account yet?';
+
+  @override
+  String get signupLink => 'Sign up';
+
+  @override
+  String get role => 'Role';
+
+  @override
+  String get organisateur => 'Organizer';
 }

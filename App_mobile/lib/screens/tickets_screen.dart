@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../l10n/l10n.dart';
 import '../services/event_service.dart';
 import '../services/payment_service.dart';
 import '../services/session_store.dart';
@@ -111,7 +112,7 @@ class _TicketsScreenState extends State<TicketsScreen>
                           color: bleuCyan, size: 26),
                       const SizedBox(width: 10),
                       Text(
-                        'Mes Billets',
+                        context.l10n.ticketsTitle,
                         style: GoogleFonts.montserrat(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
@@ -165,8 +166,8 @@ class _TicketsScreenState extends State<TicketsScreen>
                               const SizedBox(height: 16),
                               Text(
                                 isAuth
-                                    ? 'Connectez-vous pour voir vos billets.'
-                                    : 'Impossible de charger vos billets.',
+                                    ? context.l10n.ticketsLoginRequired
+                                    : context.l10n.ticketsLoadError,
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.montserrat(
                                   color: const Color(0xFF607D8B),
@@ -178,7 +179,7 @@ class _TicketsScreenState extends State<TicketsScreen>
                                 ElevatedButton.icon(
                                   onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
                                   icon: const Icon(Icons.login),
-                                  label: const Text('Se connecter'),
+                                  label: Text(context.l10n.authLogin),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: bleuCyan,
                                     foregroundColor: Colors.white,
@@ -188,7 +189,7 @@ class _TicketsScreenState extends State<TicketsScreen>
                                 TextButton(
                                   onPressed: () =>
                                       setState(() => _future = _load()),
-                                  child: const Text('Réessayer'),
+                                  child: Text(context.l10n.retry),
                                 ),
                             ],
                           ),
@@ -279,13 +280,14 @@ class _GroupedTicketCard extends StatelessWidget {
     }
   }
 
-  String get _statusLabel {
+  String _statusLabel(BuildContext context) {
+    final l10n = context.l10n;
     if (group.dominantStatus == 'paid') {
-      return group.totalCount > 1 ? 'Confirmé' : 'Confirmé';
+      return l10n.ticketStatusConfirmed;
     }
-    if (group.dominantStatus == 'pending') return 'En attente';
-    if (group.dominantStatus == 'failed') return 'Échoué';
-    return 'Annulé';
+    if (group.dominantStatus == 'pending') return l10n.ticketStatusPending;
+    if (group.dominantStatus == 'failed') return l10n.ticketStatusFailed;
+    return l10n.ticketStatusCanceled;
   }
 
   IconData get _categoryIcon {
@@ -380,7 +382,7 @@ class _GroupedTicketCard extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Text(
                                     event?.category.toUpperCase() ??
-                                        'ÉVÉNEMENT',
+                                        context.l10n.eventLabel,
                                     style: GoogleFonts.montserrat(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w700,
@@ -394,7 +396,7 @@ class _GroupedTicketCard extends StatelessWidget {
                             const SizedBox(height: 10),
                             // Event title
                             Text(
-                              event?.title ?? 'Événement',
+                              event?.title ?? context.l10n.ticketsTitle,
                               style: GoogleFonts.montserrat(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
@@ -467,7 +469,7 @@ class _GroupedTicketCard extends StatelessWidget {
                               Text(
                                 group.unitAmount > 0
                                     ? '${group.unitAmount} DZD'
-                                    : 'Gratuit',
+                                    : context.l10n.free,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w800,
@@ -498,7 +500,7 @@ class _GroupedTicketCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                _statusLabel,
+                                _statusLabel(context),
                                 style: GoogleFonts.montserrat(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
@@ -568,8 +570,8 @@ class _GroupedTicketCard extends StatelessWidget {
                               const SizedBox(height: 8),
                               Text(
                                 group.paidCount > 1
-                                    ? 'Glisser les QR'
-                                    : 'Appuyer pour agrandir',
+                                    ? context.l10n.ticketSwipeQr
+                                    : context.l10n.ticketTapZoom,
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 8,
@@ -795,7 +797,7 @@ class _QrSlideDialogState extends State<_QrSlideDialog> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          event?.title ?? 'Mes billets',
+                          event?.title ?? context.l10n.ticketsTitle,
                           style: GoogleFonts.montserrat(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
@@ -966,7 +968,7 @@ class _QrSlideDialogState extends State<_QrSlideDialog> {
                             color: Color(0xFF43A047), size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          'Confirmé',
+                          context.l10n.ticketStatusConfirmed,
                           style: GoogleFonts.montserrat(
                             color: const Color(0xFF43A047),
                             fontWeight: FontWeight.w700,
@@ -980,7 +982,7 @@ class _QrSlideDialogState extends State<_QrSlideDialog> {
                   Text(
                     tickets[_page].amount > 0
                         ? '${tickets[_page].amount} DZD'
-                        : 'Gratuit',
+                        : context.l10n.free,
                     style: GoogleFonts.montserrat(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -1025,7 +1027,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun billet',
+              context.l10n.ticketsEmpty,
               style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -1034,7 +1036,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Vous n\'avez pas encore acheté de billet.\nDécouvrez les événements disponibles.',
+              context.l10n.ticketsViewEvents,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
@@ -1047,7 +1049,7 @@ class _EmptyState extends StatelessWidget {
               onPressed: onBrowse,
               icon: const Icon(Icons.search, color: Colors.white),
               label: Text(
-                'Voir les événements',
+                context.l10n.ticketsViewEvents,
                 style: GoogleFonts.montserrat(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,

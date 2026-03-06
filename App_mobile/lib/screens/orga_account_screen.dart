@@ -144,15 +144,15 @@ class OrgaAccountScreen extends StatelessWidget {
                             children: [
                               _InfoRow(
                                 icon: Icons.email_outlined,
-                                label: 'Email',
+                                label: context.l10n.emailLabel,
                                 value: session.email,
                                 foreground: bleuProfond,
                               ),
                               Divider(height: 24, color: bleuProfond.withValues(alpha: 0.15)),
                               _InfoRow(
                                 icon: Icons.badge_outlined,
-                                label: 'Rôle',
-                                value: 'Organisateur',
+                                label: context.l10n.role,
+                                value: context.l10n.organisateur,
                                 foreground: bleuProfond,
                               ),
                             ],

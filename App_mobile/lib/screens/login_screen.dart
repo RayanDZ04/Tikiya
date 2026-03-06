@@ -275,19 +275,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         onTap: () => Navigator.of(context).pushNamed('/register-role'),
                         child: RichText(
                           textAlign: TextAlign.center,
-                          text: const TextSpan(
-                            style: TextStyle(
+                          text: TextSpan(
+                            style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
                             ),
                             children: [
                               TextSpan(
-                                text: "Pas encore de compte ? ",
-                                style: TextStyle(color: bleuProfon),
+                                text: "${context.l10n.noAccount} ",
+                                style: const TextStyle(color: bleuProfon),
                               ),
                               TextSpan(
-                                text: "S'inscrire",
-                                style: TextStyle(color: bleuCyan),
+                                text: context.l10n.signupLink,
+                                style: const TextStyle(color: bleuCyan),
                               ),
                             ],
                           ),

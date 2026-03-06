@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../l10n/l10n.dart';
 import '../main.dart' show navigatorKey;
 
 /// Affiche une popup de résultat de paiement (succès ou échec).
@@ -55,14 +56,15 @@ class _PaymentResultDialogState extends State<_PaymentResultDialog>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isSuccess = widget.success;
     final Color accent = isSuccess ? vert : rouge;
     final IconData icon =
         isSuccess ? Icons.check_circle_rounded : Icons.cancel_rounded;
-    final String title = isSuccess ? 'Paiement réussi !' : 'Paiement échoué';
+    final String title = isSuccess ? l10n.paymentSuccess : l10n.paymentFailed;
     final String subtitle = isSuccess
-        ? 'Votre billet a été confirmé.\nRetrouvez-le dans "Mes Billets".'
-        : 'Le paiement n\'a pas pu être traité.\nVeuillez réessayer.';
+        ? l10n.paymentSuccessMsg
+        : l10n.paymentFailedMsg;
 
     return FadeTransition(
       opacity: _fade,
@@ -188,7 +190,7 @@ class _PaymentResultDialogState extends State<_PaymentResultDialog>
                             icon: const Icon(Icons.confirmation_num,
                                 color: Colors.white, size: 18),
                             label: Text(
-                              'Voir mes billets',
+                              l10n.viewMyTickets,
                               style: GoogleFonts.montserrat(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 14,
@@ -217,7 +219,7 @@ class _PaymentResultDialogState extends State<_PaymentResultDialog>
                             ),
                           ),
                           child: Text(
-                            isSuccess ? 'Retour à l\'accueil' : 'Fermer',
+                            isSuccess ? l10n.backToHome : l10n.homeFiltersClose,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w600,
                               fontSize: 13,

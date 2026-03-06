@@ -571,7 +571,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventDateLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Date et heure (YYYY-MM-DDTHH:MM:SSZ)'**
+  /// **'Date et heure'**
   String get eventDateLabel;
 
   /// No description provided for @eventDateRequired.
@@ -693,6 +693,456 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Événements récents'**
   String get dashboardRecent;
+
+  /// No description provided for @profilePseudo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pseudo'**
+  String get profilePseudo;
+
+  /// No description provided for @profileSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres'**
+  String get profileSettings;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres du compte'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsChangeEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l\'adresse email'**
+  String get settingsChangeEmail;
+
+  /// No description provided for @settingsChangeEmailSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer l\'email de connexion'**
+  String get settingsChangeEmailSub;
+
+  /// No description provided for @settingsChangePassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le mot de passe'**
+  String get settingsChangePassword;
+
+  /// No description provided for @settingsChangePasswordSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer le mot de passe actuel'**
+  String get settingsChangePasswordSub;
+
+  /// No description provided for @settingsEmailSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse email modifiée avec succès !'**
+  String get settingsEmailSuccess;
+
+  /// No description provided for @settingsPasswordSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe modifié avec succès !'**
+  String get settingsPasswordSuccess;
+
+  /// No description provided for @settingsNewEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle adresse email'**
+  String get settingsNewEmail;
+
+  /// No description provided for @settingsCurrentPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe actuel'**
+  String get settingsCurrentPassword;
+
+  /// No description provided for @settingsNewPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get settingsNewPassword;
+
+  /// No description provided for @settingsPasswordConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le nouveau mot de passe'**
+  String get settingsPasswordConfirm;
+
+  /// No description provided for @settingsSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement...'**
+  String get settingsSaving;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champ requis'**
+  String get fieldRequired;
+
+  /// No description provided for @fieldEmailInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email invalide'**
+  String get fieldEmailInvalid;
+
+  /// No description provided for @fieldMin8Chars.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au moins 8 caractères'**
+  String get fieldMin8Chars;
+
+  /// No description provided for @editEventTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l\'événement'**
+  String get editEventTitle;
+
+  /// No description provided for @editEventSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get editEventSave;
+
+  /// No description provided for @editEventSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événement modifié !'**
+  String get editEventSuccess;
+
+  /// No description provided for @editEventSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modification...'**
+  String get editEventSaving;
+
+  /// No description provided for @eventImageAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une image'**
+  String get eventImageAdd;
+
+  /// No description provided for @eventImageChange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer l\'image'**
+  String get eventImageChange;
+
+  /// No description provided for @eventImageDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer l\'image'**
+  String get eventImageDelete;
+
+  /// No description provided for @eventUploading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoi image...'**
+  String get eventUploading;
+
+  /// No description provided for @eventCreating.
+  ///
+  /// In fr, this message translates to:
+  /// **'Création...'**
+  String get eventCreating;
+
+  /// No description provided for @paymentSecured.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement sécurisé via Chargily Pay'**
+  String get paymentSecured;
+
+  /// No description provided for @paymentTickets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de billets'**
+  String get paymentTickets;
+
+  /// No description provided for @paymentRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'billet(s) restant(s)'**
+  String get paymentRemaining;
+
+  /// No description provided for @paymentTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total'**
+  String get paymentTotal;
+
+  /// No description provided for @paymentBuyTicket.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter un billet'**
+  String get paymentBuyTicket;
+
+  /// No description provided for @paymentBuyTickets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter {n} billets'**
+  String paymentBuyTickets(int n);
+
+  /// No description provided for @paymentRedirecting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Redirection...'**
+  String get paymentRedirecting;
+
+  /// No description provided for @paymentError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du paiement.'**
+  String get paymentError;
+
+  /// No description provided for @paymentBrowserError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir le navigateur.'**
+  String get paymentBrowserError;
+
+  /// No description provided for @ticketsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes Billets'**
+  String get ticketsTitle;
+
+  /// No description provided for @ticketsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun billet pour le moment'**
+  String get ticketsEmpty;
+
+  /// No description provided for @ticketsDownloadQr.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger QR'**
+  String get ticketsDownloadQr;
+
+  /// No description provided for @ticketsQrDownloaded.
+  ///
+  /// In fr, this message translates to:
+  /// **'QR téléchargé !'**
+  String get ticketsQrDownloaded;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get filterAll;
+
+  /// No description provided for @freeEntry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrée gratuite'**
+  String get freeEntry;
+
+  /// No description provided for @paymentMethodLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyen de paiement'**
+  String get paymentMethodLabel;
+
+  /// No description provided for @fieldPasswordSameAsCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doit être différent du mot de passe actuel'**
+  String get fieldPasswordSameAsCurrent;
+
+  /// No description provided for @loginRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous pour acheter un billet.'**
+  String get loginRequired;
+
+  /// No description provided for @pricePerTicketLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{price} DZD / billet'**
+  String pricePerTicketLabel(String price);
+
+  /// No description provided for @freeEntryReserveBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrée gratuite — Réserver'**
+  String get freeEntryReserveBtn;
+
+  /// No description provided for @paymentSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement réussi !'**
+  String get paymentSuccess;
+
+  /// No description provided for @paymentFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement échoué'**
+  String get paymentFailed;
+
+  /// No description provided for @paymentSuccessMsg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre billet a été confirmé.\nRetrouvez-le dans \"Mes Billets\".'**
+  String get paymentSuccessMsg;
+
+  /// No description provided for @paymentFailedMsg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le paiement n\'a pas pu être traité.\nVeuillez réessayer.'**
+  String get paymentFailedMsg;
+
+  /// No description provided for @viewMyTickets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mes billets'**
+  String get viewMyTickets;
+
+  /// No description provided for @backToHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à l\'accueil'**
+  String get backToHome;
+
+  /// No description provided for @ticketsLoginRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous pour voir vos billets.'**
+  String get ticketsLoginRequired;
+
+  /// No description provided for @ticketsLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger vos billets.'**
+  String get ticketsLoadError;
+
+  /// No description provided for @ticketStatusConfirmed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmé'**
+  String get ticketStatusConfirmed;
+
+  /// No description provided for @ticketStatusPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get ticketStatusPending;
+
+  /// No description provided for @ticketStatusFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échoué'**
+  String get ticketStatusFailed;
+
+  /// No description provided for @ticketStatusCanceled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annulé'**
+  String get ticketStatusCanceled;
+
+  /// No description provided for @ticketSwipeQr.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glisser les QR'**
+  String get ticketSwipeQr;
+
+  /// No description provided for @ticketTapZoom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyer pour agrandir'**
+  String get ticketTapZoom;
+
+  /// No description provided for @ticketsViewEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les événements'**
+  String get ticketsViewEvents;
+
+  /// No description provided for @retry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get retry;
+
+  /// No description provided for @free.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gratuit'**
+  String get free;
+
+  /// No description provided for @eventLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'ÉVÉNEMENT'**
+  String get eventLabel;
+
+  /// No description provided for @dashboardTicketsSold.
+  ///
+  /// In fr, this message translates to:
+  /// **'Billets vendus'**
+  String get dashboardTicketsSold;
+
+  /// No description provided for @dashboardTicketsRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Billets restants'**
+  String get dashboardTicketsRemaining;
+
+  /// No description provided for @dashboardPricePerTicket.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix / billet'**
+  String get dashboardPricePerTicket;
+
+  /// No description provided for @dashboardFillRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de remplissage'**
+  String get dashboardFillRate;
+
+  /// No description provided for @dashboardRevenueGenerated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus générés'**
+  String get dashboardRevenueGenerated;
+
+  /// No description provided for @dashboardDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail'**
+  String get dashboardDetail;
+
+  /// No description provided for @alreadyAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà un compte ?'**
+  String get alreadyAccount;
+
+  /// No description provided for @noAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de compte ?'**
+  String get noAccount;
+
+  /// No description provided for @signupLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'inscrire'**
+  String get signupLink;
+
+  /// No description provided for @role.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rôle'**
+  String get role;
+
+  /// No description provided for @organisateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organisateur'**
+  String get organisateur;
 }
 
 class _AppLocalizationsDelegate

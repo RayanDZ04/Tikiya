@@ -332,14 +332,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
                             ),
-                            children: const [
+                            children: [
                               TextSpan(
-                                text: 'Déjà un compte ? ',
-                                style: TextStyle(color: bleuProfon),
+                                text: context.l10n.alreadyAccount + ' ',
+                                style: const TextStyle(color: bleuProfon),
                               ),
                               TextSpan(
-                                text: 'Se connecter',
-                                style: TextStyle(color: bleuCyan),
+                                text: context.l10n.authLogin,
+                                style: const TextStyle(color: bleuCyan),
                               ),
                             ],
                           ),

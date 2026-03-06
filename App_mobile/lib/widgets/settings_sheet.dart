@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../l10n/l10n.dart';
 import '../services/user_service.dart';
 import '../services/session_store.dart';
 
@@ -23,6 +24,7 @@ class _SettingsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -58,7 +60,7 @@ class _SettingsSheet extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Paramètres du compte',
+                l10n.settingsTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
@@ -72,8 +74,8 @@ class _SettingsSheet extends StatelessWidget {
           // Options
           _SettingsTile(
             icon: Icons.email_outlined,
-            title: 'Modifier l\'adresse email',
-            subtitle: 'Changer l\'email de connexion',
+            title: l10n.settingsChangeEmail,
+            subtitle: l10n.settingsChangeEmailSub,
             onTap: () {
               Navigator.pop(context);
               _showChangeEmailSheet(context);
@@ -82,8 +84,8 @@ class _SettingsSheet extends StatelessWidget {
           const SizedBox(height: 12),
           _SettingsTile(
             icon: Icons.lock_outline,
-            title: 'Modifier le mot de passe',
-            subtitle: 'Changer le mot de passe actuel',
+            title: l10n.settingsChangePassword,
+            subtitle: l10n.settingsChangePasswordSub,
             onTap: () {
               Navigator.pop(context);
               _showChangePasswordSheet(context);
@@ -230,6 +232,7 @@ class _ChangeEmailSheetState extends State<_ChangeEmailSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -240,7 +243,7 @@ class _ChangeEmailSheetState extends State<_ChangeEmailSheet> {
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
         child: _success ? _SuccessBanner(
-          message: 'Adresse email modifiée avec succès !',
+          message: l10n.settingsEmailSuccess,
           onDone: () => Navigator.pop(context),
         ) : Form(
           key: _formKey,
@@ -251,18 +254,18 @@ class _ChangeEmailSheetState extends State<_ChangeEmailSheet> {
               _SheetHandle(),
               const SizedBox(height: 20),
               _SheetTitle(
-                  icon: Icons.email_outlined, title: 'Modifier l\'email'),
+                  icon: Icons.email_outlined, title: l10n.settingsChangeEmail),
               const SizedBox(height: 24),
               _FormField(
                 controller: _emailCtrl,
-                label: 'Nouvelle adresse email',
+                label: l10n.settingsNewEmail,
                 hint: 'exemple@email.com',
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Champ requis';
+                  if (v == null || v.isEmpty) return l10n.fieldRequired;
                   if (!v.contains('@') || !v.contains('.')) {
-                    return 'Email invalide';
+                    return l10n.fieldEmailInvalid;
                   }
                   return null;
                 },
@@ -270,7 +273,7 @@ class _ChangeEmailSheetState extends State<_ChangeEmailSheet> {
               const SizedBox(height: 14),
               _FormField(
                 controller: _pwCtrl,
-                label: 'Mot de passe actuel',
+                label: l10n.settingsCurrentPassword,
                 hint: '••••••••',
                 icon: Icons.lock_outline,
                 obscure: !_pwVisible,
@@ -283,8 +286,8 @@ class _ChangeEmailSheetState extends State<_ChangeEmailSheet> {
                       setState(() => _pwVisible = !_pwVisible),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Champ requis';
-                  if (v.length < 8) return 'Au moins 8 caractères';
+                  if (v == null || v.isEmpty) return l10n.fieldRequired;
+                  if (v.length < 8) return l10n.fieldMin8Chars;
                   return null;
                 },
               ),
@@ -294,7 +297,7 @@ class _ChangeEmailSheetState extends State<_ChangeEmailSheet> {
               ],
               const SizedBox(height: 20),
               _SubmitButton(
-                label: 'Modifier l\'email',
+                label: l10n.settingsChangeEmail,
                 loading: _loading,
                 onPressed: _submit,
               ),
@@ -360,6 +363,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -370,7 +374,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
         child: _success ? _SuccessBanner(
-          message: 'Mot de passe modifié avec succès !',
+          message: l10n.settingsPasswordSuccess,
           onDone: () => Navigator.pop(context),
         ) : Form(
           key: _formKey,
@@ -382,11 +386,11 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
               const SizedBox(height: 20),
               _SheetTitle(
                   icon: Icons.lock_outline,
-                  title: 'Modifier le mot de passe'),
+                  title: l10n.settingsChangePassword),
               const SizedBox(height: 24),
               _FormField(
                 controller: _currentCtrl,
-                label: 'Mot de passe actuel',
+                label: l10n.settingsCurrentPassword,
                 hint: '••••••••',
                 icon: Icons.lock_outline,
                 obscure: !_currentVisible,
@@ -401,14 +405,14 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                       setState(() => _currentVisible = !_currentVisible),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Champ requis';
+                  if (v == null || v.isEmpty) return l10n.fieldRequired;
                   return null;
                 },
               ),
               const SizedBox(height: 14),
               _FormField(
                 controller: _newCtrl,
-                label: 'Nouveau mot de passe',
+                label: l10n.settingsNewPassword,
                 hint: '••••••••',
                 icon: Icons.lock_reset,
                 obscure: !_newVisible,
@@ -421,10 +425,10 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                       setState(() => _newVisible = !_newVisible),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Champ requis';
-                  if (v.length < 8) return 'Au moins 8 caractères';
+                  if (v == null || v.isEmpty) return l10n.fieldRequired;
+                  if (v.length < 8) return l10n.fieldMin8Chars;
                   if (v == _currentCtrl.text) {
-                    return 'Doit être différent du mot de passe actuel';
+                    return l10n.fieldPasswordSameAsCurrent;
                   }
                   return null;
                 },
@@ -432,7 +436,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
               const SizedBox(height: 14),
               _FormField(
                 controller: _confirmCtrl,
-                label: 'Confirmer le nouveau mot de passe',
+                label: l10n.settingsPasswordConfirm,
                 hint: '••••••••',
                 icon: Icons.check_circle_outline,
                 obscure: !_confirmVisible,
@@ -447,9 +451,9 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                       setState(() => _confirmVisible = !_confirmVisible),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Champ requis';
+                  if (v == null || v.isEmpty) return l10n.fieldRequired;
                   if (v != _newCtrl.text) {
-                    return 'Les mots de passe ne correspondent pas';
+                    return l10n.passwordMismatch;
                   }
                   return null;
                 },
@@ -460,7 +464,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
               ],
               const SizedBox(height: 20),
               _SubmitButton(
-                label: 'Modifier le mot de passe',
+                label: l10n.settingsChangePassword,
                 loading: _loading,
                 onPressed: _submit,
               ),
@@ -656,6 +660,7 @@ class _SuccessBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -695,7 +700,7 @@ class _SuccessBanner extends StatelessWidget {
             ),
             onPressed: onDone,
             child: Text(
-              'Fermer',
+              l10n.homeFiltersClose,
               style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700, fontSize: 15),
             ),

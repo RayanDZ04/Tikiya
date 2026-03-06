@@ -344,7 +344,7 @@ class _RecentEventRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                'Détail',
+                context.l10n.dashboardDetail,
                 style: GoogleFonts.montserrat(
                   color: Colors.white,
                   fontSize: 11,
@@ -486,14 +486,14 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                 _DetailStat(
                   icon: Icons.confirmation_num_outlined,
                   value: '$sold',
-                  label: 'Billets vendus',
+                  label: context.l10n.dashboardTicketsSold,
                   color: bleuCyan,
                 ),
                 const SizedBox(width: 12),
                 _DetailStat(
                   icon: Icons.event_seat_outlined,
                   value: '$remaining',
-                  label: 'Billets restants',
+                  label: context.l10n.dashboardTicketsRemaining,
                   color: vert,
                 ),
               ],
@@ -504,7 +504,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                 _DetailStat(
                   icon: Icons.people_outline,
                   value: '$capacity',
-                  label: 'Capacité totale',
+                  label: context.l10n.dashboardTotalCapacity,
                   color: bleuProfond,
                 ),
                 const SizedBox(width: 12),
@@ -512,8 +512,8 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                   icon: Icons.attach_money,
                   value: event.price > 0
                       ? '${event.price.toStringAsFixed(0)} DZD'
-                      : 'Gratuit',
-                  label: 'Prix / billet',
+                      : context.l10n.free,
+                  label: context.l10n.dashboardPricePerTicket,
                   color: orange,
                 ),
               ],
@@ -522,7 +522,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
 
             // ── Barre de remplissage ──────────────────────────────────────
             Text(
-              'Taux de remplissage',
+              context.l10n.dashboardFillRate,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -582,7 +582,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Revenus générés',
+                      context.l10n.dashboardRevenueGenerated,
                       style: GoogleFonts.montserrat(
                         color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 13,

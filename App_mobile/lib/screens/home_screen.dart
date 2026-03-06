@@ -237,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(height: 12),
                                 Wrap(spacing: 8, runSpacing: 8, children: [
                                   for (final cat in [
-                                    {'value': '', 'label': 'Tous'},
+                                    {'value': '', 'label': l10n.filterAll},
                                     {'value': 'musique', 'label': l10n.filterMusic},
                                     {'value': 'culture', 'label': l10n.filterCulture},
                                     {'value': 'divertissement', 'label': l10n.filterEntertainment},
@@ -410,9 +410,10 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
       url.replaceFirst('http://localhost', 'http://10.0.2.2');
 
   Future<void> _startPayment() async {
+    final l10n = context.l10n;
     final session = SessionStore.I.session.value;
     if (session == null) {
-      setState(() => _error = 'Connectez-vous pour acheter un billet.');
+      setState(() => _error = l10n.loginRequired);
       return;
     }
 
@@ -430,12 +431,12 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        setState(() => _error = 'Impossible d\'ouvrir le navigateur.');
+        if (mounted) setState(() => _error = l10n.paymentBrowserError);
       }
     } catch (e) {
       final msg = e.toString();
       // Extract backend detail if present (e.g. 5-ticket limit)
-      String display = 'Erreur lors du paiement.';
+      String display = l10n.paymentError;
       if (msg.contains('"detail":"')) {
         final start = msg.indexOf('"detail":"') + 10;
         final end = msg.indexOf('"', start);
@@ -443,7 +444,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
       } else if (msg.contains('Impossible')) {
         display = msg;
       }
-      setState(() => _error = display);
+      if (mounted) setState(() => _error = display);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -452,6 +453,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
   @override
   Widget build(BuildContext context) {
     final event = widget.event;
+    final l10n = context.l10n;
     return DraggableScrollableSheet(
       initialChildSize: 0.72,
       maxChildSize: 0.92,
@@ -553,8 +555,8 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                           const SizedBox(width: 10),
                           Text(
                             event.price > 0
-                                ? '${event.price.toStringAsFixed(0)} DZD / billet'
-                                : 'Entrée gratuite',
+                                ? l10n.pricePerTicketLabel(event.price.toStringAsFixed(0))
+                                : l10n.freeEntry,
                             style: GoogleFonts.montserrat(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -568,7 +570,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                       const SizedBox(height: 20),
                       // Payment method selector
                       Text(
-                        'Moyen de paiement',
+                        l10n.paymentMethodLabel,
                         style: GoogleFonts.montserrat(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -624,7 +626,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                               : const Icon(Icons.payment,
                                   color: Colors.white),
                           label: Text(
-                            _loading ? 'Redirection...' : 'Acheter un billet',
+                            _loading ? l10n.paymentRedirecting : l10n.paymentBuyTicket,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w700,
                               fontSize: 15,
@@ -642,7 +644,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                       const SizedBox(height: 8),
                       Center(
                         child: Text(
-                          'Paiement sécurisé via Chargily Pay',
+                          l10n.paymentSecured,
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
                             color: bleuProfond.withValues(alpha: 0.4),
@@ -659,7 +661,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                           icon: const Icon(Icons.check_circle_outline,
                               color: Colors.white),
                           label: Text(
-                            'Entrée gratuite — Réserver',
+                            l10n.freeEntryReserveBtn,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
