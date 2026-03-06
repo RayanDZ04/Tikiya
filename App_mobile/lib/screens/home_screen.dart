@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Top-left: prénom/pseudo si connecté, sinon bouton S'inscrire
                   Positioned(
                     left: 16,
-                    top: -15,
+                    top: 0,
                     child: ValueListenableBuilder<UserSession?>(
                       valueListenable: SessionStore.I.session,
                       builder: (context, session, _) {
@@ -77,24 +77,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         final display = (session.username?.isNotEmpty ?? false)
                             ? session.username!
                             : session.email.split('@').first;
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              display,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: blanc,
-                              ),
+                        return GestureDetector(
+                          onTap: () => Navigator.pushNamed(context, '/profile'),
+                          child: Text(
+                            display,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: blanc,
                             ),
-                            IconButton(
-                              onPressed: () => SessionStore.I.clear(),
-                              icon: const Icon(Icons.logout, size: 18, color: blanc),
-                              tooltip: l10n.authLogout,
-                            ),
-                          ],
+                          ),
                         );
                       },
                     ),
@@ -102,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Top-right: langue uniquement
                   const Positioned(
                     right: 16,
-                    top: -15,
+                    top: 0,
                     child: LanguageSwitch(foregroundColor: blanc),
                   ),
                   // Centered title + search + filters toggle

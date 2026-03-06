@@ -71,6 +71,15 @@ class _OrgaDashboardScreenState extends State<OrgaDashboardScreen> {
                           color: bleuCyan,
                         ),
                       ),
+                      TextSpan(
+                        text: ' pro',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: blanc,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
                     ]),
                   ),
                   const LanguageSwitch(foregroundColor: Colors.white),

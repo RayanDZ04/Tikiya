@@ -62,22 +62,18 @@ class _OrgaHomeScreenState extends State<OrgaHomeScreen> {
                           color: bleuCyan,
                         ),
                       ),
-                    ]),
-                  ),
-                  Row(
-                    children: [
-                      const LanguageSwitch(foregroundColor: Colors.white),
-                      const SizedBox(width: 8),
-                      InkWell(
-                        onTap: () => SessionStore.I.clear(),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: Icon(Icons.logout, color: blanc.withValues(alpha: 0.8), size: 20),
+                      TextSpan(
+                        text: ' pro',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: blanc,
+                          letterSpacing: 1.2,
                         ),
                       ),
-                    ],
+                    ]),
                   ),
+                  const LanguageSwitch(foregroundColor: Colors.white),
                 ],
               ),
             ),
@@ -94,10 +90,6 @@ class _OrgaHomeScreenState extends State<OrgaHomeScreen> {
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh, color: bleuCyan),
-                    onPressed: _reload,
                   ),
                 ],
               ),

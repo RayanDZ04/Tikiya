@@ -73,9 +73,12 @@ class _TicketsScreenState extends State<TicketsScreen>
     } catch (_) {}
     final eventMap = {for (final e in events) e.id: e};
 
+    // Seuls les billets payés sont affichés
+    final paidOnly = tickets.where((t) => t.status == 'paid').toList();
+
     // Group tickets by eventId — keep insertion order
     final grouped = <String, List<TicketModel>>{};
-    for (final t in tickets) {
+    for (final t in paidOnly) {
       grouped.putIfAbsent(t.eventId, () => []).add(t);
     }
     final groups = grouped.entries

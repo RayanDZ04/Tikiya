@@ -12,6 +12,7 @@ import 'screens/orga_events_screen.dart';
 import 'screens/orga_account_screen.dart';
 import 'screens/orga_dashboard_screen.dart';
 import 'screens/tickets_screen.dart';
+import 'screens/profile_screen.dart';
 import 'services/session_store.dart';
 import 'widgets/payment_result_dialog.dart';
 import 'l10n/app_localizations.dart';
@@ -58,8 +59,21 @@ class _MyAppState extends State<MyApp> {
     // Cold-start : l'app a \u00e9t\u00e9 ouverte via le deep link
     _appLinks.getInitialLink().then((uri) {
       if (uri != null) _handleDeepLink(uri);
-    });
+    });    // Redirection vers l'accueil dès qu'on se déconnecte
+    SessionStore.I.session.addListener(_onSessionChanged);
   }
+
+  @override
+  void dispose() {
+    SessionStore.I.session.removeListener(_onSessionChanged);
+    super.dispose();
+  }
+
+  void _onSessionChanged() {
+    if (SessionStore.I.session.value == null) {
+      navigatorKey.currentState
+          ?.pushNamedAndRemoveUntil('/', (route) => false);
+    }  }
 
   void _handleDeepLink(Uri uri) {
     if (uri.scheme != 'tikiya' || uri.host != 'payment') return;
@@ -117,6 +131,7 @@ class _MyAppState extends State<MyApp> {
             '/account': (context) => const OrgaAccountScreen(),
             '/dashboard': (context) => const OrgaDashboardScreen(),
             '/tickets': (context) => const TicketsScreen(),
+            '/profile': (context) => const ProfileScreen(),
           },
         );
       },
