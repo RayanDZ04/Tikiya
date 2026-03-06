@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 import 'session_store.dart';
 
 // ─── Models ──────────────────────────────────────────────────────────────────
@@ -73,7 +74,7 @@ class EventTicketStats {
 
 class PaymentService {
   PaymentService({String? baseUrl}) : _baseUrl = baseUrl ?? _default;
-  static const String _default = 'http://10.0.2.2:8080';
+  static final String _default = apiBaseUrl;
   final String _baseUrl;
 
   Map<String, String> get _authHeaders {

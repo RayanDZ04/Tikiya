@@ -125,10 +125,16 @@
   "settingsCurrentPassword": "كلمة المرور الحالية",
   "settingsNewPassword": "كلمة المرور الجديدة",
   "settingsPasswordConfirm": "تأكيد كلمة المرور الجديدة",
+  "settingsChangeUsername": "تعديل الاسم المستعار",
+  "settingsChangeUsernameSub": "تغيير اسمك المعروض",
+  "settingsNewUsername": "الاسم المستعار الجديد",
+  "settingsUsernameHint": "مثال: Goten42",
+  "settingsUsernameSuccess": "تم تغيير الاسم المستعار بنجاح!",
   "settingsSaving": "جارٍ الحفظ...",
 
   "fieldRequired": "هذا الحقل مطلوب",
   "fieldEmailInvalid": "بريد إلكتروني غير صالح",
+  "fieldMin2Chars": "حرفان على الأقل",
   "fieldMin8Chars": "8 أحرف على الأقل",
 
   "editEventTitle": "تعديل الفعالية",
@@ -198,5 +204,15 @@
   "noAccount": "ليس لديك حساب بعد؟",
   "signupLink": "التسجيل",
   "role": "الدور",
-  "organisateur": "منظّم"
+  "organisateur": "منظّم",
+  "otpTitle": "التحقق من البريد الإلكتروني",
+  "otpSubtitle": "تم إرسال رمز مكوّن من 6 أرقام إلى {email}",
+  "@otpSubtitle": {"placeholders": {"email": {"type": "String"}}},
+  "otpCodeHint": "أدخل الرمز",
+  "otpVerify": "تحقق",
+  "otpResend": "إعادة إرسال الرمز",
+  "otpSuccess": "تم التحقق من البريد الإلكتروني بنجاح!",
+  "otpInvalid": "الرمز غير صالح أو منتهي الصلاحية.",
+  "otpTooManyAttempts": "محاولات كثيرة جداً. يرجى طلب رمز جديد.",
+  "otpResendSuccess": "تم إرسال رمز جديد."
 }

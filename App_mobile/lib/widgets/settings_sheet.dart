@@ -91,6 +91,16 @@ class _SettingsSheet extends StatelessWidget {
               _showChangePasswordSheet(context);
             },
           ),
+          const SizedBox(height: 12),
+          _SettingsTile(
+            icon: Icons.badge_outlined,
+            title: l10n.settingsChangeUsername,
+            subtitle: l10n.settingsChangeUsernameSub,
+            onTap: () {
+              Navigator.pop(context);
+              _showChangeUsernameSheet(context);
+            },
+          ),
           const SizedBox(height: 8),
         ],
       ),
@@ -471,6 +481,114 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─── Change username sheet ────────────────────────────────────────────────────
+void _showChangeUsernameSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (_) => const _ChangeUsernameSheet(),
+  );
+}
+
+class _ChangeUsernameSheet extends StatefulWidget {
+  const _ChangeUsernameSheet();
+  @override
+  State<_ChangeUsernameSheet> createState() => _ChangeUsernameSheetState();
+}
+
+class _ChangeUsernameSheetState extends State<_ChangeUsernameSheet> {
+  static const Color bleuProfond = Color(0xFF0B1C3E);
+
+  final _formKey = GlobalKey<FormState>();
+  final _usernameCtrl = TextEditingController();
+  bool _loading = false;
+  String? _error;
+  bool _success = false;
+
+  @override
+  void dispose() {
+    _usernameCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() { _loading = true; _error = null; });
+    try {
+      final username = _usernameCtrl.text.trim();
+      await UserService().changeUsername(username: username);
+      // Mettre à jour la session locale
+      final session = SessionStore.I.session.value;
+      if (session != null) {
+        SessionStore.I.setSession(session.copyWith(username: username));
+      }
+      setState(() { _success = true; _loading = false; });
+    } catch (e) {
+      setState(() { _error = e.toString(); _loading = false; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        child: _success
+            ? _SuccessBanner(
+                message: l10n.settingsUsernameSuccess,
+                onDone: () => Navigator.pop(context),
+              )
+            : Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SheetHandle(),
+                    const SizedBox(height: 20),
+                    _SheetTitle(
+                        icon: Icons.badge_outlined,
+                        title: l10n.settingsChangeUsername),
+                    const SizedBox(height: 24),
+                    _FormField(
+                      controller: _usernameCtrl,
+                      label: l10n.settingsNewUsername,
+                      hint: l10n.settingsUsernameHint,
+                      icon: Icons.badge_outlined,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return l10n.fieldRequired;
+                        }
+                        if (v.trim().length < 2) return l10n.fieldMin2Chars;
+                        return null;
+                      },
+                    ),
+                    if (_error != null) ...[
+                      const SizedBox(height: 12),
+                      _ErrorBanner(message: _error!),
+                    ],
+                    const SizedBox(height: 20),
+                    _SubmitButton(
+                      label: l10n.settingsChangeUsername,
+                      loading: _loading,
+                      onPressed: _submit,
+                    ),
+                  ],
+                ),
+              ),
       ),
     );
   }

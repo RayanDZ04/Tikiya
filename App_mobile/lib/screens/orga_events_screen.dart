@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../l10n/l10n.dart';
+import '../services/api_config.dart';
 import '../services/event_service.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
@@ -253,8 +254,7 @@ class _EventManageCard extends StatelessWidget {
   static const Color bleuProfond = Color(0xFF0B1C3E);
   static const Color bleuCyan = Color(0xFF00ACC1);
 
-  static String _fixUrl(String url) =>
-      url.replaceFirst('http://localhost', 'http://10.0.2.2');
+  static String _fixUrl(String url) => fixApiUrl(url);
 
   @override
   Widget build(BuildContext context) {
@@ -1027,8 +1027,7 @@ class _EditEventSheetState extends State<_EditEventSheet> {
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(9),
                               child: Image.network(
-                                _existingCoverUrl!.replaceFirst(
-                                    'http://localhost', 'http://10.0.2.2'),
+                                fixApiUrl(_existingCoverUrl!),
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, __, ___) => const Icon(
                                     Icons.broken_image, color: Colors.grey),

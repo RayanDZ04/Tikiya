@@ -125,10 +125,16 @@
   "settingsCurrentPassword": "Mot de passe actuel",
   "settingsNewPassword": "Nouveau mot de passe",
   "settingsPasswordConfirm": "Confirmer le nouveau mot de passe",
+  "settingsChangeUsername": "Modifier le pseudo",
+  "settingsChangeUsernameSub": "Changer votre nom affiché",
+  "settingsNewUsername": "Nouveau pseudo",
+  "settingsUsernameHint": "ex : Goten42",
+  "settingsUsernameSuccess": "Pseudo modifié avec succès !",
   "settingsSaving": "Enregistrement...",
 
   "fieldRequired": "Champ requis",
   "fieldEmailInvalid": "Email invalide",
+  "fieldMin2Chars": "Au moins 2 caractères",
   "fieldMin8Chars": "Au moins 8 caractères",
 
   "editEventTitle": "Modifier l'événement",
@@ -198,5 +204,15 @@
   "noAccount": "Pas encore de compte ?",
   "signupLink": "S'inscrire",
   "role": "Rôle",
-  "organisateur": "Organisateur"
+  "organisateur": "Organisateur",
+  "otpTitle": "Vérification de l'email",
+  "otpSubtitle": "Un code à 6 chiffres a été envoyé à {email}",
+  "@otpSubtitle": {"placeholders": {"email": {"type": "String"}}},
+  "otpCodeHint": "Entrez le code",
+  "otpVerify": "Vérifier",
+  "otpResend": "Renvoyer le code",
+  "otpSuccess": "Email vérifié avec succès !",
+  "otpInvalid": "Code invalide ou expiré.",
+  "otpTooManyAttempts": "Trop de tentatives. Demandez un nouveau code.",
+  "otpResendSuccess": "Nouveau code envoyé."
 }

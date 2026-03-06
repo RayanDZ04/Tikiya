@@ -9,9 +9,9 @@ services:
       DATABASE_URL: postgres://tikiya:tikiya@db:5432/tikiya
       PORT: 8080
       PUBLIC_BASE_URL: http://10.0.2.2:8080
-      ORIGINS: http://localhost:3000,http://localhost:3001
+      ORIGINS: http://localhost:3000
       # Chargily Pay — clés de test (dashboard.chargily.com)
-      CHARGILY_API_KEY: test_sk_lCH9O0pjUHHqxr5VrEjF6n1p5j0imGx1FynNrjfp
+      CHARGILY_API_KEY: test_sk_Ltpa80oud4YoG2jKSXDjx8RH1OkwYxeYu0A3LcBt
     depends_on:
       - db
     ports:
@@ -32,18 +32,6 @@ services:
       - "3000:3000"
     volumes:
       - ./App_mobile:/app
-      - flutter_pub_cache:/root/.pub-cache
-
-  app_organisateur_web:
-    build:
-      context: ./App_mobile_organisateur
-      dockerfile: Dockerfile.dev
-    depends_on:
-      - api
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./App_mobile_organisateur:/app
       - flutter_pub_cache:/root/.pub-cache
 
 volumes:

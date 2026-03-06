@@ -772,6 +772,36 @@ abstract class AppLocalizations {
   /// **'Confirmer le nouveau mot de passe'**
   String get settingsPasswordConfirm;
 
+  /// No description provided for @settingsChangeUsername.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le pseudo'**
+  String get settingsChangeUsername;
+
+  /// No description provided for @settingsChangeUsernameSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer votre nom affiché'**
+  String get settingsChangeUsernameSub;
+
+  /// No description provided for @settingsNewUsername.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau pseudo'**
+  String get settingsNewUsername;
+
+  /// No description provided for @settingsUsernameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex : Goten42'**
+  String get settingsUsernameHint;
+
+  /// No description provided for @settingsUsernameSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pseudo modifié avec succès !'**
+  String get settingsUsernameSuccess;
+
   /// No description provided for @settingsSaving.
   ///
   /// In fr, this message translates to:
@@ -789,6 +819,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Email invalide'**
   String get fieldEmailInvalid;
+
+  /// No description provided for @fieldMin2Chars.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au moins 2 caractères'**
+  String get fieldMin2Chars;
 
   /// No description provided for @fieldMin8Chars.
   ///
@@ -1143,6 +1179,60 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Organisateur'**
   String get organisateur;
+
+  /// No description provided for @otpTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification de l\'email'**
+  String get otpTitle;
+
+  /// No description provided for @otpSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un code à 6 chiffres a été envoyé à {email}'**
+  String otpSubtitle(String email);
+
+  /// No description provided for @otpCodeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le code'**
+  String get otpCodeHint;
+
+  /// No description provided for @otpVerify.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get otpVerify;
+
+  /// No description provided for @otpResend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer le code'**
+  String get otpResend;
+
+  /// No description provided for @otpSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email vérifié avec succès !'**
+  String get otpSuccess;
+
+  /// No description provided for @otpInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code invalide ou expiré.'**
+  String get otpInvalid;
+
+  /// No description provided for @otpTooManyAttempts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Demandez un nouveau code.'**
+  String get otpTooManyAttempts;
+
+  /// No description provided for @otpResendSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau code envoyé.'**
+  String get otpResendSuccess;
 }
 
 class _AppLocalizationsDelegate

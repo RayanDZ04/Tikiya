@@ -5,4 +5,6 @@ use crate::db::Db;
 pub struct AppState {
     pub db: Db,
     pub config: AppConfig,
+    /// Shared HTTP client — reuses TCP connection pools for Chargily, Google, etc.
+    pub http_client: reqwest::Client,
 }

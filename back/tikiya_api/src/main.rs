@@ -34,9 +34,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!(port = %cfg.port, origins = ?cfg.allowed_origins, "config.loaded");
 
+    let http_client = reqwest::Client::builder()
+        .user_agent("tikiya-api/1.0")
+        .connect_timeout(std::time::Duration::from_secs(5))
+        .timeout(std::time::Duration::from_secs(15))
+        .build()
+        .map_err(|e| { tracing::error!(error = ?e, "http_client.build_failed"); e })?;
+
     let state = state::AppState {
         db,
         config: cfg.clone(),
+        http_client,
     };
 
     let app = http::build_router(state);

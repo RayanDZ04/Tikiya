@@ -52,7 +52,27 @@ pub struct LogoutRequest {
     #[validate(length(min = 1))]
     pub refresh_token: String,
 }
+#[derive(Debug, Deserialize, Validate)]
+pub struct ChangePasswordRequest {
+    #[validate(length(min = 8, max = 128))]
+    pub current_password: String,
+    #[validate(length(min = 8, max = 128))]
+    pub new_password: String,
+}
 
+#[derive(Debug, Deserialize, Validate)]
+pub struct ChangeEmailRequest {
+    #[validate(length(min = 8, max = 128))]
+    pub current_password: String,
+    #[validate(email)]
+    pub new_email: String,
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct ChangeUsernameRequest {
+    #[validate(length(min = 2, max = 50))]
+    pub username: String,
+}
 #[derive(Debug, Deserialize, Validate, Clone)]
 pub struct OrganizerNeedsRequest {
     #[validate(length(min = 1, max = 120))]
@@ -71,6 +91,18 @@ pub struct OrganizerNeedsRequest {
 pub struct AuthResponse {
     pub user: UserResponse,
     pub tokens: AuthTokens,
+    pub email_verified: bool,
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct VerifyEmailRequest {
+    #[validate(length(min = 6, max = 6))]
+    pub code: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct MessageResponse {
+    pub message: String,
 }
 
 impl From<&User> for UserResponse {
@@ -99,6 +131,20 @@ pub struct CreateEventRequest {
     pub capacity: Option<i32>,
     pub cover_url: Option<String>,
     /// musique | culture | divertissement
+    pub category: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct UpdateEventRequest {
+    #[validate(length(min = 1, max = 255))]
+    pub title: String,
+    pub description: Option<String>,
+    pub location: Option<String>,
+    #[validate(length(min = 1))]
+    pub event_date: String,
+    pub price: Option<f64>,
+    pub capacity: Option<i32>,
+    pub cover_url: Option<String>,
     pub category: Option<String>,
 }
 

@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 import 'session_store.dart';
 
 class AuthService {
-  AuthService({String? baseUrl}) : _baseUrl = baseUrl ?? _defaultBaseUrl;
+  AuthService({String? baseUrl}) : _baseUrl = baseUrl ?? apiBaseUrl;
 
-  static const String _defaultBaseUrl = 'http://10.0.2.2:8080';
   final String _baseUrl;
 
   Future<Map<String, dynamic>> login({required String email, required String password}) async {
@@ -88,6 +88,45 @@ class AuthService {
   void _ensureOk(http.Response res) {
     if (res.statusCode < 200 || res.statusCode >= 300) {
       throw HttpException('HTTP ${res.statusCode}: ${res.body}');
+    }
+  }
+
+  /// Verify the email OTP code. Throws on failure with the server error message.
+  Future<void> verifyEmail({required String code}) async {
+    final token = SessionStore.I.session.value?.accessToken ?? '';
+    if (token.isEmpty) throw HttpException('Not authenticated');
+
+    final res = await http.post(
+      Uri.parse('$_baseUrl/email/verify'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'code': code}),
+    );
+    if (res.statusCode != 200) {
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      final detail = body['detail'] as String? ?? body['message'] as String? ?? 'Erreur inconnue';
+      throw HttpException(detail);
+    }
+  }
+
+  /// Ask the server to resend a new OTP to the authenticated user.
+  Future<void> resendOtp() async {
+    final token = SessionStore.I.session.value?.accessToken ?? '';
+    if (token.isEmpty) throw HttpException('Not authenticated');
+
+    final res = await http.post(
+      Uri.parse('$_baseUrl/email/resend'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (res.statusCode != 200) {
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      final detail = body['detail'] as String? ?? body['message'] as String? ?? 'Erreur inconnue';
+      throw HttpException(detail);
     }
   }
 

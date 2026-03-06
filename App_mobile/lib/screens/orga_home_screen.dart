@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/l10n.dart';
+import '../services/api_config.dart';
 import '../services/event_service.dart';
 import '../services/session_store.dart';
 import '../widgets/bottom_nav.dart';
@@ -171,8 +172,7 @@ class _EventCard extends StatelessWidget {
   static const Color bleuProfond = Color(0xFF0B1C3E);
   static const Color bleuCyan = Color(0xFF00ACC1);
 
-  static String _fixUrl(String url) =>
-      url.replaceFirst('http://localhost', 'http://10.0.2.2');
+  static String _fixUrl(String url) => fixApiUrl(url);
 
   @override
   Widget build(BuildContext context) {

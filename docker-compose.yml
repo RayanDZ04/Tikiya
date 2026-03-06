@@ -19,11 +19,15 @@ services:
     environment:
       DATABASE_URL: postgres://tikiya:tikiya@db:5432/tikiya
       PORT: 8080
-      ORIGINS: http://localhost:3000,http://localhost:3001
+      ORIGINS: http://localhost:3000
+      # 10.0.2.2 = host machine vu depuis l'émulateur Android
+      PUBLIC_BASE_URL: http://10.0.2.2:8080
     depends_on:
       - db
     ports:
       - "8080:8080"
+    volumes:
+      - ./back/tikiya_api/uploads:/app/uploads
 
   app_mobile_web:
     build:
@@ -34,15 +38,6 @@ services:
     ports:
       - "3000:80"
 
-  app_organisateur_web:
-    build:
-      context: ./App_mobile_organisateur
-      dockerfile: Dockerfile
-    depends_on:
-      - api
-    ports:
-      - "3001:80"
-
   android_build_mobile:
     build:
       context: ./App_mobile
@@ -50,16 +45,6 @@ services:
     volumes:
       - ./App_mobile/build:/app/build
       - ./App_mobile:/app
-      - flutter_pub_cache:/root/.pub-cache
-      - gradle_cache:/root/.gradle
-
-  android_build_organisateur:
-    build:
-      context: ./App_mobile_organisateur
-      dockerfile: Dockerfile.android
-    volumes:
-      - ./App_mobile_organisateur/build:/app/build
-      - ./App_mobile_organisateur:/app
       - flutter_pub_cache:/root/.pub-cache
       - gradle_cache:/root/.gradle
 

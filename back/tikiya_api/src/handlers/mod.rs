@@ -6,3 +6,4 @@ pub mod organizer_needs;
 pub mod events;
 pub mod upload;
 pub mod payments;
+pub mod otp;

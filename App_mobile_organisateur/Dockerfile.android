@@ -1,8 +1,0 @@
-FROM ghcr.io/cirruslabs/flutter:stable
-
-WORKDIR /app
-
-ENV PUB_CACHE=/root/.pub-cache
-ENV GRADLE_USER_HOME=/root/.gradle
-
-CMD ["bash", "-lc", "flutter pub get && flutter build apk --release && flutter build appbundle --release"]

@@ -27,7 +27,12 @@ pub struct AppConfig {
     pub organizer_needs_to_email: String,
     pub public_base_url: String,
     pub chargily_api_key: String,
+    pub chargily_base_url: String,
     pub access_token_ttl_minutes: i64,
+    pub resend_api_key: String,
+    pub resend_from: String,
+    pub otp_ttl_minutes: i64,
+    pub otp_max_attempts: i32,
 }
 
 impl AppConfig {
@@ -129,10 +134,30 @@ impl AppConfig {
         let chargily_api_key = env::var("CHARGILY_API_KEY")
             .unwrap_or_else(|_| String::new());
 
+        // CHARGILY_BASE_URL overrides everything; otherwise CHARGILY_ENV=prod uses live URL.
+        let chargily_base_url = env::var("CHARGILY_BASE_URL").unwrap_or_else(|_| {
+            match env::var("CHARGILY_ENV").as_deref() {
+                Ok("prod") => "https://pay.chargily.net/api/v2".to_string(),
+                _ => "https://pay.chargily.net/test/api/v2".to_string(),
+            }
+        });
+
         let access_token_ttl_minutes = env::var("ACCESS_TOKEN_TTL_MINUTES")
             .ok()
             .and_then(|v| v.parse().ok())
-            .unwrap_or(1440); // 24 h par défaut
+            .unwrap_or(60); // 60 min par défaut
+
+        let resend_api_key = env::var("RESEND_API_KEY").unwrap_or_default();
+        let resend_from = env::var("RESEND_FROM")
+            .unwrap_or_else(|_| "Tikiya <noreply@tikiya.dz>".to_string());
+        let otp_ttl_minutes = env::var("OTP_TTL_MINUTES")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(10);
+        let otp_max_attempts = env::var("OTP_MAX_ATTEMPTS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(5);
 
         Self {
             port,
@@ -160,7 +185,12 @@ impl AppConfig {
             organizer_needs_to_email,
             public_base_url,
             chargily_api_key,
+            chargily_base_url,
             access_token_ttl_minutes,
+            resend_api_key,
+            resend_from,
+            otp_ttl_minutes,
+            otp_max_attempts,
         }
     }
 }

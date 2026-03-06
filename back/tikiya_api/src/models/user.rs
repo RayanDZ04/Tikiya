@@ -8,6 +8,7 @@ pub struct User {
     pub email: String,
     pub password_hash: Option<String>,
     pub role: String,
+    pub email_verified: bool,
     pub oauth_provider: Option<String>,
     pub oauth_subject: Option<String>,
     pub created_at: DateTime<Utc>,

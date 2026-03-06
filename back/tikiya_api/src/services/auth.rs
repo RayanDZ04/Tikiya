@@ -51,7 +51,7 @@ impl AuthService {
         };
 
         let user = sqlx::query_as::<_, User>(
-            "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id, email, password_hash, role, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
+            "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
         )
         .bind(&payload.email)
         .bind(password_hash)
@@ -64,6 +64,7 @@ impl AuthService {
         tracing::info!(user_id = %user.id, email = %user.email, "auth.register.success");
 
         Ok(AuthResponse {
+            email_verified: user.email_verified,
             user: UserResponse::from(&user),
             tokens,
         })
@@ -134,6 +135,7 @@ impl AuthService {
         tracing::info!(user_id = %user.id, email = %user.email, "auth.login.success");
 
         Ok(AuthResponse {
+            email_verified: user.email_verified,
             user: UserResponse::from(&user),
             tokens,
         })
@@ -141,7 +143,7 @@ impl AuthService {
 
     async fn find_user_by_email(&self, email: &str) -> Result<Option<User>, ApiError> {
         let user = sqlx::query_as::<_, User>(
-            "SELECT id, email, password_hash, role, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE email = $1"
+            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE email = $1"
         )
         .bind(email)
         .fetch_optional(&self.state.db.pool)

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 import 'session_store.dart';
 
 class EventModel {
@@ -46,8 +47,7 @@ class EventModel {
 }
 
 class EventService {
-  EventService({String? baseUrl}) : _baseUrl = baseUrl ?? _default;
-  static const String _default = 'http://10.0.2.2:8080';
+  EventService({String? baseUrl}) : _baseUrl = baseUrl ?? apiBaseUrl;
   final String _baseUrl;
 
   Map<String, String> get _authHeaders {

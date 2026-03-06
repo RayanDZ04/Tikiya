@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../l10n/l10n.dart';
+import '../services/api_config.dart';
 import '../services/session_store.dart';
 import '../services/event_service.dart';
 import '../services/payment_service.dart';
@@ -406,8 +407,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
   String? _error;
   String _paymentMethod = 'edahabia';
 
-  static String _fixUrl(String url) =>
-      url.replaceFirst('http://localhost', 'http://10.0.2.2');
+  static String _fixUrl(String url) => fixApiUrl(url);
 
   Future<void> _startPayment() async {
     final l10n = context.l10n;
@@ -777,8 +777,7 @@ class _ParticipantEventCard extends StatelessWidget {
   static const Color bleuProfond = Color(0xFF0B1C3E);
   static const Color bleuCyan = Color(0xFF00ACC1);
 
-  static String _fixUrl(String url) =>
-      url.replaceFirst('http://localhost', 'http://10.0.2.2');
+  static String _fixUrl(String url) => fixApiUrl(url);
 
   @override
   Widget build(BuildContext context) {

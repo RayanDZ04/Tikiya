@@ -347,6 +347,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPasswordConfirm => 'Confirm new password';
 
   @override
+  String get settingsChangeUsername => 'Change username';
+
+  @override
+  String get settingsChangeUsernameSub => 'Update your display name';
+
+  @override
+  String get settingsNewUsername => 'New username';
+
+  @override
+  String get settingsUsernameHint => 'e.g. Goten42';
+
+  @override
+  String get settingsUsernameSuccess => 'Username changed successfully!';
+
+  @override
   String get settingsSaving => 'Saving...';
 
   @override
@@ -354,6 +369,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fieldEmailInvalid => 'Invalid email';
+
+  @override
+  String get fieldMin2Chars => 'At least 2 characters';
 
   @override
   String get fieldMin8Chars => 'At least 8 characters';
@@ -538,4 +556,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get organisateur => 'Organizer';
+
+  @override
+  String get otpTitle => 'Email verification';
+
+  @override
+  String otpSubtitle(String email) {
+    return 'A 6-digit code was sent to $email';
+  }
+
+  @override
+  String get otpCodeHint => 'Enter the code';
+
+  @override
+  String get otpVerify => 'Verify';
+
+  @override
+  String get otpResend => 'Resend code';
+
+  @override
+  String get otpSuccess => 'Email successfully verified!';
+
+  @override
+  String get otpInvalid => 'Invalid or expired code.';
+
+  @override
+  String get otpTooManyAttempts =>
+      'Too many attempts. Please request a new code.';
+
+  @override
+  String get otpResendSuccess => 'New code sent.';
 }

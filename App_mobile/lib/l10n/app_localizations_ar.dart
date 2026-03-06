@@ -346,6 +346,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsPasswordConfirm => 'تأكيد كلمة المرور الجديدة';
 
   @override
+  String get settingsChangeUsername => 'تعديل الاسم المستعار';
+
+  @override
+  String get settingsChangeUsernameSub => 'تغيير اسمك المعروض';
+
+  @override
+  String get settingsNewUsername => 'الاسم المستعار الجديد';
+
+  @override
+  String get settingsUsernameHint => 'مثال: Goten42';
+
+  @override
+  String get settingsUsernameSuccess => 'تم تغيير الاسم المستعار بنجاح!';
+
+  @override
   String get settingsSaving => 'جارٍ الحفظ...';
 
   @override
@@ -353,6 +368,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fieldEmailInvalid => 'بريد إلكتروني غير صالح';
+
+  @override
+  String get fieldMin2Chars => 'حرفان على الأقل';
 
   @override
   String get fieldMin8Chars => '8 أحرف على الأقل';
@@ -536,4 +554,33 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get organisateur => 'منظّم';
+
+  @override
+  String get otpTitle => 'التحقق من البريد الإلكتروني';
+
+  @override
+  String otpSubtitle(String email) {
+    return 'تم إرسال رمز مكوّن من 6 أرقام إلى $email';
+  }
+
+  @override
+  String get otpCodeHint => 'أدخل الرمز';
+
+  @override
+  String get otpVerify => 'تحقق';
+
+  @override
+  String get otpResend => 'إعادة إرسال الرمز';
+
+  @override
+  String get otpSuccess => 'تم التحقق من البريد الإلكتروني بنجاح!';
+
+  @override
+  String get otpInvalid => 'الرمز غير صالح أو منتهي الصلاحية.';
+
+  @override
+  String get otpTooManyAttempts => 'محاولات كثيرة جداً. يرجى طلب رمز جديد.';
+
+  @override
+  String get otpResendSuccess => 'تم إرسال رمز جديد.';
 }

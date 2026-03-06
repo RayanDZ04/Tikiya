@@ -1,45 +1,16 @@
 use axum::{
     extract::{Path, State},
-    http::HeaderMap,
     Json,
 };
 use chrono::DateTime;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-use serde::Deserialize;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::dto::{CreateEventRequest, EventResponse};
+use crate::dto::{CreateEventRequest, UpdateEventRequest, EventResponse};
 use crate::error::ApiError;
 use crate::models::Event;
+use crate::security::AuthUser;
 use crate::state::AppState;
-
-// ─── JWT extraction helper ────────────────────────────────────────────────────
-
-#[derive(Debug, Deserialize)]
-struct JwtClaims {
-    sub: Uuid,
-    #[serde(default)]
-    email: String,
-}
-
-fn extract_user(headers: &HeaderMap, state: &AppState) -> Result<Uuid, ApiError> {
-    let auth = headers
-        .get("authorization")
-        .and_then(|v| v.to_str().ok())
-        .ok_or(ApiError::Unauthorized)?;
-    let token = auth.strip_prefix("Bearer ").ok_or(ApiError::Unauthorized)?;
-    let mut validation = Validation::new(Algorithm::HS256);
-    validation.set_audience(std::slice::from_ref(&state.config.jwt_audience));
-    validation.set_issuer(std::slice::from_ref(&state.config.jwt_issuer));
-    let data = decode::<JwtClaims>(
-        token,
-        &DecodingKey::from_secret(state.config.jwt_secret.as_bytes()),
-        &validation,
-    )
-    .map_err(|_| ApiError::Unauthorized)?;
-    Ok(data.claims.sub)
-}
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 
@@ -48,17 +19,33 @@ pub async fn list_all(
     State(state): State<AppState>,
     axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<EventResponse>>, ApiError> {
+    let limit: i64 = params
+        .get("limit")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(50)
+        .min(200);
+    let offset: i64 = params
+        .get("page")
+        .and_then(|v| v.parse::<i64>().ok())
+        .unwrap_or(0)
+        .max(0)
+        * limit;
+
     let rows = if let Some(cat) = params.get("category") {
         sqlx::query_as::<_, Event>(
-            "SELECT * FROM events WHERE category = $1 ORDER BY event_date ASC",
+            "SELECT * FROM events WHERE category = $1 ORDER BY event_date ASC LIMIT $2 OFFSET $3",
         )
         .bind(cat)
+        .bind(limit)
+        .bind(offset)
         .fetch_all(&state.db.pool)
         .await?
     } else {
         sqlx::query_as::<_, Event>(
-            "SELECT * FROM events ORDER BY event_date ASC",
+            "SELECT * FROM events ORDER BY event_date ASC LIMIT $1 OFFSET $2",
         )
+        .bind(limit)
+        .bind(offset)
         .fetch_all(&state.db.pool)
         .await?
     };
@@ -69,9 +56,9 @@ pub async fn list_all(
 /// GET /events/my  — événements de l'organisateur connecté
 pub async fn list_mine(
     State(state): State<AppState>,
-    headers: HeaderMap,
+    auth: AuthUser,
 ) -> Result<Json<Vec<EventResponse>>, ApiError> {
-    let user_id = extract_user(&headers, &state)?;
+    let user_id = auth.user_id;
 
     let rows = sqlx::query_as::<_, Event>(
         "SELECT * FROM events WHERE organizer_id = $1 ORDER BY event_date ASC",
@@ -86,10 +73,10 @@ pub async fn list_mine(
 /// POST /events  — créer un événement (organisateur)
 pub async fn create_event(
     State(state): State<AppState>,
-    headers: HeaderMap,
+    auth: AuthUser,
     Json(payload): Json<CreateEventRequest>,
 ) -> Result<Json<EventResponse>, ApiError> {
-    let user_id = extract_user(&headers, &state)?;
+    let user_id = auth.user_id;
 
     payload.validate().map_err(|e| ApiError::Validation(e.to_string()))?;
 
@@ -134,10 +121,10 @@ pub async fn create_event(
 /// DELETE /events/:id  — supprimer son événement
 pub async fn delete_event(
     State(state): State<AppState>,
-    headers: HeaderMap,
+    auth: AuthUser,
     Path(event_id): Path<Uuid>,
 ) -> Result<(), ApiError> {
-    let user_id = extract_user(&headers, &state)?;
+    let user_id = auth.user_id;
 
     let result = sqlx::query(
         "DELETE FROM events WHERE id = $1 AND organizer_id = $2",
@@ -151,4 +138,50 @@ pub async fn delete_event(
         return Err(ApiError::NotFound);
     }
     Ok(())
+}
+
+/// PUT /events/:id  — modifier son événement
+pub async fn update_event(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(event_id): Path<Uuid>,
+    Json(payload): Json<UpdateEventRequest>,
+) -> Result<Json<EventResponse>, ApiError> {
+    let user_id = auth.user_id;
+
+    payload.validate().map_err(|e| ApiError::Validation(e.to_string()))?;
+
+    let event_date = DateTime::parse_from_rfc3339(&payload.event_date)
+        .map_err(|_| ApiError::Validation("event_date must be RFC3339".into()))?
+        .with_timezone(&chrono::Utc);
+
+    let event = sqlx::query_as::<_, Event>(
+        r#"UPDATE events SET
+            title = $1,
+            description = $2,
+            location = $3,
+            event_date = $4,
+            price = $5,
+            capacity = $6,
+            cover_url = $7,
+            category = $8
+           WHERE id = $9 AND organizer_id = $10
+           RETURNING *"#,
+    )
+    .bind(&payload.title)
+    .bind(payload.description.as_deref().unwrap_or(""))
+    .bind(payload.location.as_deref().unwrap_or(""))
+    .bind(event_date)
+    .bind(payload.price.unwrap_or(0.0))
+    .bind(payload.capacity.unwrap_or(0))
+    .bind(&payload.cover_url)
+    .bind(payload.category.as_deref().unwrap_or("musique"))
+    .bind(event_id)
+    .bind(user_id)
+    .fetch_optional(&state.db.pool)
+    .await?
+    .ok_or(ApiError::NotFound)?;
+
+    tracing::info!(event_id = %event.id, "event.updated");
+    Ok(Json(EventResponse::from(event)))
 }

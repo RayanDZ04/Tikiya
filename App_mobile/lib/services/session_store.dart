@@ -19,6 +19,24 @@ class UserSession {
     required this.accessToken,
     this.refreshToken,
   });
+
+  UserSession copyWith({
+    String? id,
+    String? email,
+    String? username,
+    String? role,
+    String? accessToken,
+    String? refreshToken,
+  }) {
+    return UserSession(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      username: username ?? this.username,
+      role: role ?? this.role,
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+    );
+  }
 }
 
 class SessionStore {

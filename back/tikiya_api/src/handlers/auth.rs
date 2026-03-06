@@ -8,6 +8,7 @@ use crate::dto::{AuthResponse, LoginRequest, LogoutRequest, RefreshRequest, Regi
 use crate::error::ApiError;
 use crate::services::auth::AuthService;
 use crate::services::oauth::OAuthService;
+use crate::services::otp;
 use crate::state::AppState;
 
 pub async fn register(
@@ -20,10 +21,20 @@ pub async fn register(
         .validate()
         .map_err(|err| ApiError::Validation(err.to_string()))?;
 
-    let service = AuthService::new(state);
+    let service = AuthService::new(state.clone());
+    let first_name = payload.first_name.clone();
+    let company = payload.company.clone();
     let response = service.register(payload).await?;
-    tracing::info!(ip = %addr.ip(), user_email = %response.user.email, "auth.register.response_success");
 
+    // Use first_name if available, otherwise fall back to company name (organizers)
+    let display_name = first_name.or(company);
+
+    // Send OTP to verify the email address (fire; log error but do not fail registration)
+    if let Err(e) = otp::send_otp(&state, response.user.id, &response.user.email, display_name.as_deref()).await {
+        tracing::error!(user_id = %response.user.id, error = ?e, "register.otp.send_failed");
+    }
+
+    tracing::info!(ip = %addr.ip(), user_email = %response.user.email, "auth.register.response_success");
     Ok(Json(response))
 }
 
@@ -89,12 +100,7 @@ pub async fn google_mobile(
     Json(payload): Json<GoogleMobileRequest>,
 ) -> Result<Json<AuthResponse>, ApiError> {
     tracing::info!(ip = %addr.ip(), "auth.google_mobile.request");
-    let client = reqwest::Client::builder()
-        .user_agent("tikiya-api/1.0")
-        .connect_timeout(std::time::Duration::from_secs(5))
-        .timeout(std::time::Duration::from_secs(10))
-        .build()
-        .map_err(|_| ApiError::Internal)?;
+    let client = &state.http_client;
     let res = client
         .get("https://oauth2.googleapis.com/tokeninfo")
         .query(&[("id_token", payload.id_token.clone())])
@@ -160,5 +166,5 @@ pub async fn google_mobile(
     let auth = AuthService::new(state);
     let tokens = auth.issue_tokens(&user).await?;
     tracing::info!(ip = %addr.ip(), user_email = %user.email, "auth.google_mobile.response_success");
-    Ok(Json(AuthResponse { user: crate::dto::UserResponse::from(&user), tokens }))
+    Ok(Json(AuthResponse { email_verified: user.email_verified, user: crate::dto::UserResponse::from(&user), tokens }))
 }

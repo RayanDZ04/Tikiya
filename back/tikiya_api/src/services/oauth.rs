@@ -1,6 +1,5 @@
 use axum::http::Uri;
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
 
 use crate::dto::{AuthResponse, UserResponse};
 use crate::error::ApiError;
@@ -32,21 +31,11 @@ pub struct GoogleUserInfo {
 
 pub struct OAuthService {
     state: AppState,
-    client: reqwest::Client,
 }
 
 impl OAuthService {
     pub fn new(state: AppState) -> Self {
-        let client = reqwest::Client::builder()
-            .user_agent("tikiya-api/1.0")
-            .connect_timeout(Duration::from_secs(5))
-            .timeout(Duration::from_secs(10))
-            .build()
-            .unwrap_or_else(|e| {
-                tracing::error!(error = ?e, "oauth.reqwest_client_build_failed");
-                reqwest::Client::new()
-            });
-        Self { state, client }
+        Self { state }
     }
 
     pub fn google_auth_url(&self, state_str: &str, code_challenge: Option<&str>, code_challenge_method: Option<&str>) -> Result<Uri, ApiError> {
@@ -73,7 +62,7 @@ impl OAuthService {
         let auth = AuthService::new(self.state.clone());
         let tokens = auth.issue_tokens(&user).await?;
 
-        Ok(AuthResponse { user: UserResponse::from(&user), tokens })
+        Ok(AuthResponse { email_verified: user.email_verified, user: UserResponse::from(&user), tokens })
     }
 
     async fn exchange_code_for_token(&self, code: &str, code_verifier: Option<&str>) -> Result<GoogleTokenResponse, ApiError> {
@@ -97,7 +86,7 @@ impl OAuthService {
         };
 
         let res = self
-            .client
+            .state.http_client
             .post(GOOGLE_TOKEN_URL)
             .form(&body)
             .send()
@@ -122,7 +111,7 @@ impl OAuthService {
 
     async fn fetch_google_userinfo(&self, access_token: &str) -> Result<GoogleUserInfo, ApiError> {
         let res = self
-            .client
+            .state.http_client
             .get(GOOGLE_USERINFO_URL)
             .bearer_auth(access_token)
             .send()
@@ -148,7 +137,7 @@ impl OAuthService {
     pub async fn upsert_oauth_user(&self, info: &GoogleUserInfo) -> Result<User, ApiError> {
         // Try existing by provider+subject
         if let Some(existing) = sqlx::query_as::<_, User>(
-            "SELECT id, email, password_hash, role, oauth_provider, oauth_subject, created_at FROM users WHERE oauth_provider = 'google' AND oauth_subject = $1"
+            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE oauth_provider = 'google' AND oauth_subject = $1"
         )
         .bind(&info.sub)
         .fetch_optional(&self.state.db.pool)
@@ -157,13 +146,13 @@ impl OAuthService {
         }
 
         if let Some(existing_by_email) = sqlx::query_as::<_, User>(
-            "SELECT id, email, password_hash, role, oauth_provider, oauth_subject, created_at FROM users WHERE email = $1"
+            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE email = $1"
         )
         .bind(&info.email)
         .fetch_optional(&self.state.db.pool)
         .await? {
             let updated = sqlx::query_as::<_, User>(
-                "UPDATE users SET oauth_provider = 'google', oauth_subject = $1 WHERE id = $2 RETURNING id, email, password_hash, role, oauth_provider, oauth_subject, created_at"
+                "UPDATE users SET oauth_provider = 'google', oauth_subject = $1 WHERE id = $2 RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
             )
             .bind(&info.sub)
             .bind(existing_by_email.id)
@@ -173,7 +162,7 @@ impl OAuthService {
         }
 
         let created = sqlx::query_as::<_, User>(
-            "INSERT INTO users (email, oauth_provider, oauth_subject, role) VALUES ($1, 'google', $2, 'client') RETURNING id, email, password_hash, role, oauth_provider, oauth_subject, created_at"
+            "INSERT INTO users (email, oauth_provider, oauth_subject, role, email_verified) VALUES ($1, 'google', $2, 'client', TRUE) RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
         )
         .bind(&info.email)
         .bind(&info.sub)

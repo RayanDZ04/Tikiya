@@ -78,6 +78,11 @@ class _RegisterOrgaScreenState extends State<RegisterOrgaScreen> {
             : _websiteController.text.trim(),
       );
       if (!mounted) return;
+      await Navigator.of(context).pushNamed(
+        '/otp-verify',
+        arguments: _emailController.text.trim(),
+      );
+      if (!mounted) return;
       Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
     } catch (e) {
       setState(() {

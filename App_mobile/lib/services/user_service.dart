@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 import 'session_store.dart';
 
 class UserService {
-  static const String _baseUrl = 'http://10.0.2.2:8080';
+  static final String _baseUrl = apiBaseUrl;
 
   String? get _token => SessionStore.I.session.value?.accessToken;
 
@@ -43,6 +44,19 @@ class UserService {
         'current_password': currentPassword,
         'new_email': newEmail,
       }),
+    );
+    if (res.statusCode != 204) {
+      final body = _tryJson(res.body);
+      throw body?['detail'] ?? body?['message'] ?? 'Erreur serveur';
+    }
+  }
+
+  /// Modifie le pseudo. Lance une exception avec le message d'erreur si ça échoue.
+  Future<void> changeUsername({required String username}) async {
+    final res = await http.put(
+      Uri.parse('$_baseUrl/me/username'),
+      headers: _headers,
+      body: jsonEncode({'username': username}),
     );
     if (res.statusCode != 204) {
       final body = _tryJson(res.body);

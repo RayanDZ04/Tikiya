@@ -229,6 +229,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         lastName: _lastNameController.text.trim(),
                                       );
                                       _showStyledSnack(context, l10n.signupSuccess);
+                                      if (!context.mounted) return;
+                                      await Navigator.pushNamed(
+                                        context,
+                                        '/otp-verify',
+                                        arguments: _emailController.text.trim(),
+                                      );
+                                      if (!context.mounted) return;
                                       Navigator.pushReplacementNamed(context, '/');
                                     } catch (e) {
                                       _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
