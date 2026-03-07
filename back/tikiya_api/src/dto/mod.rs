@@ -33,6 +33,9 @@ pub struct UserResponse {
     pub email: String,
     pub role: String,
     pub created_at: DateTime<Utc>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub username: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -112,6 +115,9 @@ impl From<&User> for UserResponse {
             email: user.email.clone(),
             role: user.role.clone(),
             created_at: user.created_at,
+            first_name: user.first_name.clone(),
+            last_name: user.last_name.clone(),
+            username: user.username.clone(),
         }
     }
 }

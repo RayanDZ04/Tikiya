@@ -35,6 +35,9 @@ pub async fn admin_me(
         email: user.email,
         role: user.role,
         created_at: user.created_at,
+        first_name: None,
+        last_name: None,
+        username: None,
     }))
 }
 

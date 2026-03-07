@@ -18,7 +18,7 @@ INFO         |      Ok: Hardware GPU requirements to run avd: `Pixel_7_Pro` are 
 INFO         |   Checking: hasSufficientSystem
 INFO         |      Ok: System requirements to run avd: `Pixel_7_Pro` are met
 WARNING      | File System is not ext4, disable QuickbootFileBacked feature
-INFO         | Storing crashdata in: /tmp/android-goten/emu-crash-36.4.9.db, detection is enabled for process: 666412
+INFO         | Storing crashdata in: /tmp/android-goten/emu-crash-36.4.9.db, detection is enabled for process: 2756
 INFO         | Initializing gfxstream backend
 INFO         | android_startOpenglesRenderer: gpu info
 INFO         | 
@@ -82,15 +82,15 @@ INFO         |   androidboot.vbmeta.digest=9b597927025d4f62f4594a14632a8d3763239
 INFO         |   androidboot.vbmeta.hash_alg=sha256
 INFO         |   androidboot.vbmeta.size=6720
 INFO         |   androidboot.veritymode=enforcing
-WARNING: cannnot unmap ptr 0x7ff79f601000 as it is in the protected range from 0x7ff6df600000 to 0x7ff79f800000
+WARNING: cannnot unmap ptr 0x7f384ce01000 as it is in the protected range from 0x7f378ce00000 to 0x7f384d000000
 INFO         | Monitoring duration of emulator setup.
 WARNING      | The emulator now requires a signed jwt token for gRPC access! Use the -grpc flag if you really want an open unprotected grpc port
 INFO         | Using security allow list from: /home/goten/Android/Sdk/emulator/lib/emulator_access.json
 WARNING      | *** Basic token auth should only be used by android-studio ***
-INFO         | The active JSON Web Key Sets can be found here: /run/user/1000/avd/running/666412/jwks/ee8e3845-dd0f-4ed2-9b48-bf5fc4e82458/active.jwk
-INFO         | Scanning /run/user/1000/avd/running/666412/jwks/ee8e3845-dd0f-4ed2-9b48-bf5fc4e82458 for jwk keys.
+INFO         | The active JSON Web Key Sets can be found here: /run/user/1000/avd/running/2756/jwks/c56aecfd-1754-4ce7-a89b-fd33c70f9947/active.jwk
+INFO         | Scanning /run/user/1000/avd/running/2756/jwks/c56aecfd-1754-4ce7-a89b-fd33c70f9947 for jwk keys.
 INFO         | Started GRPC server at 127.0.0.1:8554, security: Local, auth: +token
-INFO         | Advertising in: /run/user/1000/avd/running/pid_666412.ini
+INFO         | Advertising in: /run/user/1000/avd/running/pid_2756.ini
 INFO         | Setting display: 0 configuration to: 1440x3120, dpi: 560x560 
 INFO         | setDisplayActiveConfig 0
 INFO         | Checking system compatibility:
@@ -109,11 +109,13 @@ INFO         | Warning: QMetaObject::connectSlotsByName: No matching signal for 
 INFO         | Warning: QObject::connect: Cannot queue arguments of type 'std::vector<android::emulation::control::SnapshotInfo>'
 (Make sure 'std::vector<android::emulation::control::SnapshotInfo>' is registered using qRegisterMetaType().) (:0, )
 INFO         | AVD supportsNativeGLES=1, supportsGuestAngle=1
-INFO         | Created extended window in 779.997ms
+INFO         | Created extended window in 471.301ms
 INFO         | Activated packet streamer for bluetooth emulation
-INFO         | Boot completed in 22557 ms
+INFO         | Boot completed in 16136 ms
 INFO         | Increasing screen off timeout, logcat buffer size to 2M.
-INFO         | Created VkInstance:0x559e77e3b800 for application:'Chromium' engine:''.
-INFO         | Created VkDevice:0x559e79294050 for application:'Chromium' instance:0x559e77e3b800. ASTC emulation:on CPU decoding:off.
-INFO         | Destroyed VkDevice:0x559e79294050
-INFO         | Destroyed VkInstance:0x559e77e3b800 for application:'Chromium' engine:''.
+INFO         | Warning: internal error:  void QXcbWindow::setNetWmStateOnUnmappedWindow() called on mapped window (:0, )
+WARNING      | ClipboardPipe: the clipboard is too large (76486), ignoring.
+WARNING      | ClipboardPipe: the clipboard is too large (76486), ignoring.
+WARNING      | ClipboardPipe: the clipboard is too large (76486), ignoring.
+INFO         | Created VkInstance:0x561a8f277000 for application:'Chromium' engine:''.
+INFO         | Created VkDevice:0x561a93456050 for application:'Chromium' instance:0x561a8f277000. ASTC emulation:on CPU decoding:off.

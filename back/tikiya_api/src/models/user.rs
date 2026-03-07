@@ -14,4 +14,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
     pub failed_attempts: i32,
     pub lockout_until: Option<DateTime<Utc>>,
+    pub username: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
 }

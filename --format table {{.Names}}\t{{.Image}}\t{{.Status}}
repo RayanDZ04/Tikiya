@@ -1,0 +1,223 @@
+File: [1m/home/goten/Bureau/goten/Raistech/Tikiya/Tikiya/App_mobile/lib/l10n/ap
+p_fr.arb[0m
+[38;2;248;248;242m{[0m
+[38;2;248;248;242m  "appTitle": "Tikiya",[0m
+
+[38;2;248;248;242m  "langFrench": "Français",[0m
+[38;2;248;248;242m  "langArabic": "العربية",[0m
+[38;2;248;248;242m  "langEnglish": "Anglais",[0m
+[38;2;248;248;242m  "langSystem": "Système",[0m
+
+[38;2;248;248;242m  "navHome": "Accueil",[0m
+[38;2;248;248;242m  "navTickets": "Mes billets",[0m
+[38;2;248;248;242m  "navMarket": "Ma billetterie",[0m
+[38;2;248;248;242m  "navOrga": "Mes events",[0m
+[38;2;248;248;242m  "navProfile": "Profil",[0m
+[38;2;248;248;242m  "navLogin": "Connexion",[0m
+
+[38;2;248;248;242m  "authLogin": "Se connecter",[0m
+[38;2;248;248;242m  "authRegister": "S'inscrire",[0m
+[38;2;248;248;242m  "authLogout": "Se déconnecter",[0m
+
+[38;2;248;248;242m  "homeTagline": "Explorez, réservez et vivez les meilleurs événements",[0m
+[38;2;248;248;242m  "homeSearchHint": "Rechercher un événement...",[0m
+[38;2;248;248;242m  "homeFiltersTitle": "Filtres",[0m
+[38;2;248;248;242m  "homeFiltersClose": "Fermer",[0m
+[38;2;248;248;242m  "homeFiltersReset": "Réinitialiser",[0m
+[38;2;248;248;242m  "homeFiltersApply": "Appliquer",[0m
+[38;2;248;248;242m  "homeNoContentYet": "Aucun contenu pour le moment",[0m
+
+[38;2;248;248;242m  "filterMusic": "Musique",[0m
+[38;2;248;248;242m  "filterCulture": "Culture",[0m
+[38;2;248;248;242m  "filterEntertainment": "Divertissement",[0m
+[38;2;248;248;242m  "filterPopular": "Populaire",[0m
+[38;2;248;248;242m  "filterCity": "Ville",[0m
+[38;2;248;248;242m  "filterCityHint": "Ex: Alger",[0m
+[38;2;248;248;242m  "filterDate": "Date",[0m
+[38;2;248;248;242m  "filterDateHint": "Choisir une date",[0m
+[38;2;248;248;242m  "noResults": "Aucun résultat",[0m
+
+[38;2;248;248;242m  "loginTitle": "Se connecter",[0m
+[38;2;248;248;242m  "emailLabel": "Adresse e-mail",[0m
+[38;2;248;248;242m  "passwordLabel": "Mot de passe",[0m
+[38;2;248;248;242m  "emailRequired": "Veuillez entrer votre e-mail",[0m
+[38;2;248;248;242m  "passwordRequired": "Veuillez entrer votre mot de passe",[0m
+[38;2;248;248;242m  "loginAction": "Connexion",[0m
+[38;2;248;248;242m  "loginProgress": "Connexion...",[0m
+[38;2;248;248;242m  "connected": "Connecté",[0m
+
+[38;2;248;248;242m  "googleLogin": "Se connecter avec Google",[0m
+[38;2;248;248;242m  "googleSignup": "S'inscrire avec Google",[0m
+[38;2;248;248;242m  "googleFailed": "Échec Google",[0m
+[38;2;248;248;242m  "googleProgress": "Connexion Google...",[0m
+[38;2;248;248;242m  "googleUnavailableTitle": "Connexion Google indisponible",[0m
+[38;2;248;248;242m  "googleUnavailableBody": "Erreur 10 détectée sur l'émulateur. Activer le mode [0m
+[38;2;248;248;242mdémo pour tester l'UI sans Google ?",[0m
+[38;2;248;248;242m  "cancel": "Annuler",[0m
+[38;2;248;248;242m  "activate": "Activer",[0m
+[38;2;248;248;242m  "demoEnabled": "Mode démo activé",[0m
+
+[38;2;248;248;242m  "signupTitle": "S'inscrire",[0m
+[38;2;248;248;242m  "firstNameLabel": "Prénom",[0m
+[38;2;248;248;242m  "lastNameLabel": "Nom",[0m
+[38;2;248;248;242m  "firstNameRequired": "Veuillez entrer votre prénom",[0m
+[38;2;248;248;242m  "lastNameRequired": "Veuillez entrer votre nom",[0m
+[38;2;248;248;242m  "confirmPasswordLabel": "Confirmer le mot de passe",[0m
+[38;2;248;248;242m  "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",[0m
+[38;2;248;248;242m  "passwordMismatch": "Les mots de passe ne correspondent pas",[0m
+[38;2;248;248;242m  "fixFields": "Veuillez corriger les champs",[0m
+[38;2;248;248;242m  "signupProgress": "Inscription...",[0m
+[38;2;248;248;242m  "signupSuccess": "Inscrit, vous pouvez vous connecter",[0m
+
+[38;2;248;248;242m  "roleSelectionTitle": "Qui êtes-vous ?",[0m
+[38;2;248;248;242m  "roleSelectionSubtitle": "Choisissez votre profil pour créer votre compte",[0m
+[38;2;248;248;242m  "roleParticipant": "Participant",[0m
+[38;2;248;248;242m  "roleParticipantDesc": "Je veux découvrir et réserver des événements",[0m
+[38;2;248;248;242m  "roleOrganisateur": "Organisateur",[0m
+[38;2;248;248;242m  "roleOrganisateurDesc": "Je veux créer et gérer des événements",[0m
+
+[38;2;248;248;242m  "orgaSignupTitle": "Inscription organisateur",[0m
+[38;2;248;248;242m  "orgaCompanyLabel": "Nom de l'entreprise",[0m
+[38;2;248;248;242m  "orgaCompanyRequired": "Veuillez entrer le nom de votre entreprise",[0m
+[38;2;248;248;242m  "orgaPhoneLabel": "Numéro de téléphone",[0m
+[38;2;248;248;242m  "orgaPhoneRequired": "Veuillez entrer votre numéro de téléphone",[0m
+[38;2;248;248;242m  "orgaWebsiteLabel": "Site web (optionnel)",[0m
+[38;2;248;248;242m  "orgaProEmailLabel": "Email professionnel",[0m
+
+[38;2;248;248;242m  "orgaHomeTitle": "Mes événements",[0m
+[38;2;248;248;242m  "orgaEventsTitle": "Créer un événement",[0m
+[38;2;248;248;242m  "orgaEventsEmpty": "Aucun événement créé",[0m
+[38;2;248;248;242m  "orgaCreateEvent": "Créer un événement",[0m
+[38;2;248;248;242m  "orgaAccountTitle": "Mon compte",[0m
+[38;2;248;248;242m  "eventTitleLabel": "Titre de l'événement",[0m
+[38;2;248;248;242m  "eventTitleRequired": "Veuillez entrer un titre",[0m
+[38;2;248;248;242m  "eventDateLabel": "Date et heure",[0m
+[38;2;248;248;242m  "eventDateRequired": "Veuillez entrer une date",[0m
+[38;2;248;248;242m  "eventLocationLabel": "Lieu",[0m
+[38;2;248;248;242m  "eventDescriptionLabel": "Description",[0m
+[38;2;248;248;242m  "eventPriceLabel": "Prix (DZD)",[0m
+[38;2;248;248;242m  "eventCapacityLabel": "Capacité",[0m
+[38;2;248;248;242m  "eventCreateSuccess": "Événement créé !",[0m
+[38;2;248;248;242m  "eventDeleteConfirm": "Supprimer cet événement ?",[0m
+[38;2;248;248;242m  "eventDeleteSuccess": "Événement supprimé",[0m
+[38;2;248;248;242m  "delete": "Supprimer",[0m
+[38;2;248;248;242m  "confirm": "Confirmer",[0m
+
+[38;2;248;248;242m  "navDashboard": "Tableau de bord",[0m
+[38;2;248;248;242m  "dashboardWelcome": "Bienvenue,",[0m
+[38;2;248;248;242m  "dashboardTotalEvents": "Événements",[0m
+[38;2;248;248;242m  "dashboardUpcoming": "À venir",[0m
+[38;2;248;248;242m  "dashboardTotalCapacity": "Places totales",[0m
+[38;2;248;248;242m  "dashboardPast": "Passé",[0m
+[38;2;248;248;242m  "dashboardRevenue": "Revenu potentiel",[0m
+[38;2;248;248;242m  "dashboardQuickActions": "Actions rapides",[0m
+[38;2;248;248;242m  "dashboardMyEvents": "Mes événements",[0m
+[38;2;248;248;242m  "dashboardRecent": "Événements récents",[0m
+
+[38;2;248;248;242m  "profilePseudo": "Pseudo",[0m
+[38;2;248;248;242m  "profileSettings": "Paramètres",[0m
+
+[38;2;248;248;242m  "settingsTitle": "Paramètres du compte",[0m
+[38;2;248;248;242m  "settingsChangeEmail": "Modifier l'adresse email",[0m
+[38;2;248;248;242m  "settingsChangeEmailSub": "Changer l'email de connexion",[0m
+[38;2;248;248;242m  "settingsChangePassword": "Modifier le mot de passe",[0m
+[38;2;248;248;242m  "settingsChangePasswordSub": "Changer le mot de passe actuel",[0m
+[38;2;248;248;242m  "settingsEmailSuccess": "Adresse email modifiée avec succès !",[0m
+[38;2;248;248;242m  "settingsPasswordSuccess": "Mot de passe modifié avec succès !",[0m
+[38;2;248;248;242m  "settingsNewEmail": "Nouvelle adresse email",[0m
+[38;2;248;248;242m  "settingsCurrentPassword": "Mot de passe actuel",[0m
+[38;2;248;248;242m  "settingsNewPassword": "Nouveau mot de passe",[0m
+[38;2;248;248;242m  "settingsPasswordConfirm": "Confirmer le nouveau mot de passe",[0m
+[38;2;248;248;242m  "settingsChangeUsername": "Modifier le pseudo",[0m
+[38;2;248;248;242m  "settingsChangeUsernameSub": "Changer votre nom affiché",[0m
+[38;2;248;248;242m  "settingsNewUsername": "Nouveau pseudo",[0m
+[38;2;248;248;242m  "settingsUsernameHint": "ex : Goten42",[0m
+[38;2;248;248;242m  "settingsUsernameSuccess": "Pseudo modifié avec succès !",[0m
+[38;2;248;248;242m  "settingsSaving": "Enregistrement...",[0m
+
+[38;2;248;248;242m  "fieldRequired": "Champ requis",[0m
+[38;2;248;248;242m  "fieldEmailInvalid": "Email invalide",[0m
+[38;2;248;248;242m  "fieldMin2Chars": "Au moins 2 caractères",[0m
+[38;2;248;248;242m  "fieldMin8Chars": "Au moins 8 caractères",[0m
+
+[38;2;248;248;242m  "editEventTitle": "Modifier l'événement",[0m
+[38;2;248;248;242m  "editEventSave": "Enregistrer les modifications",[0m
+[38;2;248;248;242m  "editEventSuccess": "Événement modifié !",[0m
+[38;2;248;248;242m  "editEventSaving": "Modification...",[0m
+[38;2;248;248;242m  "eventImageAdd": "Ajouter une image",[0m
+[38;2;248;248;242m  "eventImageChange": "Changer l'image",[0m
+[38;2;248;248;242m  "eventImageDelete": "Supprimer l'image",[0m
+[38;2;248;248;242m  "eventUploading": "Envoi image...",[0m
+[38;2;248;248;242m  "eventCreating": "Création...",[0m
+
+[38;2;248;248;242m  "paymentSecured": "Paiement sécurisé via Chargily Pay",[0m
+[38;2;248;248;242m  "paymentTickets": "Nombre de billets",[0m
+[38;2;248;248;242m  "paymentRemaining": "billet(s) restant(s)",[0m
+[38;2;248;248;242m  "paymentTotal": "Total",[0m
+[38;2;248;248;242m  "paymentBuyTicket": "Acheter un billet",[0m
+[38;2;248;248;242m  "paymentBuyTickets": "Acheter {n} billets",[0m
+[38;2;248;248;242m  "@paymentBuyTickets": { "placeholders": { "n": { "type": "int" } } },[0m
+[38;2;248;248;242m  "paymentRedirecting": "Redirection...",[0m
+[38;2;248;248;242m  "paymentError": "Erreur lors du paiement.",[0m
+[38;2;248;248;242m  "paymentBrowserError": "Impossible d'ouvrir le navigateur.",[0m
+
+[38;2;248;248;242m  "ticketsTitle": "Mes Billets",[0m
+[38;2;248;248;242m  "ticketsEmpty": "Aucun billet pour le moment",[0m
+[38;2;248;248;242m  "ticketsDownloadQr": "Télécharger QR",[0m
+[38;2;248;248;242m  "ticketsQrDownloaded": "QR téléchargé !",[0m
+
+[38;2;248;248;242m  "filterAll": "Tous",[0m
+[38;2;248;248;242m  "freeEntry": "Entrée gratuite",[0m
+[38;2;248;248;242m  "paymentMethodLabel": "Moyen de paiement",[0m
+[38;2;248;248;242m  "fieldPasswordSameAsCurrent": "Doit être différent du mot de passe actuel",[0m
+[38;2;248;248;242m  "loginRequired": "Connectez-vous pour acheter un billet.",[0m
+
+[38;2;248;248;242m  "pricePerTicketLabel": "{price} DZD / billet",[0m
+[38;2;248;248;242m  "@pricePerTicketLabel": { "placeholders": { "price": { "type": "String" } } },[0m
+[38;2;248;248;242m  "freeEntryReserveBtn": "Entrée gratuite — Réserver",[0m
+
+[38;2;248;248;242m  "paymentSuccess": "Paiement réussi !",[0m
+[38;2;248;248;242m  "paymentFailed": "Paiement échoué",[0m
+[38;2;248;248;242m  "paymentSuccessMsg": "Votre billet a été confirmé.\nRetrouvez-le dans \"Mes Bi[0m
+[38;2;248;248;242mllets\".",[0m
+[38;2;248;248;242m  "paymentFailedMsg": "Le paiement n'a pas pu être traité.\nVeuillez réessayer."[0m
+[38;2;248;248;242m,[0m
+[38;2;248;248;242m  "viewMyTickets": "Voir mes billets",[0m
+[38;2;248;248;242m  "backToHome": "Retour à l'accueil",[0m
+
+[38;2;248;248;242m  "ticketsLoginRequired": "Connectez-vous pour voir vos billets.",[0m
+[38;2;248;248;242m  "ticketsLoadError": "Impossible de charger vos billets.",[0m
+[38;2;248;248;242m  "ticketStatusConfirmed": "Confirmé",[0m
+[38;2;248;248;242m  "ticketStatusPending": "En attente",[0m
+[38;2;248;248;242m  "ticketStatusFailed": "Échoué",[0m
+[38;2;248;248;242m  "ticketStatusCanceled": "Annulé",[0m
+[38;2;248;248;242m  "ticketSwipeQr": "Glisser les QR",[0m
+[38;2;248;248;242m  "ticketTapZoom": "Appuyer pour agrandir",[0m
+[38;2;248;248;242m  "ticketsViewEvents": "Voir les événements",[0m
+[38;2;248;248;242m  "retry": "Réessayer",[0m
+[38;2;248;248;242m  "free": "Gratuit",[0m
+[38;2;248;248;242m  "eventLabel": "ÉVÉNEMENT",[0m
+
+[38;2;248;248;242m  "dashboardTicketsSold": "Billets vendus",[0m
+[38;2;248;248;242m  "dashboardTicketsRemaining": "Billets restants",[0m
+[38;2;248;248;242m  "dashboardPricePerTicket": "Prix / billet",[0m
+[38;2;248;248;242m  "dashboardFillRate": "Taux de remplissage",[0m
+[38;2;248;248;242m  "dashboardRevenueGenerated": "Revenus générés",[0m
+[38;2;248;248;242m  "dashboardDetail": "Détail",[0m
+
+[38;2;248;248;242m  "alreadyAccount": "Déjà un compte ?",[0m
+[38;2;248;248;242m  "noAccount": "Pas encore de compte ?",[0m
+[38;2;248;248;242m  "signupLink": "S'inscrire",[0m
+[38;2;248;248;242m  "role": "Rôle",[0m
+[38;2;248;248;242m  "organisateur": "Organisateur",[0m
+[38;2;248;248;242m  "otpTitle": "Vérification de l'email",[0m
+[38;2;248;248;242m  "otpSubtitle": "Un code à 6 chiffres a été envoyé à {email}",[0m
+[38;2;248;248;242m  "@otpSubtitle": {"placeholders": {"email": {"type": "String"}}},[0m
+[38;2;248;248;242m  "otpCodeHint": "Entrez le code",[0m
+[38;2;248;248;242m  "otpVerify": "Vérifier",[0m
+[38;2;248;248;242m  "otpResend": "Renvoyer le code",[0m
+[38;2;248;248;242m  "otpSuccess": "Email vérifié avec succès !",[0m
+[38;2;248;248;242m  "otpInvalid": "Code invalide ou expiré.",[0m
+[38;2;248;248;242m  "otpTooManyAttempts": "Trop de tentatives. Demandez un nouveau code.",[0m
+[38;2;248;248;242m  "otpResendSuccess": "Nouveau code envoyé."[0m
+[38;2;248;248;242m}[0m

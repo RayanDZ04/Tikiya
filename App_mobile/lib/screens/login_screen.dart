@@ -178,8 +178,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                       );
                                       _showStyledSnack(context, l10n.connected);
                                       Navigator.pushReplacementNamed(context, '/');
+                                    } on EmailNotVerifiedException catch (_) {
+                                      // Email not verified → offer to re-register (backend will replace unverified account)
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Email non vérifié. Recréez votre compte pour recevoir un nouveau code.',
+                                            style: GoogleFonts.montserrat(color: Colors.white, fontWeight: FontWeight.w600),
+                                          ),
+                                          backgroundColor: const Color(0xFFB00020),
+                                          behavior: SnackBarBehavior.floating,
+                                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                          duration: const Duration(seconds: 5),
+                                          action: SnackBarAction(
+                                            label: "S'inscrire",
+                                            textColor: Colors.white,
+                                            onPressed: () => Navigator.pushReplacementNamed(context, '/register-role'),
+                                          ),
+                                        ),
+                                      );
                                     } catch (e) {
-                                      _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
+                                      _showStyledSnack(context, e.toString(), bg: const Color(0xFFB00020));
                                     }
                                   },
                                   child: Text(

@@ -1,0 +1,17 @@
+{
+  "name": "tikiya-boss",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 4000 --open",
+    "build": "vite build",
+    "preview": "vite preview --port 4000"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.2"
+  }
+}

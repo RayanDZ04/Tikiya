@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
+import '../services/session_store.dart';
 
 /// Full-screen OTP email verification.
 ///
@@ -63,6 +64,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     setState(() => _loading = true);
     try {
       await _auth.verifyEmail(code: _code);
+      // Mark email as verified in the persisted session
+      final current = SessionStore.I.session.value;
+      if (current != null) {
+        await SessionStore.I.setSession(current.copyWith(emailVerified: true));
+      }
       if (!mounted) return;
       _showSnack(context.l10n.otpSuccess);
       await Future.delayed(const Duration(milliseconds: 800));
@@ -81,16 +87,30 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       await _auth.resendOtp();
       if (!mounted) return;
       _showSnack(context.l10n.otpResendSuccess);
-      // Clear fields
       for (final c in _controllers) {
         c.clear();
       }
       _focusNodes.first.requestFocus();
     } catch (e) {
-      _showSnack('$e', error: true);
+      final msg = e.toString();
+      // Token appartient à un compte supprimé ou invalide → effacer la session
+      if (msg.contains('Unauthorized') || msg.contains('401')) {
+        await SessionStore.I.setSession(null);
+        if (!mounted) return;
+        Navigator.of(context).pushNamedAndRemoveUntil('/register', (r) => false);
+        return;
+      }
+      _showSnack(msg, error: true);
     } finally {
       if (mounted) setState(() => _resending = false);
     }
+  }
+
+  /// Efface la session et retourne en arrière (annulation de l'inscription).
+  Future<void> _cancel() async {
+    await SessionStore.I.setSession(null);
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (r) => false);
   }
 
   @override
@@ -98,7 +118,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final email = ModalRoute.of(context)?.settings.arguments as String? ?? '';
     final l10n = context.l10n;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (!didPop) await _cancel();
+      },
+      child: Scaffold(
       backgroundColor: _blue,
       body: SafeArea(
         child: Center(
@@ -249,11 +274,24 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             ),
                           ),
                   ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: _cancel,
+                    child: Text(
+                      'Annuler l\'inscription',
+                      style: GoogleFonts.montserrat(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
+      ),
       ),
     );
   }

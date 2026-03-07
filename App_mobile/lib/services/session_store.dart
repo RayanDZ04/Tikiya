@@ -10,6 +10,7 @@ class UserSession {
   final String? role;
   final String accessToken;
   final String? refreshToken;
+  final bool emailVerified;
 
   const UserSession({
     required this.id,
@@ -18,6 +19,7 @@ class UserSession {
     this.role,
     required this.accessToken,
     this.refreshToken,
+    this.emailVerified = false,
   });
 
   UserSession copyWith({
@@ -27,6 +29,7 @@ class UserSession {
     String? role,
     String? accessToken,
     String? refreshToken,
+    bool? emailVerified,
   }) {
     return UserSession(
       id: id ?? this.id,
@@ -35,6 +38,7 @@ class UserSession {
       role: role ?? this.role,
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
+      emailVerified: emailVerified ?? this.emailVerified,
     );
   }
 }
@@ -50,6 +54,7 @@ class SessionStore {
   static const String _prefsSessionRole = 'session_role';
   static const String _prefsSessionToken = 'session_access_token';
   static const String _prefsSessionRefresh = 'session_refresh_token';
+  static const String _prefsSessionEmailVerified = 'session_email_verified';
 
   final ValueNotifier<UserSession?> session = ValueNotifier<UserSession?>(null);
 
@@ -83,6 +88,7 @@ class SessionStore {
       await prefs.remove(_prefsSessionRole);
       await prefs.remove(_prefsSessionToken);
       await prefs.remove(_prefsSessionRefresh);
+      await prefs.remove(_prefsSessionEmailVerified);
     } else {
       await prefs.setString(_prefsSessionId, s.id);
       await prefs.setString(_prefsSessionEmail, s.email);
@@ -90,6 +96,7 @@ class SessionStore {
       if (s.role != null) await prefs.setString(_prefsSessionRole, s.role!);
       await prefs.setString(_prefsSessionToken, s.accessToken);
       if (s.refreshToken != null) await prefs.setString(_prefsSessionRefresh, s.refreshToken!);
+      await prefs.setBool(_prefsSessionEmailVerified, s.emailVerified);
     }
   }
 
@@ -107,6 +114,7 @@ class SessionStore {
       role: prefs.getString(_prefsSessionRole),
       accessToken: token,
       refreshToken: prefs.getString(_prefsSessionRefresh),
+      emailVerified: prefs.getBool(_prefsSessionEmailVerified) ?? false,
     );
   }
 
@@ -119,5 +127,6 @@ class SessionStore {
     await prefs.remove(_prefsSessionRole);
     await prefs.remove(_prefsSessionToken);
     await prefs.remove(_prefsSessionRefresh);
+    await prefs.remove(_prefsSessionEmailVerified);
   }
 }

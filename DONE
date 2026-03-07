@@ -1,0 +1,49 @@
+[1mSTDIN[0m
+[38;2;248;248;242m# Exemple de configuration pour tikiya_api[0m
+[38;2;248;248;242m# Copie en .env et adapte.[0m
+
+[38;2;248;248;242m# Server[0m
+[38;2;248;248;242mPORT=8080[0m
+[38;2;248;248;242mRUST_LOG=info,tikiya_api=debug[0m
+
+[38;2;248;248;242m# Database[0m
+[38;2;248;248;242m# Pour docker-compose, utiliser le host "db"[0m
+[38;2;248;248;242mDATABASE_URL=postgres://tikiya:tikiya@db:5432/tikiya[0m
+[38;2;248;248;242mDATABASE_POOL_MAX=20[0m
+
+[38;2;248;248;242m# JWT[0m
+[38;2;248;248;242m# 32+ caractères, évite "change-me"[0m
+[38;2;248;248;242mJWT_SECRET=tikiya_super_secret_jwt_key_2024_prod_replace_me[0m
+[38;2;248;248;242mJWT_ISSUER=tikiya-api[0m
+[38;2;248;248;242mJWT_AUDIENCE=tikiya-clients[0m
+
+[38;2;248;248;242m# Résilience HTTP (anti-crash)[0m
+[38;2;248;248;242mHTTP_REQUEST_TIMEOUT_SECS=15[0m
+[38;2;248;248;242m# Conseil: HTTP_CONCURRENCY_LIMIT ≈ DATABASE_POOL_MAX * 4[0m
+[38;2;248;248;242mHTTP_CONCURRENCY_LIMIT=80[0m
+[38;2;248;248;242mHTTP_MAX_BODY_BYTES=1048576[0m
+
+[38;2;248;248;242m# Anti-bot / brute-force (rate limit par IP)[0m
+[38;2;248;248;242mRATE_LIMIT_PER_SECOND=20[0m
+[38;2;248;248;242mRATE_LIMIT_BURST=40[0m
+
+[38;2;248;248;242m# Reverse proxy (Nginx/Traefik/Cloudflare)[0m
+[38;2;248;248;242m# Mettre à true uniquement si tu fais confiance aux headers X-Forwarded-For[0m
+[38;2;248;248;242mTRUST_PROXY_HEADERS=false[0m
+
+[38;2;248;248;242m# HSTS (uniquement si servi en HTTPS au niveau proxy)[0m
+[38;2;248;248;242mHTTP_HSTS=false[0m
+
+[38;2;248;248;242m# Google OAuth (optionnel)[0m
+[38;2;248;248;242mGOOGLE_CLIENT_ID=[0m
+[38;2;248;248;242mGOOGLE_CLIENT_SECRET=[0m
+[38;2;248;248;242mGOOGLE_REDIRECT_URI=[0m
+
+[38;2;248;248;242m# Chargily Pay[0m
+[38;2;248;248;242mCHARGILY_API_KEY=test_sk_Ltpa80oud4YoG2jKSXDjx8RH1OkwYxeYu0A3LcBt[0m
+
+[38;2;248;248;242m# Email OTP (Resend)[0m
+[38;2;248;248;242mRESEND_API_KEY=re_EAVCW4zu_LYeSzN1fkpA4TYKST3SYumvU[0m
+[38;2;248;248;242mRESEND_FROM=onboarding@resend.dev[0m
+[38;2;248;248;242mOTP_TTL_MINUTES=10[0m
+[38;2;248;248;242mOTP_MAX_ATTEMPTS=5[0m

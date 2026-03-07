@@ -15,6 +15,12 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
+    if (res.statusCode == 401) {
+      throw HttpException('Email ou mot de passe incorrect.');
+    }
+    if (res.statusCode == 403) {
+      throw EmailNotVerifiedException(email);
+    }
     _ensureOk(res);
     final data = jsonDecode(res.body) as Map<String, dynamic>;
     await _captureSession(data);
@@ -87,6 +93,15 @@ class AuthService {
 
   void _ensureOk(http.Response res) {
     if (res.statusCode < 200 || res.statusCode >= 300) {
+      try {
+        final body = jsonDecode(res.body) as Map<String, dynamic>;
+        final detail = body['detail'] as String? ?? body['message'] as String?;
+        if (detail != null && detail.isNotEmpty) {
+          throw HttpException(detail);
+        }
+      } catch (e) {
+        if (e is HttpException) rethrow;
+      }
       throw HttpException('HTTP ${res.statusCode}: ${res.body}');
     }
   }
@@ -145,6 +160,8 @@ class AuthService {
     } else {
       displayName = (user['username'] ?? user['name'])?.toString();
     }
+    final emailVerified = data['email_verified'] as bool? ??
+        (user['email_verified'] as bool? ?? false);
     final session = UserSession(
       id: (user['id'] ?? '').toString(),
       email: (user['email'] ?? '').toString(),
@@ -152,6 +169,7 @@ class AuthService {
       role: (user['role'] ?? '').toString(),
       accessToken: (tokens['access_token'] ?? tokens['accessToken'] ?? '').toString(),
       refreshToken: (tokens['refresh_token'] ?? tokens['refreshToken'])?.toString(),
+      emailVerified: emailVerified,
     );
     await SessionStore.I.setSession(session);
   }
@@ -162,4 +180,12 @@ class HttpException implements Exception {
   HttpException(this.message);
   @override
   String toString() => message;
+}
+
+/// Thrown when the server returns 403 — email not verified.
+class EmailNotVerifiedException implements Exception {
+  final String email;
+  EmailNotVerifiedException(this.email);
+  @override
+  String toString() => 'Email non vérifié.';
 }

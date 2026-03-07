@@ -35,7 +35,7 @@ PKG_ORGA ?= com.tikiya.orga
 PKG_MOBILE_OLD ?= com.example.app_mobile
 PKG_ORGA_OLD ?= com.example.tikiya_orga
 
-.PHONY: build android android_fix android_display0 android_display1 android_fix_display0 android_fix_display1 app app_orga backend_up dev_app dev_app_orga run_app run_app_orga clean app_clean web web_mobile web_orga dev dev_down dev_logs
+.PHONY: build android android_fix android_display0 android_display1 android_fix_display0 android_fix_display1 app app_orga backend_up dev_app dev_app_orga run_app run_app_orga clean app_clean web web_mobile web_orga dev dev_down dev_logs boss
 
 IMAGE_MOBILE ?= tikiya-android_build_mobile:latest
 IMAGE_ORGA ?= tikiya-android_build_organisateur:latest
@@ -190,3 +190,15 @@ dev_down:
 
 dev_logs:
 	$(COMPOSE_CMD) -f docker-compose.yml -f docker-compose.dev.yml logs -f
+
+# Tikiya!Boss — Admin Dashboard (port 4000)
+boss:
+	@echo "\033[1;36m🎛  Tikiya!Boss — démarrage du dashboard admin...\033[0m"
+	@if ! command -v node >/dev/null 2>&1; then echo "Node.js est requis"; exit 1; fi
+	@cd $(PWD)/Dashboard && \
+	  if [ ! -d node_modules ]; then \
+	    echo "Installation des dépendances…"; \
+	    npm install; \
+	  fi
+	@echo "\033[1;32m✓  Dashboard accessible sur http://localhost:4000\033[0m"
+	@cd $(PWD)/Dashboard && npm run dev

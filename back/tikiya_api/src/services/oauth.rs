@@ -137,7 +137,7 @@ impl OAuthService {
     pub async fn upsert_oauth_user(&self, info: &GoogleUserInfo) -> Result<User, ApiError> {
         // Try existing by provider+subject
         if let Some(existing) = sqlx::query_as::<_, User>(
-            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE oauth_provider = 'google' AND oauth_subject = $1"
+            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until, username, first_name, last_name FROM users WHERE oauth_provider = 'google' AND oauth_subject = $1"
         )
         .bind(&info.sub)
         .fetch_optional(&self.state.db.pool)
@@ -146,13 +146,13 @@ impl OAuthService {
         }
 
         if let Some(existing_by_email) = sqlx::query_as::<_, User>(
-            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE email = $1"
+            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until, username, first_name, last_name FROM users WHERE email = $1"
         )
         .bind(&info.email)
         .fetch_optional(&self.state.db.pool)
         .await? {
             let updated = sqlx::query_as::<_, User>(
-                "UPDATE users SET oauth_provider = 'google', oauth_subject = $1 WHERE id = $2 RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
+                "UPDATE users SET oauth_provider = 'google', oauth_subject = $1 WHERE id = $2 RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until, username, first_name, last_name"
             )
             .bind(&info.sub)
             .bind(existing_by_email.id)
@@ -162,7 +162,7 @@ impl OAuthService {
         }
 
         let created = sqlx::query_as::<_, User>(
-            "INSERT INTO users (email, oauth_provider, oauth_subject, role, email_verified) VALUES ($1, 'google', $2, 'client', TRUE) RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
+            "INSERT INTO users (email, oauth_provider, oauth_subject, role, email_verified) VALUES ($1, 'google', $2, 'client', TRUE) RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until, username, first_name, last_name"
         )
         .bind(&info.email)
         .bind(&info.sub)

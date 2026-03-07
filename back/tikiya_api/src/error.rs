@@ -16,6 +16,8 @@ pub enum ApiError {
     NotFound,
     #[error("conflict: {0}")]
     Conflict(String),
+    #[error("forbidden: {0}")]
+    Forbidden(String),
     #[error("service unavailable")]
     ServiceUnavailable,
     #[error("internal error")]
@@ -40,6 +42,7 @@ impl IntoResponse for ApiError {
             ApiError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized", None),
             ApiError::NotFound => (StatusCode::NOT_FOUND, "Not Found", None),
             ApiError::Conflict(msg) => (StatusCode::CONFLICT, "Conflict", Some(msg.clone())),
+            ApiError::Forbidden(msg) => (StatusCode::FORBIDDEN, "Forbidden", Some(msg.clone())),
             ApiError::ServiceUnavailable => (
                 StatusCode::SERVICE_UNAVAILABLE,
                 "Service Unavailable",

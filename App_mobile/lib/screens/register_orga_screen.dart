@@ -78,12 +78,20 @@ class _RegisterOrgaScreenState extends State<RegisterOrgaScreen> {
             : _websiteController.text.trim(),
       );
       if (!mounted) return;
-      await Navigator.of(context).pushNamed(
+      final verified = await Navigator.of(context).pushNamed(
         '/otp-verify',
         arguments: _emailController.text.trim(),
       );
       if (!mounted) return;
-      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      if (verified == true) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      } else {
+        await SessionStore.I.setSession(null);
+        setState(() {
+          _error = 'Vous devez vérifier votre email pour continuer. Reconnectez-vous après validation.';
+          _loading = false;
+        });
+      }
     } catch (e) {
       setState(() {
         _error = e.toString();

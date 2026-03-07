@@ -62,6 +62,21 @@ class _MyAppState extends State<MyApp> {
       if (uri != null) _handleDeepLink(uri);
     });    // Redirection vers l'accueil dès qu'on se déconnecte
     SessionStore.I.session.addListener(_onSessionChanged);
+
+    // Si la session existe mais que l'email n'est pas vérifié,
+    // forcer l'écran OTP dès que le navigator est prêt.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final s = SessionStore.I.session.value;
+      if (s != null && !s.emailVerified) {
+        final verified = await navigatorKey.currentState?.pushNamed(
+          '/otp-verify',
+          arguments: s.email,
+        );
+        if (verified != true) {
+          await SessionStore.I.setSession(null);
+        }
+      }
+    });
   }
 
   @override

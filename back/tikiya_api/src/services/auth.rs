@@ -50,12 +50,35 @@ impl AuthService {
             _ => "client",
         };
 
+        // If an unverified account already exists with this email → delete it so the user can register again.
+        // If the account IS verified → conflict error.
+        #[derive(sqlx::FromRow)]
+        struct ExistingRow { id: Uuid, email_verified: bool }
+        if let Some(existing) = sqlx::query_as::<_, ExistingRow>(
+            "SELECT id, email_verified FROM users WHERE email = $1"
+        )
+        .bind(&payload.email)
+        .fetch_optional(&self.state.db.pool)
+        .await? {
+            if existing.email_verified {
+                return Err(ApiError::Conflict("Un compte existe déjà avec cet email.".into()));
+            }
+            // Unverified → delete and allow re-registration
+            sqlx::query("DELETE FROM users WHERE id = $1")
+                .bind(existing.id)
+                .execute(&self.state.db.pool)
+                .await?;
+            tracing::info!(email = %payload.email, "auth.register.replaced_unverified");
+        }
+
         let user = sqlx::query_as::<_, User>(
-            "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until"
+            "INSERT INTO users (email, password_hash, role, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until, username, first_name, last_name"
         )
         .bind(&payload.email)
         .bind(password_hash)
         .bind(role)
+        .bind(payload.first_name.as_deref())
+        .bind(payload.last_name.as_deref())
         .fetch_one(&self.state.db.pool)
         .await?;
 
@@ -122,6 +145,12 @@ impl AuthService {
             return Err(ApiError::Unauthorized);
         }
 
+        // Block login if email is not verified (OAuth users are exempt)
+        if !user.email_verified && user.oauth_provider.is_none() {
+            tracing::warn!(email = %payload.email, "auth.login.email_not_verified");
+            return Err(ApiError::Forbidden("Veuillez vérifier votre adresse email avant de vous connecter.".into()));
+        }
+
         // Reset failed attempts only if needed (avoid a write on every successful login)
         if user.failed_attempts != 0 || user.lockout_until.is_some() {
             sqlx::query("UPDATE users SET failed_attempts = 0, lockout_until = NULL WHERE id = $1")
@@ -143,7 +172,7 @@ impl AuthService {
 
     async fn find_user_by_email(&self, email: &str) -> Result<Option<User>, ApiError> {
         let user = sqlx::query_as::<_, User>(
-            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until FROM users WHERE email = $1"
+            "SELECT id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until, username, first_name, last_name FROM users WHERE email = $1"
         )
         .bind(email)
         .fetch_optional(&self.state.db.pool)

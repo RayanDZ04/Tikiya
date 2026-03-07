@@ -230,13 +230,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       );
                                       _showStyledSnack(context, l10n.signupSuccess);
                                       if (!context.mounted) return;
-                                      await Navigator.pushNamed(
+                                      final verified = await Navigator.pushNamed(
                                         context,
                                         '/otp-verify',
                                         arguments: _emailController.text.trim(),
                                       );
                                       if (!context.mounted) return;
-                                      Navigator.pushReplacementNamed(context, '/');
+                                      if (verified == true) {
+                                        Navigator.pushReplacementNamed(context, '/');
+                                      } else {
+                                        await SessionStore.I.setSession(null);
+                                        if (!context.mounted) return;
+                                        _showStyledSnack(
+                                          context,
+                                          'Vous devez vérifier votre email pour continuer. Reconnectez-vous après validation.',
+                                          bg: const Color(0xFFB00020),
+                                        );
+                                      }
                                     } catch (e) {
                                       _showStyledSnack(context, 'Erreur: $e', bg: const Color(0xFFB00020));
                                     }
