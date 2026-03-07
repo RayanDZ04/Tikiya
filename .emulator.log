@@ -119,3 +119,5 @@ WARNING      | ClipboardPipe: the clipboard is too large (76486), ignoring.
 WARNING      | ClipboardPipe: the clipboard is too large (76486), ignoring.
 INFO         | Created VkInstance:0x561a8f277000 for application:'Chromium' engine:''.
 INFO         | Created VkDevice:0x561a93456050 for application:'Chromium' instance:0x561a8f277000. ASTC emulation:on CPU decoding:off.
+INFO         | Destroyed VkDevice:0x561a93456050
+INFO         | Destroyed VkInstance:0x561a8f277000 for application:'Chromium' engine:''.

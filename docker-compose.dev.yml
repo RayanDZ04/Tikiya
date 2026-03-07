@@ -12,6 +12,9 @@ services:
       ORIGINS: http://localhost:3000
       # Chargily Pay — clés de test (dashboard.chargily.com)
       CHARGILY_API_KEY: test_sk_Ltpa80oud4YoG2jKSXDjx8RH1OkwYxeYu0A3LcBt
+      # Rate limiting — valeurs élevées pour le dev (pas de limitation)
+      RATE_LIMIT_PER_SECOND: 500
+      RATE_LIMIT_BURST: 1000
     depends_on:
       - db
     ports:
