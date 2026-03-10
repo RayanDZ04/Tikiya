@@ -18,7 +18,7 @@ INFO         |      Ok: Hardware GPU requirements to run avd: `Pixel_7_Pro` are 
 INFO         |   Checking: hasSufficientSystem
 INFO         |      Ok: System requirements to run avd: `Pixel_7_Pro` are met
 WARNING      | File System is not ext4, disable QuickbootFileBacked feature
-INFO         | Storing crashdata in: /tmp/android-goten/emu-crash-36.4.9.db, detection is enabled for process: 2756
+INFO         | Storing crashdata in: /tmp/android-goten/emu-crash-36.4.9.db, detection is enabled for process: 162532
 INFO         | Initializing gfxstream backend
 INFO         | android_startOpenglesRenderer: gpu info
 INFO         | 
@@ -82,15 +82,15 @@ INFO         |   androidboot.vbmeta.digest=9b597927025d4f62f4594a14632a8d3763239
 INFO         |   androidboot.vbmeta.hash_alg=sha256
 INFO         |   androidboot.vbmeta.size=6720
 INFO         |   androidboot.veritymode=enforcing
-WARNING: cannnot unmap ptr 0x7f384ce01000 as it is in the protected range from 0x7f378ce00000 to 0x7f384d000000
+WARNING: cannnot unmap ptr 0x7f9160c01000 as it is in the protected range from 0x7f90a0c00000 to 0x7f9160e00000
 INFO         | Monitoring duration of emulator setup.
 WARNING      | The emulator now requires a signed jwt token for gRPC access! Use the -grpc flag if you really want an open unprotected grpc port
 INFO         | Using security allow list from: /home/goten/Android/Sdk/emulator/lib/emulator_access.json
 WARNING      | *** Basic token auth should only be used by android-studio ***
-INFO         | The active JSON Web Key Sets can be found here: /run/user/1000/avd/running/2756/jwks/c56aecfd-1754-4ce7-a89b-fd33c70f9947/active.jwk
-INFO         | Scanning /run/user/1000/avd/running/2756/jwks/c56aecfd-1754-4ce7-a89b-fd33c70f9947 for jwk keys.
+INFO         | The active JSON Web Key Sets can be found here: /run/user/1000/avd/running/162532/jwks/a691cf9b-14ec-49f6-a238-6a68ce85485f/active.jwk
+INFO         | Scanning /run/user/1000/avd/running/162532/jwks/a691cf9b-14ec-49f6-a238-6a68ce85485f for jwk keys.
 INFO         | Started GRPC server at 127.0.0.1:8554, security: Local, auth: +token
-INFO         | Advertising in: /run/user/1000/avd/running/pid_2756.ini
+INFO         | Advertising in: /run/user/1000/avd/running/pid_162532.ini
 INFO         | Setting display: 0 configuration to: 1440x3120, dpi: 560x560 
 INFO         | setDisplayActiveConfig 0
 INFO         | Checking system compatibility:
@@ -101,23 +101,15 @@ INFO         |      Ok: Hardware GPU requirements to run avd: `Pixel_7_Pro` are 
 INFO         |   Checking: hasSufficientSystem
 INFO         |      Ok: System requirements to run avd: `Pixel_7_Pro` are met
 INFO         | Loading snapshot 'default_boot'...
-WARNING      | Device 'cache' does not have the requested snapshot 'default_boot'
-
-WARNING      | Failed to load snapshot 'default_boot'
 INFO         | Warning: QMetaObject::connectSlotsByName: No matching signal for on_rgbcSensorValueWidget_valueChanged() (:0, )
 INFO         | Warning: QMetaObject::connectSlotsByName: No matching signal for on_posture_valueChanged(int) (:0, )
 INFO         | Warning: QObject::connect: Cannot queue arguments of type 'std::vector<android::emulation::control::SnapshotInfo>'
 (Make sure 'std::vector<android::emulation::control::SnapshotInfo>' is registered using qRegisterMetaType().) (:0, )
 INFO         | AVD supportsNativeGLES=1, supportsGuestAngle=1
-INFO         | Created extended window in 471.301ms
+INFO         | Created extended window in 744.397ms
 INFO         | Activated packet streamer for bluetooth emulation
-INFO         | Boot completed in 16136 ms
-INFO         | Increasing screen off timeout, logcat buffer size to 2M.
-INFO         | Warning: internal error:  void QXcbWindow::setNetWmStateOnUnmappedWindow() called on mapped window (:0, )
-WARNING      | ClipboardPipe: the clipboard is too large (76486), ignoring.
-WARNING      | ClipboardPipe: the clipboard is too large (76486), ignoring.
-WARNING      | ClipboardPipe: the clipboard is too large (76486), ignoring.
-INFO         | Created VkInstance:0x561a8f277000 for application:'Chromium' engine:''.
-INFO         | Created VkDevice:0x561a93456050 for application:'Chromium' instance:0x561a8f277000. ASTC emulation:on CPU decoding:off.
-INFO         | Destroyed VkDevice:0x561a93456050
-INFO         | Destroyed VkInstance:0x561a8f277000 for application:'Chromium' engine:''.
+qemu-system-x86_64: warning: TSC frequency mismatch between VM (2903988 kHz) and host (2903999 kHz), and TSC scaling unavailable
+qemu-system-x86_64: warning: TSC frequency mismatch between VM (2903988 kHz) and host (2903999 kHz), and TSC scaling unavailable
+qemu-system-x86_64: warning: TSC frequency mismatch between VM (2903988 kHz) and host (2903999 kHz), and TSC scaling unavailable
+qemu-system-x86_64: warning: TSC frequency mismatch between VM (2903988 kHz) and host (2903999 kHz), and TSC scaling unavailable
+INFO         | Successfully loaded snapshot 'default_boot' using 3553 ms

@@ -583,4 +583,91 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get otpResendSuccess => 'تم إرسال رمز جديد.';
+
+  @override
+  String get shopTitle => 'تيكيا شوب';
+
+  @override
+  String get shopSubtitle => 'اشترِ وبِع تذاكرك بالمزاد';
+
+  @override
+  String get shopTabShop => 'شوب';
+
+  @override
+  String get shopTabActive => 'المزادات النشطة';
+
+  @override
+  String get shopTabMine => 'مبيعاتي';
+
+  @override
+  String get shopSellFab => 'بيع تذكرة';
+
+  @override
+  String get shopStartingPrice => 'السعر الابتدائي (د.ج)';
+
+  @override
+  String get shopDurationLabel => 'المدة';
+
+  @override
+  String get shopDuration24h => '24 ساعة';
+
+  @override
+  String get shopDuration48h => '48 ساعة';
+
+  @override
+  String get shopDuration72h => '72 ساعة';
+
+  @override
+  String get shopCurrentBid => 'العرض الحالي';
+
+  @override
+  String get shopNoBids => 'لا توجد عروض بعد';
+
+  @override
+  String get shopPlaceBid => 'قدّم عرضاً';
+
+  @override
+  String get shopBidAmount => 'مبلغ العرض (د.ج)';
+
+  @override
+  String get shopBidPlaced => 'تم تقديم العرض!';
+
+  @override
+  String get shopTicketListed => 'تم إدراج التذكرة في المزاد!';
+
+  @override
+  String get shopNoAuctions => 'لا توجد مزادات نشطة';
+
+  @override
+  String get shopNoListings => 'لا توجد تذاكر معروضة';
+
+  @override
+  String get shopEndsIn => 'ينتهي في';
+
+  @override
+  String get shopChooseTicket => 'اختر تذكرة للبيع';
+
+  @override
+  String get shopListTicket => 'أدرج للبيع';
+
+  @override
+  String get shopBannerTitle => 'تيكيا شوب';
+
+  @override
+  String get shopBannerSubtitle => 'أعد بيع تذاكرك بالمزاد';
+
+  @override
+  String get shopBannerBtn => 'اذهب إلى الشوب';
+
+  @override
+  String get shopSellAction => 'بيع';
+
+  @override
+  String get shopMinBidError => 'يجب أن يتجاوز العرض السعر الحالي';
+
+  @override
+  String get shopMinPriceError => 'الحد الأدنى للسعر: 1 د.ج';
+
+  @override
+  String get shopYourBid => 'عرضك';
 }

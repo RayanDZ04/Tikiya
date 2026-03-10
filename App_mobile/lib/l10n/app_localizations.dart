@@ -1233,6 +1233,180 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Nouveau code envoyé.'**
   String get otpResendSuccess;
+
+  /// No description provided for @shopTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tikiya Shop'**
+  String get shopTitle;
+
+  /// No description provided for @shopSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vendez ou achetez des billets aux enchères'**
+  String get shopSubtitle;
+
+  /// No description provided for @shopTabShop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shop'**
+  String get shopTabShop;
+
+  /// No description provided for @shopTabActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enchères actives'**
+  String get shopTabActive;
+
+  /// No description provided for @shopTabMine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes ventes'**
+  String get shopTabMine;
+
+  /// No description provided for @shopSellFab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vendre un billet'**
+  String get shopSellFab;
+
+  /// No description provided for @shopStartingPrice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix de départ (DZD)'**
+  String get shopStartingPrice;
+
+  /// No description provided for @shopDurationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée'**
+  String get shopDurationLabel;
+
+  /// No description provided for @shopDuration24h.
+  ///
+  /// In fr, this message translates to:
+  /// **'24 heures'**
+  String get shopDuration24h;
+
+  /// No description provided for @shopDuration48h.
+  ///
+  /// In fr, this message translates to:
+  /// **'48 heures'**
+  String get shopDuration48h;
+
+  /// No description provided for @shopDuration72h.
+  ///
+  /// In fr, this message translates to:
+  /// **'72 heures'**
+  String get shopDuration72h;
+
+  /// No description provided for @shopCurrentBid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enchère actuelle'**
+  String get shopCurrentBid;
+
+  /// No description provided for @shopNoBids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune offre pour l\'instant'**
+  String get shopNoBids;
+
+  /// No description provided for @shopPlaceBid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enchérir'**
+  String get shopPlaceBid;
+
+  /// No description provided for @shopBidAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant de l\'offre (DZD)'**
+  String get shopBidAmount;
+
+  /// No description provided for @shopBidPlaced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offre envoyée !'**
+  String get shopBidPlaced;
+
+  /// No description provided for @shopTicketListed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Billet mis aux enchères !'**
+  String get shopTicketListed;
+
+  /// No description provided for @shopNoAuctions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune enchère en cours'**
+  String get shopNoAuctions;
+
+  /// No description provided for @shopNoListings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun billet en vente'**
+  String get shopNoListings;
+
+  /// No description provided for @shopEndsIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se termine dans'**
+  String get shopEndsIn;
+
+  /// No description provided for @shopChooseTicket.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir un billet à vendre'**
+  String get shopChooseTicket;
+
+  /// No description provided for @shopListTicket.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre en vente'**
+  String get shopListTicket;
+
+  /// No description provided for @shopBannerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tikiya Shop'**
+  String get shopBannerTitle;
+
+  /// No description provided for @shopBannerSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revendez vos billets aux enchères'**
+  String get shopBannerSubtitle;
+
+  /// No description provided for @shopBannerBtn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accéder au Shop'**
+  String get shopBannerBtn;
+
+  /// No description provided for @shopSellAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vendre'**
+  String get shopSellAction;
+
+  /// No description provided for @shopMinBidError.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'offre doit dépasser l\'enchère actuelle'**
+  String get shopMinBidError;
+
+  /// No description provided for @shopMinPriceError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix minimum : 1 DZD'**
+  String get shopMinPriceError;
+
+  /// No description provided for @shopYourBid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre offre'**
+  String get shopYourBid;
 }
 
 class _AppLocalizationsDelegate

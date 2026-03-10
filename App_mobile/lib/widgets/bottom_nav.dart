@@ -20,13 +20,14 @@ class BottomNav extends StatelessWidget {
     List<_NavItem> items = [
       _NavItem('home', l10n.navHome, Icons.home, onTap: () => Navigator.pushReplacementNamed(context, '/')),
     ];
+    final isParticipant = role == 'participant' || role == 'client';
     if (isLogged && role != 'organisateur') {
       items.add(
         _NavItem('tickets', l10n.navTickets, Icons.confirmation_num,
             onTap: () => Navigator.pushReplacementNamed(context, '/tickets')),
       );
     }
-    if (isLogged && role == 'participant') {
+    if (isLogged && isParticipant) {
       items.add(
         _NavItem('market', l10n.navMarket, Icons.storefront,
             onTap: () => Navigator.pushReplacementNamed(context, '/market')),

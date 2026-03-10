@@ -7,6 +7,7 @@ import '../services/payment_service.dart';
 import '../services/session_store.dart';
 import '../widgets/bottom_nav.dart';
 import '../main.dart' show ticketsRefreshTrigger;
+import 'market_screen.dart' show AuctionEntry, auctionStore;
 
 /// Thrown when the user is not authenticated and tries to load tickets.
 class _AuthRequiredException implements Exception {
@@ -141,7 +142,23 @@ class _TicketsScreenState extends State<TicketsScreen>
                   color: Color(0xFFF4F7FC),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
                 ),
-                child: FutureBuilder<_TicketsData>(
+                child: Column(
+                  children: [
+                    // ── Tikiya Shop banner (participant only) ─────────────
+                    if (session != null && (session.role == 'participant' || session.role == 'client'))
+                      _ShopBanner(
+                        onTap: () =>
+                            Navigator.pushNamed(context, '/market'),
+                      ),
+                    Expanded(
+                      child: ValueListenableBuilder<List<AuctionEntry>>(
+                        valueListenable: auctionStore,
+                        builder: (_, listedAuctions, __) {
+                          final listedIds = listedAuctions
+                              .where((a) => !a.sold)
+                              .map((a) => a.ticketId)
+                              .toSet();
+                          return FutureBuilder<_TicketsData>(
                   future: _future,
                   builder: (context, snap) {
                     if (snap.connectionState == ConnectionState.waiting) {
@@ -198,7 +215,16 @@ class _TicketsScreenState extends State<TicketsScreen>
                     }
 
                     final data = snap.data!;
-                    if (data.groups.isEmpty) {
+                    // Filter out tickets currently listed in the shop
+                    final groups = data.groups.map((g) {
+                      final filteredTickets = g.tickets
+                          .where((t) => !listedIds.contains(t.id))
+                          .toList();
+                      return _TicketGroup(
+                          event: g.event, tickets: filteredTickets);
+                    }).where((g) => g.tickets.isNotEmpty).toList();
+
+                    if (groups.isEmpty) {
                       return _EmptyState(
                           onBrowse: () =>
                               Navigator.pushReplacementNamed(context, '/'));
@@ -210,16 +236,21 @@ class _TicketsScreenState extends State<TicketsScreen>
                       color: bleuCyan,
                       child: ListView.separated(
                         padding: const EdgeInsets.fromLTRB(20, 28, 20, 100),
-                        itemCount: data.groups.length,
+                        itemCount: groups.length,
                         separatorBuilder: (_, _) =>
                             const SizedBox(height: 20),
                         itemBuilder: (ctx, i) {
-                          final group = data.groups[i];
+                          final group = groups[i];
                           return _GroupedTicketCard(group: group);
                         },
                       ),
                     );
                   },
+                );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -641,6 +672,11 @@ class _GroupedTicketCard extends StatelessWidget {
                   ],
                 ),
               ),
+              // ── Tikiya Shop – sell action row (participant only) ──────
+              if ((SessionStore.I.session.value?.role == 'participant' ||
+                   SessionStore.I.session.value?.role == 'client') &&
+                  group.paidCount > 0)
+                _TicketShopRow(ticketId: group.tickets.first.id),
             ],
           ),
         ),
@@ -1062,6 +1098,168 @@ class _EmptyState extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+// ── Tikiya Shop banner (shown at top of tickets page for participants) ─────────
+class _ShopBanner extends StatelessWidget {
+  const _ShopBanner({required this.onTap});
+  final VoidCallback onTap;
+
+  static const Color bleuProfond = Color(0xFF0B1C3E);
+  static const Color bleuCyan = Color(0xFF00ACC1);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [bleuProfond, Color(0xFF1A3A70)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: bleuProfond.withValues(alpha: 0.18),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: bleuCyan.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.storefront,
+                  color: bleuCyan, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        context.l10n.shopBannerTitle,
+                        style: GoogleFonts.montserrat(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
+
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.shopBannerSubtitle,
+                    style: GoogleFonts.montserrat(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: bleuCyan,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                context.l10n.shopBannerBtn,
+                style: GoogleFonts.montserrat(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Sell row at bottom of each ticket card (participant only) ─────────────────
+class _TicketShopRow extends StatelessWidget {
+  const _TicketShopRow({required this.ticketId});
+  final String ticketId;
+
+  static const Color bleuCyan = Color(0xFF00ACC1);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () =>
+          Navigator.pushNamed(context, '/market', arguments: ticketId),
+      child: Container(
+        width: double.infinity,
+        padding:
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: bleuCyan.withValues(alpha: 0.06),
+          border: Border(
+            top: BorderSide(
+                color: bleuCyan.withValues(alpha: 0.15), width: 1),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.storefront_outlined,
+                size: 13, color: bleuCyan),
+            const SizedBox(width: 7),
+            Text(
+              'Tikiya Shop',
+              style: GoogleFonts.montserrat(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: bleuCyan,
+              ),
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: bleuCyan,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.sell_outlined,
+                      size: 11, color: Colors.white),
+                  const SizedBox(width: 5),
+                  Text(
+                    context.l10n.shopSellAction,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -14,6 +14,7 @@ import 'screens/orga_dashboard_screen.dart';
 import 'screens/tickets_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/otp_verification_screen.dart';
+import 'screens/market_screen.dart';
 import 'services/session_store.dart';
 import 'widgets/payment_result_dialog.dart';
 import 'l10n/app_localizations.dart';
@@ -28,6 +29,7 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await SessionStore.I.loadLocale();
   await SessionStore.I.loadSession();
+  await loadAuctionStore();
   FlutterNativeSplash.remove();
 
   const Color statusBarColor = Color(0xFF0B1C3E);
@@ -149,6 +151,12 @@ class _MyAppState extends State<MyApp> {
             '/tickets': (context) => const TicketsScreen(),
             '/profile': (context) => const ProfileScreen(),
             '/otp-verify': (context) => const OtpVerificationScreen(),
+            '/market': (context) {
+              final args = ModalRoute.of(context)?.settings.arguments;
+              return MarketScreen(
+                preselectTicketId: args is String ? args : null,
+              );
+            },
           },
         );
       },

@@ -589,4 +589,91 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get otpResendSuccess => 'Nouveau code envoyé.';
+
+  @override
+  String get shopTitle => 'Tikiya Shop';
+
+  @override
+  String get shopSubtitle => 'Vendez ou achetez des billets aux enchères';
+
+  @override
+  String get shopTabShop => 'Shop';
+
+  @override
+  String get shopTabActive => 'Enchères actives';
+
+  @override
+  String get shopTabMine => 'Mes ventes';
+
+  @override
+  String get shopSellFab => 'Vendre un billet';
+
+  @override
+  String get shopStartingPrice => 'Prix de départ (DZD)';
+
+  @override
+  String get shopDurationLabel => 'Durée';
+
+  @override
+  String get shopDuration24h => '24 heures';
+
+  @override
+  String get shopDuration48h => '48 heures';
+
+  @override
+  String get shopDuration72h => '72 heures';
+
+  @override
+  String get shopCurrentBid => 'Enchère actuelle';
+
+  @override
+  String get shopNoBids => 'Aucune offre pour l\'instant';
+
+  @override
+  String get shopPlaceBid => 'Enchérir';
+
+  @override
+  String get shopBidAmount => 'Montant de l\'offre (DZD)';
+
+  @override
+  String get shopBidPlaced => 'Offre envoyée !';
+
+  @override
+  String get shopTicketListed => 'Billet mis aux enchères !';
+
+  @override
+  String get shopNoAuctions => 'Aucune enchère en cours';
+
+  @override
+  String get shopNoListings => 'Aucun billet en vente';
+
+  @override
+  String get shopEndsIn => 'Se termine dans';
+
+  @override
+  String get shopChooseTicket => 'Choisir un billet à vendre';
+
+  @override
+  String get shopListTicket => 'Mettre en vente';
+
+  @override
+  String get shopBannerTitle => 'Tikiya Shop';
+
+  @override
+  String get shopBannerSubtitle => 'Revendez vos billets aux enchères';
+
+  @override
+  String get shopBannerBtn => 'Accéder au Shop';
+
+  @override
+  String get shopSellAction => 'Vendre';
+
+  @override
+  String get shopMinBidError => 'L\'offre doit dépasser l\'enchère actuelle';
+
+  @override
+  String get shopMinPriceError => 'Prix minimum : 1 DZD';
+
+  @override
+  String get shopYourBid => 'Votre offre';
 }

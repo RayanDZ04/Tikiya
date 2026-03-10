@@ -5,6 +5,7 @@ import '../services/session_store.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
 import '../widgets/settings_sheet.dart';
+import 'market_screen.dart' show AuctionEntry, auctionStore, tikiyaCashBalance;
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -204,7 +205,26 @@ class ProfileScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 36),
+                        const SizedBox(height: 20),
+
+                        // ── Tikiya Cash (participants uniquement) ────────
+                        if (session.role == 'participant' ||
+                            session.role == 'client')
+                          ValueListenableBuilder<List<AuctionEntry>>(
+                            valueListenable: auctionStore,
+                            builder: (_, __, ___) {
+                              final balance =
+                                  tikiyaCashBalance(session.id);
+                              final sales = auctionStore.value
+                                  .where((a) =>
+                                      a.sold &&
+                                      a.sellerId == session.id)
+                                  .toList();
+                              return _TikiyaCashCard(
+                                  balance: balance, sales: sales);
+                            },
+                          ),
+                        const SizedBox(height: 20),
 
                         // ── Bouton déconnexion ───────────────────────────
                         SizedBox(
@@ -360,6 +380,202 @@ class _ActionRow extends StatelessWidget {
           Icon(Icons.chevron_right,
               size: 18, color: bleuProfond.withValues(alpha: 0.3)),
         ],
+      ),
+    );
+  }
+}
+
+// ── Tikiya Cash card ───────────────────────────────────────────────────────────
+
+class _TikiyaCashCard extends StatelessWidget {
+  const _TikiyaCashCard({required this.balance, required this.sales});
+  final int balance;
+  final List<AuctionEntry> sales;
+
+  static const Color bleuProfond = Color(0xFF0B1C3E);
+  static const Color bleuCyan = Color(0xFF00ACC1);
+  static const Color gold = Color(0xFFFFC107);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0B1C3E), Color(0xFF1A3A70)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x440B1C3E),
+            blurRadius: 20,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            // Decorative circles
+            Positioned(
+              right: -30,
+              top: -30,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: bleuCyan.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 40,
+              bottom: -20,
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: gold.withValues(alpha: 0.06),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Header ─────────────────────────────────────────
+                  Row(
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: gold.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: gold.withValues(alpha: 0.4), width: 1),
+                        ),
+                        child: const Icon(Icons.account_balance_wallet,
+                            color: gold, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tikiya Cash',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.15)),
+                        ),
+                        child: Text(
+                          'DZD',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white60,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // ── Balance ─────────────────────────────────────────
+                  Text(
+                    '${balance.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} DZD',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 34,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      height: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (balance > 0)
+                    Text(
+                      '${sales.length} vente${sales.length > 1 ? 's' : ''} réalisée${sales.length > 1 ? 's' : ''}',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 11,
+                        color: gold.withValues(alpha: 0.85),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  // ── Transactions list ──────────────────────────────
+                  if (sales.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      height: 1,
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                    const SizedBox(height: 12),
+                    ...sales.map((s) {
+                      final shortId =
+                          s.ticketId.substring(0, 8).toUpperCase();
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF43A047)
+                                    .withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.arrow_downward,
+                                  color: Color(0xFF66BB6A), size: 14),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Billet N° $shortId vendu',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 11,
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '+${s.currentBid} DZD',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF66BB6A),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

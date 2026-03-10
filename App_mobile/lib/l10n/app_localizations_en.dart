@@ -586,4 +586,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get otpResendSuccess => 'New code sent.';
+
+  @override
+  String get shopTitle => 'Tikiya Shop';
+
+  @override
+  String get shopSubtitle => 'Buy & sell tickets via auction';
+
+  @override
+  String get shopTabShop => 'Shop';
+
+  @override
+  String get shopTabActive => 'Active Auctions';
+
+  @override
+  String get shopTabMine => 'My Listings';
+
+  @override
+  String get shopSellFab => 'Sell a ticket';
+
+  @override
+  String get shopStartingPrice => 'Starting price (DZD)';
+
+  @override
+  String get shopDurationLabel => 'Duration';
+
+  @override
+  String get shopDuration24h => '24 hours';
+
+  @override
+  String get shopDuration48h => '48 hours';
+
+  @override
+  String get shopDuration72h => '72 hours';
+
+  @override
+  String get shopCurrentBid => 'Current bid';
+
+  @override
+  String get shopNoBids => 'No bids yet';
+
+  @override
+  String get shopPlaceBid => 'Place a Bid';
+
+  @override
+  String get shopBidAmount => 'Bid amount (DZD)';
+
+  @override
+  String get shopBidPlaced => 'Bid placed!';
+
+  @override
+  String get shopTicketListed => 'Ticket listed for auction!';
+
+  @override
+  String get shopNoAuctions => 'No active auctions';
+
+  @override
+  String get shopNoListings => 'No tickets listed';
+
+  @override
+  String get shopEndsIn => 'Ends in';
+
+  @override
+  String get shopChooseTicket => 'Choose a ticket to sell';
+
+  @override
+  String get shopListTicket => 'List for sale';
+
+  @override
+  String get shopBannerTitle => 'Tikiya Shop';
+
+  @override
+  String get shopBannerSubtitle => 'Resell your tickets via auction';
+
+  @override
+  String get shopBannerBtn => 'Open Shop';
+
+  @override
+  String get shopSellAction => 'Sell';
+
+  @override
+  String get shopMinBidError => 'Bid must exceed the current auction price';
+
+  @override
+  String get shopMinPriceError => 'Minimum price: 1 DZD';
+
+  @override
+  String get shopYourBid => 'Your bid';
 }

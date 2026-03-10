@@ -47,7 +47,8 @@ impl AuthService {
         // Allowed roles: participant (default) or organisateur
         let role = match payload.role.as_deref() {
             Some("organisateur") => "organisateur",
-            _ => "client",
+            Some("participant") => "participant",
+            _ => "participant",
         };
 
         // If an unverified account already exists with this email → delete it so the user can register again.
