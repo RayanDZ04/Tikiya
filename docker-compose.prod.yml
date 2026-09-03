@@ -1,0 +1,117 @@
+services:
+  db:
+    # En prod le mot de passe DB vient d'un secret d'environnement obligatoire :
+    # le déploiement échoue volontairement si DB_PASSWORD n'est pas défini
+    # (jamais de mot de passe par défaut en production).
+    environment:
+      POSTGRES_DB: tikiya
+      POSTGRES_USER: tikiya
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD doit être défini en production}
+    # Base non exposée à l'hôte : accessible uniquement via le réseau interne.
+    ports: []
+
+  api:
+    # Plus aucun port publié directement sur l'hôte : seul Caddy est exposé
+    # au public, l'API n'est joignable que via le réseau interne Docker.
+    ports: []
+    depends_on:
+      - db
+      - redis
+      - minio
+    environment:
+      # Chaîne de connexion alignée sur le mot de passe secret ci-dessus.
+      DATABASE_URL: postgres://tikiya:${DB_PASSWORD:?DB_PASSWORD doit être défini en production}@db:5432/tikiya
+      # À adapter avec le vrai domaine du VPS (doit matcher le Caddyfile).
+      ORIGINS: https://tikiya.net
+      PUBLIC_BASE_URL: https://api.tikiya.net
+      # Moins verbeux qu'en dev — évite le coût I/O du niveau debug sous charge.
+      RUST_LOG: info,tower_http=warn
+      # Caddy (reverse-proxy de confiance) nettoie X-Forwarded-For avant de le
+      # transmettre : on peut donc faire confiance aux en-têtes proxy ici.
+      TRUST_PROXY_HEADERS: "true"
+      # Rate limiting distribué partagé entre toutes les répliques de l'API.
+      REDIS_URL: redis://redis:6379
+      # Stockage objet MinIO (remplace le disque local, requis pour scaler).
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: tikiya-uploads
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-tikiya}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-tikiya_change_me}
+      S3_REGION: us-east-1
+
+  # Sauvegarde automatique quotidienne de la base (rotation : 14 dernières).
+  # ⚠️ Ces dumps restent sur la MÊME machine : pour une vraie résilience il faut
+  # les copier hors-hôte (S3/stockage distant) — étape opérationnelle à ta charge.
+  db_backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PGPASSWORD: ${DB_PASSWORD:?DB_PASSWORD doit être défini en production}
+    volumes:
+      - db_backups:/backups
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        while true; do
+          ts=$$(date +%Y%m%d_%H%M%S)
+          if pg_dump -h db -U tikiya -d tikiya -Fc -f /backups/tikiya_$$ts.dump; then
+            echo "db_backup.ok $$ts"
+          else
+            echo "db_backup.FAILED $$ts"
+          fi
+          # Ne conserve que les 14 sauvegardes les plus récentes.
+          ls -1t /backups/*.dump 2>/dev/null | tail -n +15 | xargs -r rm -f
+          sleep 86400
+        done
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Réseau interne uniquement — pas de port publié sur l'hôte.
+    volumes:
+      - redis_data:/data
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-tikiya}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-tikiya_change_me}
+    volumes:
+      - minio_data:/data
+
+  # Crée le bucket au démarrage puis s'arrête (job one-shot).
+  minio_init:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-tikiya} ${MINIO_ROOT_PASSWORD:-tikiya_change_me}; do sleep 1; done;
+      mc mb -p local/tikiya-uploads;
+      mc anonymous set download local/tikiya-uploads;
+      exit 0;
+      "
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+  redis_data:
+  minio_data:
+  db_backups:

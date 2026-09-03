@@ -673,8 +673,14 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardRevenue.
   ///
   /// In fr, this message translates to:
-  /// **'Revenu potentiel'**
+  /// **'Revenu réel'**
   String get dashboardRevenue;
+
+  /// No description provided for @dashboardEstimatedRevenue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation (places)'**
+  String get dashboardEstimatedRevenue;
 
   /// No description provided for @dashboardQuickActions.
   ///

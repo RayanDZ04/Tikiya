@@ -7,7 +7,6 @@ use axum::{
     routing::get,
     Router,
 };
-use tower_http::services::ServeDir;
 use axum::middleware::{from_fn, from_fn_with_state, Next};
 use std::time::Duration;
 use axum::BoxError;
@@ -50,7 +49,10 @@ use crate::state::AppState;
 pub fn build_router(state: AppState) -> Router {
     let hsts_enabled = state.config.http_hsts_enabled;
     let cors = build_cors(&state.config.allowed_origins);
-    let timeout = TimeoutLayer::new(Duration::from_secs(state.config.http_request_timeout_secs));
+    let timeout = TimeoutLayer::with_status_code(
+        axum::http::StatusCode::REQUEST_TIMEOUT,
+        Duration::from_secs(state.config.http_request_timeout_secs),
+    );
     let concurrency = ConcurrencyLimitLayer::new(state.config.http_concurrency_limit);
     let body_limit = DefaultBodyLimit::max(state.config.http_max_body_bytes);
 
@@ -90,7 +92,12 @@ pub fn build_router(state: AppState) -> Router {
     Router::new()
         .route("/health", get(|| async { "OK" }))
         .route("/ready", get(ready))
-        .merge(routes::auth::router())
+        // Auth routes carry an extra, much stricter per-IP limiter on top of the
+        // global one (credential-stuffing / OTP-guessing / signup-flood defence).
+        .merge(routes::auth::router().layer(from_fn_with_state(
+            state.clone(),
+            crate::ratelimit::auth_rate_limit,
+        )))
         .merge(routes::me::router())
         .merge(routes::oauth::router())
         .merge(routes::organizer_needs::router())
@@ -98,7 +105,13 @@ pub fn build_router(state: AppState) -> Router {
         .merge(routes::upload::router())
         .merge(routes::payments::router())
         .merge(routes::admin::router())
-        .nest_service("/files", ServeDir::new("uploads"))
+        .route("/files/{filename}", get(crate::handlers::upload::serve_file))
+        // Distributed (Redis-backed) per-IP limit, shared across replicas.
+        // No-op when REDIS_URL is unset.
+        .layer(from_fn_with_state(
+            state.clone(),
+            crate::ratelimit::redis_rate_limit,
+        ))
         .with_state(state)
         .layer(middleware)
         .layer(from_fn_with_state(hsts_enabled, security_headers))

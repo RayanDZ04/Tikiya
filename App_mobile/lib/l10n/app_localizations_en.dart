@@ -296,7 +296,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardPast => 'Past';
 
   @override
-  String get dashboardRevenue => 'Potential revenue';
+  String get dashboardRevenue => 'Actual revenue';
+
+  @override
+  String get dashboardEstimatedRevenue => 'Estimate (capacity)';
 
   @override
   String get dashboardQuickActions => 'Quick actions';

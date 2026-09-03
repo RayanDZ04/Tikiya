@@ -295,7 +295,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dashboardPast => 'منتهية';
 
   @override
-  String get dashboardRevenue => 'الإيرادات المتوقعة';
+  String get dashboardRevenue => 'الإيرادات الفعلية';
+
+  @override
+  String get dashboardEstimatedRevenue => 'تقدير (حسب المقاعد)';
 
   @override
   String get dashboardQuickActions => 'إجراءات سريعة';

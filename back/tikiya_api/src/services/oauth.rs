@@ -24,6 +24,7 @@ struct GoogleTokenResponse {
 pub struct GoogleUserInfo {
     pub sub: String,
     pub email: String,
+    #[serde(rename = "email_verified")]
     pub _email_verified: bool,
     pub _given_name: Option<String>,
     pub _family_name: Option<String>,
@@ -151,6 +152,16 @@ impl OAuthService {
         .bind(&info.email)
         .fetch_optional(&self.state.db.pool)
         .await? {
+            // Only auto-link to an existing password-based account if Google itself
+            // confirms it owns/verified this email — otherwise anyone could sign in
+            // with an unverified Google email matching someone else's account.
+            if !info._email_verified {
+                tracing::warn!(email = %info.email, "oauth.link.email_not_verified_by_provider");
+                return Err(ApiError::Forbidden(
+                    "Cette adresse email doit être vérifiée par Google avant de pouvoir être liée à un compte existant.".into(),
+                ));
+            }
+
             let updated = sqlx::query_as::<_, User>(
                 "UPDATE users SET oauth_provider = 'google', oauth_subject = $1 WHERE id = $2 RETURNING id, email, password_hash, role, email_verified, oauth_provider, oauth_subject, created_at, failed_attempts, lockout_until, username, first_name, last_name"
             )

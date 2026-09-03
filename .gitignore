@@ -25,3 +25,15 @@ ios/Flutter/engine/
 node_modules/
 
 instance/*.db
+
+# Variables docker-compose (secrets locaux/VPS, ex: DB_PASSWORD)
+/.env
+
+# Logs de session (émulateur, flutter run) — bruit local
+*.emulator*.log
+.emulator*.log
+.flutter_run.log
+
+# Config locale d'outillage (spécifique à la machine)
+/.claude/
+/.mcp.json

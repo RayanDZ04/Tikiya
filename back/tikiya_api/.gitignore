@@ -2,4 +2,6 @@
 **/*.log
 .env
 .venv
+# Fichiers uploadés en dev (stockés sur disque local) — jamais commités
+/uploads
 # Cargo.lock doit être commité pour un binaire Rust

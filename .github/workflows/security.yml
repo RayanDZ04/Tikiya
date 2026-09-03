@@ -1,0 +1,46 @@
+name: Sécurité backend
+
+# Bloque un déploiement si une faille connue apparaît dans les dépendances
+# ou si le code Rust ne passe pas les lints de sécurité de Clippy.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "back/tikiya_api/**"
+      - ".github/workflows/security.yml"
+  pull_request:
+    paths:
+      - "back/tikiya_api/**"
+  schedule:
+    # Re-scan chaque lundi : une dépendance saine aujourd'hui peut devenir
+    # vulnérable demain (nouvelle CVE publiée).
+    - cron: "0 6 * * 1"
+
+defaults:
+  run:
+    working-directory: back/tikiya_api
+
+jobs:
+  cargo-audit:
+    name: Audit des dépendances (cargo audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installer Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Installer cargo-audit
+        run: cargo install cargo-audit --locked
+      - name: Scanner Cargo.lock
+        run: cargo audit --deny warnings
+
+  clippy:
+    name: Lints de sécurité (clippy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installer Rust + clippy
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Clippy (échoue sur warning)
+        run: cargo clippy --all-targets -- -D warnings

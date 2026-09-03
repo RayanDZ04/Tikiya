@@ -1,0 +1,7 @@
+# Reverse-proxy TLS pour l'API Tikiya en production.
+# Remplace api.tikiya.net par le vrai domaine pointé vers ce VPS avant de déployer.
+# Caddy obtient et renouvelle automatiquement le certificat Let's Encrypt.
+
+api.tikiya.net {
+	reverse_proxy api:8080
+}

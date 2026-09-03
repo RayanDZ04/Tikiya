@@ -137,6 +137,17 @@ pub async fn delete_event(
     if result.rows_affected() == 0 {
         return Err(ApiError::NotFound);
     }
+
+    crate::services::audit::record(
+        &state,
+        Some(user_id),
+        "event.deleted",
+        Some("event"),
+        Some(&event_id.to_string()),
+        None,
+        None,
+    )
+    .await;
     Ok(())
 }
 

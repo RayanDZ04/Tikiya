@@ -21,7 +21,31 @@ fn sign_ticket_url(ticket_id: Uuid, secret: &str) -> String {
     })
 }
 
-/// Verifies the Chargily webhook HMAC-SHA512 signature.
+/// Constant-time byte comparison (no early exit on mismatch).
+fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
+    if a.len() != b.len() {
+        return false;
+    }
+    let mut diff: u8 = 0;
+    for (x, y) in a.iter().zip(b.iter()) {
+        diff |= x ^ y;
+    }
+    diff == 0
+}
+
+/// Verifies a `sig` produced by `sign_ticket_url`, in constant time.
+fn verify_ticket_url_sig(ticket_id: Uuid, secret: &str, sig: &str) -> bool {
+    match hex_decode(sig) {
+        Some(given) => {
+            let expected = sign_ticket_url(ticket_id, secret);
+            let expected_bytes = hex_decode(&expected).unwrap_or_default();
+            constant_time_eq(&given, &expected_bytes)
+        }
+        None => false,
+    }
+}
+
+/// Verifies the Chargily webhook HMAC-SHA512 signature (constant-time).
 fn verify_chargily_signature(payload: &[u8], signature: &str, api_key: &str) -> bool {
     use hmac::{Hmac, Mac};
     type HmacSha512 = Hmac<Sha512>;
@@ -30,14 +54,26 @@ fn verify_chargily_signature(payload: &[u8], signature: &str, api_key: &str) -> 
         Err(_) => return false,
     };
     mac.update(payload);
-    let result = mac.finalize().into_bytes();
-    let expected: String = result.iter().fold(String::new(), |mut s, b| {
-        use std::fmt::Write;
-        let _ = write!(s, "{:02x}", b);
-        s
-    });
-    expected.len() == signature.len()
-        && expected.bytes().zip(signature.bytes()).all(|(a, b)| a == b)
+
+    // Signature arrives as a hex string; decode it back to bytes so we can use
+    // Mac::verify_slice (constant-time) instead of comparing the hex strings
+    // byte-by-byte with early exit.
+    let sig_bytes = match hex_decode(signature) {
+        Some(b) => b,
+        None => return false,
+    };
+    mac.verify_slice(&sig_bytes).is_ok()
+}
+
+/// Minimal hex decoder (avoids pulling in a new crate for this one call site).
+fn hex_decode(s: &str) -> Option<Vec<u8>> {
+    if s.len() % 2 != 0 {
+        return None;
+    }
+    (0..s.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&s[i..i + 2], 16).ok())
+        .collect()
 }
 
 
@@ -182,7 +218,7 @@ pub async fn create_checkout(
     };
 
     // Sign the success URL to prevent anyone from marking tickets paid arbitrarily
-    let sig = sign_ticket_url(ticket_id, &state.config.jwt_secret);
+    let sig = sign_ticket_url(ticket_id, &state.config.payment_url_hmac_secret);
     let body = ChargilyCheckoutBody {
         amount,
         currency: "dzd",
@@ -295,6 +331,27 @@ pub async fn payment_webhook(
 
     tracing::info!(checkout = %payload.id, status = %payload.status, "webhook.received");
 
+    let mut tx = state.db.pool.begin().await?;
+
+    // Anti-replay: dedupe on (checkout_id, status). A captured signed webhook
+    // replayed later for a transition we've already applied is a no-op instead
+    // of re-flipping the ticket status (e.g. re-marking "paid" after a refund).
+    let inserted = sqlx::query(
+        "INSERT INTO processed_webhooks (checkout_id, status) VALUES ($1, $2)
+         ON CONFLICT (checkout_id, status) DO NOTHING",
+    )
+    .bind(&payload.id)
+    .bind(&payload.status)
+    .execute(&mut *tx)
+    .await?
+    .rows_affected();
+
+    if inserted == 0 {
+        tracing::info!(checkout = %payload.id, status = %payload.status, "webhook.duplicate_ignored");
+        tx.commit().await.map_err(ApiError::from)?;
+        return Ok(axum::http::StatusCode::OK);
+    }
+
     // Resolve ticket_id from metadata or directly from checkout_id column
     let ticket_id: Option<Uuid> = if let Some(meta) = &payload.metadata {
         meta.get("ticket_id")
@@ -312,7 +369,7 @@ pub async fn payment_webhook(
         .bind(&payload.status)
         .bind(payload.payment_method.as_deref())
         .bind(tid)
-        .execute(&state.db.pool)
+        .execute(&mut *tx)
         .await?
         .rows_affected()
     } else {
@@ -324,11 +381,12 @@ pub async fn payment_webhook(
         .bind(&payload.status)
         .bind(payload.payment_method.as_deref())
         .bind(&payload.id)
-        .execute(&state.db.pool)
+        .execute(&mut *tx)
         .await?
         .rows_affected()
     };
 
+    tx.commit().await.map_err(ApiError::from)?;
     tracing::info!(rows_affected = updated, "webhook.processed");
     Ok(axum::http::StatusCode::OK)
 }
@@ -377,8 +435,23 @@ pub async fn event_ticket_stats(
     auth: AuthUser,
     axum::extract::Path(event_id): axum::extract::Path<Uuid>,
 ) -> Result<Json<EventTicketStats>, ApiError> {
-    // Auth required (any logged-in user)
-    let _user_id = auth.user_id;
+    // Only the event's own organizer may read its sales figures.
+    let organizer_id: Option<Uuid> =
+        sqlx::query_scalar("SELECT organizer_id FROM events WHERE id = $1")
+            .bind(event_id)
+            .fetch_optional(&state.db.pool)
+            .await?;
+
+    match organizer_id {
+        None => return Err(ApiError::NotFound),
+        Some(owner) if owner != auth.user_id => {
+            tracing::warn!(user_id = %auth.user_id, event_id = %event_id, "stats.forbidden");
+            return Err(ApiError::Forbidden(
+                "Vous ne pouvez consulter que les statistiques de vos propres événements.".into(),
+            ));
+        }
+        Some(_) => {}
+    }
 
     #[derive(sqlx::FromRow)]
     struct Row {
@@ -401,6 +474,65 @@ pub async fn event_ticket_stats(
     }))
 }
 
+// ─── GET /payments/mine/summary — aggregated stats over the organizer's events ──
+#[derive(Serialize)]
+pub struct OrganizerSummary {
+    /// Number of events the organizer owns.
+    pub events: i64,
+    /// Real tickets sold across all their events (status = 'paid'), live.
+    pub total_sold: i64,
+    /// Real revenue collected (sum of paid ticket amounts), in DZD.
+    pub total_revenue: i64,
+    /// Total seats offered across all events.
+    pub total_capacity: i64,
+    /// Estimated ceiling if every seat sold at its event price, in DZD.
+    pub estimated_revenue: i64,
+}
+
+pub async fn organizer_summary(
+    State(state): State<AppState>,
+    auth: AuthUser,
+) -> Result<Json<OrganizerSummary>, ApiError> {
+    #[derive(sqlx::FromRow)]
+    struct Row {
+        events: Option<i64>,
+        total_sold: Option<i64>,
+        total_revenue: Option<i64>,
+        total_capacity: Option<i64>,
+        estimated_revenue: Option<f64>,
+    }
+
+    // Aggregate paid tickets per event first, then join so capacity/price are
+    // counted once per event (a plain JOIN would multiply them by ticket count).
+    // SUM() over bigint yields NUMERIC in Postgres, so cast the integer
+    // aggregates back to BIGINT to match the Rust i64 columns.
+    let row = sqlx::query_as::<_, Row>(
+        "SELECT
+            COUNT(e.id)                                    AS events,
+            COALESCE(SUM(s.sold), 0)::BIGINT               AS total_sold,
+            COALESCE(SUM(s.revenue), 0)::BIGINT            AS total_revenue,
+            COALESCE(SUM(e.capacity), 0)::BIGINT           AS total_capacity,
+            COALESCE(SUM(e.price * e.capacity), 0)::FLOAT8 AS estimated_revenue
+         FROM events e
+         LEFT JOIN (
+            SELECT event_id, COUNT(*) AS sold, SUM(amount) AS revenue
+            FROM tickets WHERE status = 'paid' GROUP BY event_id
+         ) s ON s.event_id = e.id
+         WHERE e.organizer_id = $1",
+    )
+    .bind(auth.user_id)
+    .fetch_one(&state.db.pool)
+    .await?;
+
+    Ok(Json(OrganizerSummary {
+        events: row.events.unwrap_or(0),
+        total_sold: row.total_sold.unwrap_or(0),
+        total_revenue: row.total_revenue.unwrap_or(0),
+        total_capacity: row.total_capacity.unwrap_or(0),
+        estimated_revenue: row.estimated_revenue.unwrap_or(0.0).round() as i64,
+    }))
+}
+
 // ─── GET /payments/success  — HTML → intent:// → tikiya://payment/success ───────
 /// Chargily redirige le navigateur ici après un paiement réussi.
 /// On marque directement le billet comme payé (utile en dev sans webhook).
@@ -415,8 +547,7 @@ pub async fn payment_success(
     // Only mark as paid if the HMAC signature matches.
     // This prevents hitting /payments/success?ticket=<uuid> to forge a paid ticket.
     if let Ok(ticket_id) = uuid::Uuid::parse_str(&ticket_str) {
-        let expected = sign_ticket_url(ticket_id, &state.config.jwt_secret);
-        if sig == expected {
+        if verify_ticket_url_sig(ticket_id, &state.config.payment_url_hmac_secret, &sig) {
             let _ = sqlx::query(
                 "UPDATE tickets SET status = 'paid', updated_at = now() WHERE id = $1 AND status = 'pending'",
             )

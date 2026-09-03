@@ -6,7 +6,7 @@ services:
     env_file:
       - ./back/tikiya_api/.env
     environment:
-      DATABASE_URL: postgres://tikiya:tikiya@db:5432/tikiya
+      DATABASE_URL: postgres://tikiya:${DB_PASSWORD:-tikiya}@db:5432/tikiya
       PORT: 8080
       PUBLIC_BASE_URL: http://10.0.2.2:8080
       ORIGINS: http://localhost:3000

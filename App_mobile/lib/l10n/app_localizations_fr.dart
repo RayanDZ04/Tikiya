@@ -299,7 +299,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dashboardPast => 'Passé';
 
   @override
-  String get dashboardRevenue => 'Revenu potentiel';
+  String get dashboardRevenue => 'Revenu réel';
+
+  @override
+  String get dashboardEstimatedRevenue => 'Estimation (places)';
 
   @override
   String get dashboardQuickActions => 'Actions rapides';

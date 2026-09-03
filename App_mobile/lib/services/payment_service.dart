@@ -70,6 +70,34 @@ class EventTicketStats {
       );
 }
 
+/// Aggregated live stats over all of an organizer's events.
+class OrganizerSummary {
+  final int events;
+  final int totalSold;
+  final int totalRevenue;
+  final int totalCapacity;
+  final int estimatedRevenue;
+
+  const OrganizerSummary({
+    required this.events,
+    required this.totalSold,
+    required this.totalRevenue,
+    required this.totalCapacity,
+    required this.estimatedRevenue,
+  });
+
+  /// Share of seats actually sold, 0..1.
+  double get fillRate => totalCapacity > 0 ? totalSold / totalCapacity : 0.0;
+
+  factory OrganizerSummary.fromJson(Map<String, dynamic> j) => OrganizerSummary(
+        events: (j['events'] as int?) ?? 0,
+        totalSold: (j['total_sold'] as int?) ?? 0,
+        totalRevenue: (j['total_revenue'] as int?) ?? 0,
+        totalCapacity: (j['total_capacity'] as int?) ?? 0,
+        estimatedRevenue: (j['estimated_revenue'] as int?) ?? 0,
+      );
+}
+
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 class PaymentService {
@@ -131,6 +159,17 @@ class PaymentService {
     );
     _check(res);
     return EventTicketStats.fromJson(
+        jsonDecode(res.body) as Map<String, dynamic>);
+  }
+
+  /// GET /payments/mine/summary — live aggregated stats for the organizer.
+  Future<OrganizerSummary> organizerSummary() async {
+    final res = await http.get(
+      Uri.parse('$_baseUrl/payments/mine/summary'),
+      headers: _authHeaders,
+    );
+    _check(res);
+    return OrganizerSummary.fromJson(
         jsonDecode(res.body) as Map<String, dynamic>);
   }
 }

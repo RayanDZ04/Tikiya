@@ -3,7 +3,7 @@ use argon2::Argon2;
 use axum::{extract::State, Json};
 
 use crate::security::AuthUser;
-use crate::{dto::{UserResponse, ChangePasswordRequest, ChangeEmailRequest, ChangeUsernameRequest}, error::ApiError, state::AppState};
+use crate::{dto::{UserResponse, ChangePasswordRequest, ChangeEmailRequest, ChangeUsernameRequest, DeleteAccountRequest}, error::ApiError, state::AppState};
 
 pub async fn admin_me(
     State(state): State<AppState>,
@@ -99,6 +99,14 @@ pub async fn change_password(
         .execute(&state.db.pool)
         .await?;
 
+    // A stolen refresh token shouldn't survive the user securing their account.
+    crate::services::auth::revoke_all_sessions(&state.db.pool, user_id).await?;
+
+    crate::services::audit::record(
+        &state, Some(user_id), "password.changed", Some("user"),
+        Some(&user_id.to_string()), None, None,
+    )
+    .await;
     tracing::info!(user_id = %user_id, "me.change_password.success");
     Ok(axum::http::StatusCode::NO_CONTENT)
 }
@@ -161,7 +169,113 @@ pub async fn change_email(
         .execute(&state.db.pool)
         .await?;
 
+    crate::services::audit::record(
+        &state, Some(user_id), "email.changed", Some("user"),
+        Some(&user_id.to_string()), None, None,
+    )
+    .await;
     tracing::info!(user_id = %user_id, new_email = %payload.new_email, "me.change_email.success");
+    Ok(axum::http::StatusCode::NO_CONTENT)
+}
+
+/// GET /me/export — exporte toutes les données personnelles (RGPD, droit à la
+/// portabilité). Renvoie le profil, les événements et les tickets de l'utilisateur.
+pub async fn export_me(
+    State(state): State<AppState>,
+    auth: AuthUser,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let user_id = auth.user_id;
+
+    let profile: serde_json::Value = sqlx::query_scalar(
+        "SELECT to_jsonb(u) - 'password_hash'
+         FROM (SELECT id, email, role, username, first_name, last_name,
+                      email_verified, created_at
+               FROM users WHERE id = $1) u",
+    )
+    .bind(user_id)
+    .fetch_optional(&state.db.pool)
+    .await?
+    .ok_or(ApiError::NotFound)?;
+
+    let events: serde_json::Value = sqlx::query_scalar(
+        "SELECT COALESCE(jsonb_agg(to_jsonb(e)), '[]'::jsonb)
+         FROM events e WHERE e.organizer_id = $1",
+    )
+    .bind(user_id)
+    .fetch_one(&state.db.pool)
+    .await?;
+
+    let tickets: serde_json::Value = sqlx::query_scalar(
+        "SELECT COALESCE(jsonb_agg(to_jsonb(t)), '[]'::jsonb)
+         FROM tickets t WHERE t.user_id = $1",
+    )
+    .bind(user_id)
+    .fetch_one(&state.db.pool)
+    .await?;
+
+    crate::services::audit::record(
+        &state, Some(user_id), "account.exported", Some("user"),
+        Some(&user_id.to_string()), None, None,
+    )
+    .await;
+
+    Ok(Json(serde_json::json!({
+        "profile": profile,
+        "events": events,
+        "tickets": tickets,
+    })))
+}
+
+/// DELETE /me — supprime définitivement le compte (RGPD, droit à l'effacement).
+/// Exige le mot de passe actuel. La suppression cascade sur les événements,
+/// tickets et sessions de l'utilisateur (contraintes ON DELETE CASCADE).
+pub async fn delete_me(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Json(payload): Json<DeleteAccountRequest>,
+) -> Result<axum::http::StatusCode, ApiError> {
+    use validator::Validate;
+    payload.validate().map_err(|e| ApiError::Validation(e.to_string()))?;
+
+    let user_id = auth.user_id;
+
+    #[derive(sqlx::FromRow)]
+    struct PwRow { password_hash: Option<String> }
+    let row = sqlx::query_as::<_, PwRow>("SELECT password_hash FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(&state.db.pool)
+        .await?;
+    let hash_str = row.password_hash.ok_or(ApiError::Unauthorized)?;
+
+    let current = payload.current_password.clone();
+    let ok = tokio::task::spawn_blocking(move || {
+        let parsed = PasswordHash::new(&hash_str).map_err(|_| ())?;
+        Argon2::default()
+            .verify_password(current.as_bytes(), &parsed)
+            .map(|_| ()).map_err(|_| ())
+    })
+    .await
+    .map_err(|_| ApiError::Internal)?
+    .is_ok();
+
+    if !ok {
+        return Err(ApiError::Validation("Mot de passe incorrect".into()));
+    }
+
+    // Record the erasure BEFORE deleting so the trail survives (actor_id becomes
+    // NULL via ON DELETE SET NULL, but target_id keeps the deleted user's id).
+    crate::services::audit::record(
+        &state, Some(user_id), "account.deleted", Some("user"),
+        Some(&user_id.to_string()), None, None,
+    )
+    .await;
+
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(user_id)
+        .execute(&state.db.pool)
+        .await?;
+
+    tracing::info!(user_id = %user_id, "me.delete.success");
     Ok(axum::http::StatusCode::NO_CONTENT)
 }
 

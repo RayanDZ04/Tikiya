@@ -4,11 +4,12 @@ services:
     environment:
       POSTGRES_DB: tikiya
       POSTGRES_USER: tikiya
-      POSTGRES_PASSWORD: tikiya
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-tikiya}
     volumes:
       - db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # Pas de port host publié : seul le réseau interne Docker (db:5432) est
+    # utilisé par l'API. Pour du debug local ponctuel, utiliser
+    # `docker compose exec db psql -U tikiya` plutôt que d'exposer le port.
 
   api:
     build:
@@ -17,7 +18,7 @@ services:
     env_file:
       - ./back/tikiya_api/.env
     environment:
-      DATABASE_URL: postgres://tikiya:tikiya@db:5432/tikiya
+      DATABASE_URL: postgres://tikiya:${DB_PASSWORD:-tikiya}@db:5432/tikiya
       PORT: 8080
       ORIGINS: http://localhost:3000
       # 10.0.2.2 = host machine vu depuis l'émulateur Android

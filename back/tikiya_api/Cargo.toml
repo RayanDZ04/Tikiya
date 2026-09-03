@@ -30,3 +30,7 @@ sha2 = "0.10"
 tower_governor = "0.6"
 lettre = { version = "0.11", default-features = false, features = ["builder", "smtp-transport", "tokio1-rustls-tls"] }
 rand = "0.8"
+infer = "0.16"
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+object_store = { version = "0.11", features = ["aws"] }
+bytes = "1"

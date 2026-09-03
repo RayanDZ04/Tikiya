@@ -373,6 +373,17 @@ impl AuthService {
     }
 }
 
+/// Revokes every active session for `user_id`. Called after a password change
+/// so a stolen refresh token can't keep a session alive past the point the
+/// legitimate user thought they'd secured their account.
+pub async fn revoke_all_sessions(pool: &sqlx::PgPool, user_id: Uuid) -> Result<(), ApiError> {
+    sqlx::query("UPDATE sessions SET revoked_at = NOW() WHERE user_id = $1 AND revoked_at IS NULL")
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
 fn parse_refresh_token(token: &str) -> Result<(Uuid, &str), ApiError> {
     let (sid, secret) = token.split_once('.').ok_or(ApiError::Unauthorized)?;
     let session_id = Uuid::parse_str(sid).map_err(|_| ApiError::Unauthorized)?;

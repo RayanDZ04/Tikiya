@@ -9,9 +9,11 @@ mod error;
 mod handlers;
 mod http;
 mod models;
+mod ratelimit;
 mod routes;
 mod services;
 mod state;
+mod storage;
 mod security;
 
 #[tokio::main]
@@ -41,10 +43,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()
         .map_err(|e| { tracing::error!(error = ?e, "http_client.build_failed"); e })?;
 
+    // Optional Redis connection for distributed rate limiting. A failure here is
+    // non-fatal: the API still runs with only the in-memory governor.
+    let redis = if cfg.redis_url.is_empty() {
+        tracing::info!("redis.disabled — distributed rate limiting off (REDIS_URL unset)");
+        None
+    } else {
+        match redis::Client::open(cfg.redis_url.clone()) {
+            Ok(client) => match redis::aio::ConnectionManager::new(client).await {
+                Ok(cm) => {
+                    tracing::info!("redis.connected");
+                    Some(cm)
+                }
+                Err(e) => {
+                    tracing::error!(error = %e, "redis.connect_failed — continuing without distributed rate limiting");
+                    None
+                }
+            },
+            Err(e) => {
+                tracing::error!(error = %e, "redis.client_failed — continuing without distributed rate limiting");
+                None
+            }
+        }
+    };
+
+    let storage = storage::Storage::from_config(&cfg)
+        .map_err(|e| { tracing::error!(error = %e, "storage.init_failed"); e })?;
+    match &storage {
+        storage::Storage::Local { .. } => tracing::info!("storage.local (uploads/)"),
+        storage::Storage::S3 { .. } => tracing::info!(bucket = %cfg.s3_bucket, "storage.s3"),
+    }
+
     let state = state::AppState {
         db,
         config: cfg.clone(),
         http_client,
+        redis,
+        storage,
     };
 
     let app = http::build_router(state);

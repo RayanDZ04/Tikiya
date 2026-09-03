@@ -16,6 +16,7 @@ pub struct AppConfig {
     pub jwt_secret: String,
     pub jwt_issuer: String,
     pub jwt_audience: String,
+    pub payment_url_hmac_secret: String,
     pub google_client_id: String,
     pub google_client_secret: String,
     pub google_redirect_uri: String,
@@ -33,6 +34,14 @@ pub struct AppConfig {
     pub resend_from: String,
     pub otp_ttl_minutes: i64,
     pub otp_max_attempts: i32,
+    pub upload_max_file_bytes: usize,
+    pub upload_quota_bytes_per_user: i64,
+    pub redis_url: String,
+    pub s3_endpoint: String,
+    pub s3_bucket: String,
+    pub s3_access_key: String,
+    pub s3_secret_key: String,
+    pub s3_region: String,
 }
 
 impl AppConfig {
@@ -115,6 +124,24 @@ impl AppConfig {
         }
         let jwt_issuer = env::var("JWT_ISSUER").unwrap_or_else(|_| "tikiya-api".to_string());
         let jwt_audience = env::var("JWT_AUDIENCE").unwrap_or_else(|_| "tikiya-clients".to_string());
+
+        // Separate key from JWT_SECRET so a leak of one doesn't compromise the other.
+        // Falls back to JWT_SECRET if unset, to avoid a hard break on existing deployments —
+        // but a dedicated value should be set before going to production.
+        let payment_url_hmac_secret = env::var("PAYMENT_URL_HMAC_SECRET")
+            .unwrap_or_else(|_| jwt_secret.clone());
+        if payment_url_hmac_secret == jwt_secret {
+            tracing::warn!(
+                "PAYMENT_URL_HMAC_SECRET non défini — réutilisation de JWT_SECRET (à corriger avant la prod)"
+            );
+        } else {
+            let secret_trim = payment_url_hmac_secret.trim();
+            if secret_trim.len() < 32 || secret_trim.to_lowercase().contains("change-me") {
+                panic!(
+                    "PAYMENT_URL_HMAC_SECRET trop faible (min 32 chars et ne doit pas contenir 'change-me')"
+                );
+            }
+        }
         // Google OAuth config is optional; only required if you use Google endpoints
         let google_client_id = env::var("GOOGLE_CLIENT_ID").unwrap_or_default();
         let google_client_secret = env::var("GOOGLE_CLIENT_SECRET").unwrap_or_default();
@@ -159,6 +186,27 @@ impl AppConfig {
             .and_then(|v| v.parse().ok())
             .unwrap_or(5);
 
+        let upload_max_file_bytes = env::var("UPLOAD_MAX_FILE_BYTES")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(5 * 1024 * 1024); // 5 MB per file default
+
+        let upload_quota_bytes_per_user = env::var("UPLOAD_QUOTA_BYTES_PER_USER")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(50 * 1024 * 1024); // 50 MB per user default
+
+        // Empty = distributed rate limiting disabled (single-instance dev mode);
+        // tower_governor's in-memory limiter still applies.
+        let redis_url = env::var("REDIS_URL").unwrap_or_default();
+
+        // Empty S3_BUCKET = local-disk storage (dev). Set all four for MinIO/S3.
+        let s3_endpoint = env::var("S3_ENDPOINT").unwrap_or_default();
+        let s3_bucket = env::var("S3_BUCKET").unwrap_or_default();
+        let s3_access_key = env::var("S3_ACCESS_KEY").unwrap_or_default();
+        let s3_secret_key = env::var("S3_SECRET_KEY").unwrap_or_default();
+        let s3_region = env::var("S3_REGION").unwrap_or_else(|_| "us-east-1".to_string());
+
         Self {
             port,
             allowed_origins,
@@ -174,6 +222,7 @@ impl AppConfig {
             jwt_secret,
             jwt_issuer,
             jwt_audience,
+            payment_url_hmac_secret,
             google_client_id,
             google_client_secret,
             google_redirect_uri,
@@ -191,6 +240,14 @@ impl AppConfig {
             resend_from,
             otp_ttl_minutes,
             otp_max_attempts,
+            upload_max_file_bytes,
+            upload_quota_bytes_per_user,
+            redis_url,
+            s3_endpoint,
+            s3_bucket,
+            s3_access_key,
+            s3_secret_key,
+            s3_region,
         }
     }
 }

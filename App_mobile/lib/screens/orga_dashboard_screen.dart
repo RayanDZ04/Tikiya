@@ -20,11 +20,13 @@ class _OrgaDashboardScreenState extends State<OrgaDashboardScreen> {
   static const Color blanc = Colors.white;
 
   late Future<List<EventModel>> _future;
+  late Future<OrganizerSummary> _summaryFuture;
 
   @override
   void initState() {
     super.initState();
     _future = EventService().fetchMine();
+    _summaryFuture = PaymentService().organizerSummary();
   }
 
   void _showEventDetail(BuildContext context, EventModel event) {
@@ -101,7 +103,6 @@ class _OrgaDashboardScreenState extends State<OrgaDashboardScreen> {
                   final now = DateTime.now();
                   final upcoming = events.where((e) => e.eventDate.isAfter(now)).toList();
                   final past = events.where((e) => e.eventDate.isBefore(now)).toList();
-                  final totalRevenue = events.fold<double>(0, (sum, e) => sum + e.price * e.capacity);
 
                   return ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -145,21 +146,61 @@ class _OrgaDashboardScreenState extends State<OrgaDashboardScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _StatCard(
-                            icon: Icons.history,
-                            value: '${past.length}',
-                            label: l10n.dashboardPast,
-                          ),
-                          const SizedBox(width: 12),
-                          _StatCard(
-                            icon: Icons.attach_money,
-                            value: '${totalRevenue.toStringAsFixed(0)} DZD',
-                            label: l10n.dashboardRevenue,
-                            accent: const Color(0xFF66BB6A),
-                          ),
-                        ],
+
+                      // Live sales figures (real tickets sold, real revenue,
+                      // and the capacity-based estimate) come from the backend
+                      // summary — distinct from the theoretical max.
+                      FutureBuilder<OrganizerSummary>(
+                        future: _summaryFuture,
+                        builder: (context, s) {
+                          final sum = s.data;
+                          final loading =
+                              s.connectionState == ConnectionState.waiting;
+                          String v(int? n) => loading
+                              ? '…'
+                              : '${n ?? 0}';
+                          String money(int? n) => loading
+                              ? '…'
+                              : '${n ?? 0} DZD';
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  _StatCard(
+                                    icon: Icons.confirmation_num,
+                                    value: v(sum?.totalSold),
+                                    label: l10n.dashboardTicketsSold,
+                                    accent: bleuCyan,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _StatCard(
+                                    icon: Icons.history,
+                                    value: '${past.length}',
+                                    label: l10n.dashboardPast,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  _StatCard(
+                                    icon: Icons.attach_money,
+                                    value: money(sum?.totalRevenue),
+                                    label: l10n.dashboardRevenue,
+                                    accent: const Color(0xFF66BB6A),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _StatCard(
+                                    icon: Icons.trending_up,
+                                    value: money(sum?.estimatedRevenue),
+                                    label: l10n.dashboardEstimatedRevenue,
+                                    accent: const Color(0xFFFFA726),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 28),
 
@@ -209,7 +250,6 @@ class _StatCard extends StatelessWidget {
   final Color? accent;
 
   static const Color bleuProfond = Color(0xFF0B1C3E);
-  static const Color bleuCyan = Color(0xFF00ACC1);
 
   @override
   Widget build(BuildContext context) {

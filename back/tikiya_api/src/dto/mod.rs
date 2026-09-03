@@ -1,21 +1,42 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use validator::Validate;
+use validator::{Validate, ValidationError};
 
 use crate::models::{User, Event};
+
+/// Enforces a minimum password strength on new/changed passwords: at least one
+/// letter and one digit. (Length is checked separately by the `length` rule.)
+/// Not applied to login, so pre-existing weaker passwords still work.
+pub fn validate_password_strength(pw: &str) -> Result<(), ValidationError> {
+    let has_letter = pw.chars().any(|c| c.is_alphabetic());
+    let has_digit = pw.chars().any(|c| c.is_ascii_digit());
+    if has_letter && has_digit {
+        Ok(())
+    } else {
+        let mut err = ValidationError::new("password_too_weak");
+        err.message = Some(
+            "Le mot de passe doit contenir au moins une lettre et un chiffre.".into(),
+        );
+        Err(err)
+    }
+}
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct RegisterRequest {
     #[validate(email)]
     pub email: String,
-    #[validate(length(min = 8, max = 128))]
+    #[validate(length(min = 8, max = 128), custom(function = "validate_password_strength"))]
     pub password: String,
     pub role: Option<String>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub company: Option<String>,
+    // Acceptés dans la charge d'inscription mais pas encore persistés côté
+    // serveur (réservés pour un usage futur).
+    #[allow(dead_code)]
     pub phone: Option<String>,
+    #[allow(dead_code)]
     pub website: Option<String>,
 }
 
@@ -59,7 +80,7 @@ pub struct LogoutRequest {
 pub struct ChangePasswordRequest {
     #[validate(length(min = 8, max = 128))]
     pub current_password: String,
-    #[validate(length(min = 8, max = 128))]
+    #[validate(length(min = 8, max = 128), custom(function = "validate_password_strength"))]
     pub new_password: String,
 }
 
@@ -75,6 +96,13 @@ pub struct ChangeEmailRequest {
 pub struct ChangeUsernameRequest {
     #[validate(length(min = 2, max = 50))]
     pub username: String,
+}
+
+/// Account self-deletion (RGPD "droit à l'effacement"): re-auth with password.
+#[derive(Debug, Deserialize, Validate)]
+pub struct DeleteAccountRequest {
+    #[validate(length(min = 8, max = 128))]
+    pub current_password: String,
 }
 #[derive(Debug, Deserialize, Validate, Clone)]
 pub struct OrganizerNeedsRequest {
