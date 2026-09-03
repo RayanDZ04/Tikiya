@@ -34,3 +34,5 @@ infer = "0.16"
 redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
 object_store = { version = "0.11", features = ["aws"] }
 bytes = "1"
+sha1 = "0.10"
+totp-rs = { version = "5", features = ["otpauth", "gen_secret"] }

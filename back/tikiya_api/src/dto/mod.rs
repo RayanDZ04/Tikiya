@@ -38,6 +38,8 @@ pub struct RegisterRequest {
     pub phone: Option<String>,
     #[allow(dead_code)]
     pub website: Option<String>,
+    /// Cloudflare Turnstile token, required only when CAPTCHA is enabled.
+    pub captcha_token: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Validate, Clone)]
@@ -46,6 +48,8 @@ pub struct LoginRequest {
     pub email: String,
     #[validate(length(min = 8, max = 128))]
     pub password: String,
+    /// TOTP code, required only when the account has 2FA enabled.
+    pub totp_code: Option<String>,
 }
 
 #[derive(Debug, Serialize)]

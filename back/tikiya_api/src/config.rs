@@ -37,6 +37,8 @@ pub struct AppConfig {
     pub upload_max_file_bytes: usize,
     pub upload_quota_bytes_per_user: i64,
     pub redis_url: String,
+    pub pwned_check_enabled: bool,
+    pub captcha_secret: String,
     pub s3_endpoint: String,
     pub s3_bucket: String,
     pub s3_access_key: String,
@@ -200,6 +202,16 @@ impl AppConfig {
         // tower_governor's in-memory limiter still applies.
         let redis_url = env::var("REDIS_URL").unwrap_or_default();
 
+        // Breached-password check (HaveIBeenPwned). Off by default so dev/tests
+        // make no external calls; enable in production.
+        let pwned_check_enabled = env::var("PWNED_CHECK_ENABLED")
+            .map(|v| v == "true" || v == "1")
+            .unwrap_or(false);
+
+        // Cloudflare Turnstile secret. Empty = CAPTCHA disabled (dev/test);
+        // when set, registration requires and verifies a captcha token.
+        let captcha_secret = env::var("CAPTCHA_SECRET").unwrap_or_default();
+
         // Empty S3_BUCKET = local-disk storage (dev). Set all four for MinIO/S3.
         let s3_endpoint = env::var("S3_ENDPOINT").unwrap_or_default();
         let s3_bucket = env::var("S3_BUCKET").unwrap_or_default();
@@ -243,6 +255,8 @@ impl AppConfig {
             upload_max_file_bytes,
             upload_quota_bytes_per_user,
             redis_url,
+            pwned_check_enabled,
+            captcha_secret,
             s3_endpoint,
             s3_bucket,
             s3_access_key,

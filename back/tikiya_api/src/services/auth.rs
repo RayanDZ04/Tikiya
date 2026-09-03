@@ -152,6 +152,30 @@ impl AuthService {
             return Err(ApiError::Forbidden("Veuillez vérifier votre adresse email avant de vous connecter.".into()));
         }
 
+        // Second factor: if TOTP is enabled, require a valid code. The distinct
+        // "2FA_REQUIRED" message lets the client prompt for a code.
+        #[derive(sqlx::FromRow)]
+        struct TotpRow { totp_secret: Option<String>, totp_enabled: bool }
+        let totp_row = sqlx::query_as::<_, TotpRow>(
+            "SELECT totp_secret, totp_enabled FROM users WHERE id = $1",
+        )
+        .bind(user.id)
+        .fetch_one(&self.state.db.pool)
+        .await?;
+
+        if totp_row.totp_enabled {
+            let code = match payload.totp_code.as_deref() {
+                Some(c) if !c.trim().is_empty() => c.trim().to_string(),
+                _ => return Err(ApiError::Forbidden("2FA_REQUIRED".into())),
+            };
+            let secret = totp_row.totp_secret.ok_or(ApiError::Internal)?;
+            let totp = crate::handlers::twofa::build_totp(&secret, &user.email)?;
+            if !totp.check_current(&code).map_err(|_| ApiError::Internal)? {
+                tracing::warn!(email = %payload.email, "auth.login.invalid_totp");
+                return Err(ApiError::Unauthorized);
+            }
+        }
+
         // Reset failed attempts only if needed (avoid a write on every successful login)
         if user.failed_attempts != 0 || user.lockout_until.is_some() {
             sqlx::query("UPDATE users SET failed_attempts = 0, lockout_until = NULL WHERE id = $1")

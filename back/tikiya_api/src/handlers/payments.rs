@@ -129,9 +129,36 @@ struct ChargilyCheckoutResponse {
 pub async fn create_checkout(
     State(state): State<AppState>,
     auth: AuthUser,
+    headers: HeaderMap,
     Json(req): Json<CreateCheckoutRequest>,
 ) -> Result<Json<CreateCheckoutResponse>, ApiError> {
     let user_id = auth.user_id;
+
+    // Idempotency: a repeated request carrying the same Idempotency-Key returns
+    // the checkout already created instead of creating a duplicate ticket.
+    let idempotency_key = headers
+        .get("idempotency-key")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty() && s.len() <= 200);
+
+    if let Some(ref key) = idempotency_key {
+        #[derive(sqlx::FromRow)]
+        struct Existing { id: Uuid, checkout_url: Option<String> }
+        let prior = sqlx::query_as::<_, Existing>(
+            "SELECT id, checkout_url FROM tickets WHERE user_id = $1 AND idempotency_key = $2",
+        )
+        .bind(user_id)
+        .bind(key)
+        .fetch_optional(&state.db.pool)
+        .await?;
+        if let Some(p) = prior {
+            if let Some(url) = p.checkout_url {
+                tracing::info!(ticket_id = %p.id, "checkout.idempotent_replay");
+                return Ok(Json(CreateCheckoutResponse { ticket_id: p.id, checkout_url: url }));
+            }
+        }
+    }
 
     // Atomic capacity + per-user limit check inside a DB transaction.
     // SELECT FOR UPDATE locks the event row, preventing concurrent oversells.
@@ -192,14 +219,15 @@ pub async fn create_checkout(
 
     // Create a pending ticket record first so we have an ID for metadata
     let ticket_id: Uuid = sqlx::query_scalar(
-        "INSERT INTO tickets (event_id, user_id, checkout_id, status, amount, currency, payment_method)
-         VALUES ($1, $2, gen_random_uuid()::text, 'pending', $3, 'dzd', $4)
+        "INSERT INTO tickets (event_id, user_id, checkout_id, status, amount, currency, payment_method, idempotency_key)
+         VALUES ($1, $2, gen_random_uuid()::text, 'pending', $3, 'dzd', $4, $5)
          RETURNING id",
     )
     .bind(req.event_id)
     .bind(user_id)
     .bind(amount as i32)
     .bind(&req.payment_method)
+    .bind(&idempotency_key)
     .fetch_one(&mut *tx)
     .await
     .map_err(ApiError::from)?;
@@ -237,15 +265,17 @@ pub async fn create_checkout(
 
     if state.config.chargily_api_key.is_empty() {
         tracing::warn!("CHARGILY_API_KEY not set – returning mock checkout URL");
-        sqlx::query("UPDATE tickets SET checkout_id = $1 WHERE id = $2")
+        let mock_url = format!("https://pay.chargily.dz/test/mock/{}", ticket_id);
+        sqlx::query("UPDATE tickets SET checkout_id = $1, checkout_url = $2 WHERE id = $3")
             .bind(format!("mock-{}", ticket_id))
+            .bind(&mock_url)
             .bind(ticket_id)
             .execute(&state.db.pool)
             .await?;
 
         return Ok(Json(CreateCheckoutResponse {
             ticket_id,
-            checkout_url: format!("https://pay.chargily.dz/test/mock/{}", ticket_id),
+            checkout_url: mock_url,
         }));
     }
 
@@ -281,8 +311,9 @@ pub async fn create_checkout(
         .unwrap_or("unknown")
         .to_string();
 
-    sqlx::query("UPDATE tickets SET checkout_id = $1 WHERE id = $2")
+    sqlx::query("UPDATE tickets SET checkout_id = $1, checkout_url = $2 WHERE id = $3")
         .bind(&checkout_id)
+        .bind(&chargily_data.checkout_url)
         .bind(ticket_id)
         .execute(&state.db.pool)
         .await?;

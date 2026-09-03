@@ -51,6 +51,13 @@ pub async fn change_password(
     use validator::Validate;
     payload.validate().map_err(|e| ApiError::Validation(e.to_string()))?;
 
+    // Reject new passwords found in known breaches (no-op unless enabled).
+    if crate::services::pwned::is_breached(&state, &payload.new_password).await {
+        return Err(ApiError::Validation(
+            "Ce mot de passe apparaît dans une fuite de données connue. Choisissez-en un autre.".into(),
+        ));
+    }
+
     let user_id = auth.user_id;
 
     #[derive(sqlx::FromRow)]

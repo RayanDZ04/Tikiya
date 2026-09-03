@@ -21,6 +21,21 @@ pub async fn register(
         .validate()
         .map_err(|err| ApiError::Validation(err.to_string()))?;
 
+    // Bot defence: verify the CAPTCHA token (no-op unless CAPTCHA_SECRET is set).
+    if !crate::services::captcha::verify(&state, payload.captcha_token.as_deref()).await {
+        return Err(ApiError::Validation(
+            "Vérification anti-robot échouée. Réessayez.".into(),
+        ));
+    }
+
+    // Reject passwords known to be compromised in public breaches (fail-open,
+    // no-op unless PWNED_CHECK_ENABLED is set).
+    if crate::services::pwned::is_breached(&state, &payload.password).await {
+        return Err(ApiError::Validation(
+            "Ce mot de passe apparaît dans une fuite de données connue. Choisissez-en un autre.".into(),
+        ));
+    }
+
     let service = AuthService::new(state.clone());
     let first_name = payload.first_name.clone();
     let company = payload.company.clone();
