@@ -111,7 +111,7 @@ class _SettingsSheet extends StatelessWidget {
             subtitle: 'Protégez votre compte avec un code (2FA)',
             onTap: () {
               Navigator.pop(context);
-              _show2faSheet(context);
+              showTwoFactorSheet(context);
             },
           ),
           const SizedBox(height: 8),
@@ -605,7 +605,9 @@ class _ChangeUsernameSheetState extends State<_ChangeUsernameSheet> {
 }
 
 // ─── Two-factor (2FA) sheet ───────────────────────────────────────────────────
-void _show2faSheet(BuildContext context) {
+/// Opens the 2FA management sheet. Public so both the participant settings
+/// sheet and the organizer account screen can reach it.
+void showTwoFactorSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,

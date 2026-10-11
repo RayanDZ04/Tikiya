@@ -4,6 +4,7 @@ import '../l10n/l10n.dart';
 import '../services/session_store.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/language_switch.dart';
+import '../widgets/settings_sheet.dart';
 
 class OrgaAccountScreen extends StatelessWidget {
   const OrgaAccountScreen({super.key});
@@ -158,7 +159,32 @@ class OrgaAccountScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
+                        // Security / 2FA button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: bleuProfond,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.shield_outlined, color: bleuCyan),
+                            label: Text(
+                              'Vérification en deux étapes',
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                            onPressed: () => showTwoFactorSheet(context),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         // Logout button
                         SizedBox(
                           width: double.infinity,
