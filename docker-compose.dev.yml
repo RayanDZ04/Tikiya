@@ -12,11 +12,17 @@ services:
       ORIGINS: http://localhost:3000
       # Chargily Pay — clés de test (dashboard.chargily.com)
       CHARGILY_API_KEY: test_sk_Ltpa80oud4YoG2jKSXDjx8RH1OkwYxeYu0A3LcBt
-      # Rate limiting — valeurs élevées pour le dev (pas de limitation)
+      # Rate limiting — budget global élevé en dev, mais le limiteur strict sur
+      # les endpoints d'auth (15 req/5 min) reste actif via Redis ci-dessous.
       RATE_LIMIT_PER_SECOND: 500
       RATE_LIMIT_BURST: 1000
+      # Rate-limiting distribué (Redis) — activé en dev.
+      REDIS_URL: redis://redis:6379
+      # Refus des mots de passe déjà fuités (HaveIBeenPwned) — activé en dev.
+      PWNED_CHECK_ENABLED: "true"
     depends_on:
       - db
+      - redis
     ports:
       - "8080:8080"
     volumes:
@@ -24,6 +30,11 @@ services:
       - cargo_registry:/usr/local/cargo/registry
       - cargo_git:/usr/local/cargo/git
       - api_target:/app/target
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
 
   app_mobile_web:
     build:
