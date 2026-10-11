@@ -1,0 +1,21 @@
+{
+  "name": "tikiya-espace-orga",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5000 --open",
+    "build": "vite build",
+    "preview": "vite preview --port 5000"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.2",
+    "xlsx": "^0.18.5"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
+  }
+}
