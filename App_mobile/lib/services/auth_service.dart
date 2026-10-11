@@ -8,17 +8,35 @@ class AuthService {
 
   final String _baseUrl;
 
-  Future<Map<String, dynamic>> login({required String email, required String password}) async {
+  Future<Map<String, dynamic>> login({
+    required String email,
+    required String password,
+    String? totpCode,
+  }) async {
     final uri = Uri.parse('$_baseUrl/login');
     final res = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        if (totpCode != null && totpCode.isNotEmpty) 'totp_code': totpCode,
+      }),
     );
     if (res.statusCode == 401) {
       throw HttpException('Email ou mot de passe incorrect.');
     }
     if (res.statusCode == 403) {
+      // The server returns 403 both for 2FA and for unverified email; the
+      // detail field distinguishes them.
+      String? detail;
+      try {
+        final body = jsonDecode(res.body) as Map<String, dynamic>;
+        detail = body['detail'] as String? ?? body['message'] as String?;
+      } catch (_) {}
+      if (detail == '2FA_REQUIRED') {
+        throw TwoFactorRequiredException(email, password);
+      }
       throw EmailNotVerifiedException(email);
     }
     _ensureOk(res);
@@ -27,11 +45,63 @@ class AuthService {
     return data;
   }
 
+  // ─── 2FA (TOTP) management ───────────────────────────────────────────────
+
+  Map<String, String> get _authHeaders {
+    final token = SessionStore.I.session.value?.accessToken ?? '';
+    return {
+      'Content-Type': 'application/json',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  /// GET /me/2fa/status — whether 2FA is currently enabled.
+  Future<bool> twoFactorEnabled() async {
+    final res = await http.get(
+      Uri.parse('$_baseUrl/me/2fa/status'),
+      headers: _authHeaders,
+    );
+    _ensureOk(res);
+    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    return data['enabled'] as bool? ?? false;
+  }
+
+  /// POST /me/2fa/setup — returns { otpauth_url, secret } for a pending secret.
+  Future<Map<String, dynamic>> setup2fa() async {
+    final res = await http.post(
+      Uri.parse('$_baseUrl/me/2fa/setup'),
+      headers: _authHeaders,
+    );
+    _ensureOk(res);
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
+
+  /// POST /me/2fa/enable — confirm the pending secret with a first code.
+  Future<void> enable2fa(String code) async {
+    final res = await http.post(
+      Uri.parse('$_baseUrl/me/2fa/enable'),
+      headers: _authHeaders,
+      body: jsonEncode({'code': code}),
+    );
+    _ensureOk(res);
+  }
+
+  /// POST /me/2fa/disable — turn 2FA off after verifying a current code.
+  Future<void> disable2fa(String code) async {
+    final res = await http.post(
+      Uri.parse('$_baseUrl/me/2fa/disable'),
+      headers: _authHeaders,
+      body: jsonEncode({'code': code}),
+    );
+    _ensureOk(res);
+  }
+
   Future<Map<String, dynamic>> register({
     required String email,
     required String password,
     String? firstName,
     String? lastName,
+    String? captchaToken,
   }) async {
     final uri = Uri.parse('$_baseUrl/register');
     final body = <String, dynamic>{
@@ -39,6 +109,7 @@ class AuthService {
       'password': password,
       if (firstName != null && firstName.isNotEmpty) 'first_name': firstName,
       if (lastName != null && lastName.isNotEmpty) 'last_name': lastName,
+      if (captchaToken != null && captchaToken.isNotEmpty) 'captcha_token': captchaToken,
     };
     final res = await http.post(
       uri,
@@ -57,6 +128,7 @@ class AuthService {
     required String company,
     required String phone,
     String? website,
+    String? captchaToken,
   }) async {
     final uri = Uri.parse('$_baseUrl/register');
     final body = <String, dynamic>{
@@ -66,6 +138,7 @@ class AuthService {
       'phone': phone,
       'role': 'organisateur',
       if (website != null && website.isNotEmpty) 'website': website,
+      if (captchaToken != null && captchaToken.isNotEmpty) 'captcha_token': captchaToken,
     };
     final res = await http.post(
       uri,
@@ -189,3 +262,18 @@ class EmailNotVerifiedException implements Exception {
   @override
   String toString() => 'Email non vérifié.';
 }
+
+/// Thrown when the server requires a 2FA code to finish login.
+/// Carries the credentials so the UI can retry with the TOTP code.
+class TwoFactorRequiredException implements Exception {
+  final String email;
+  final String password;
+  TwoFactorRequiredException(this.email, this.password);
+  @override
+  String toString() => 'Code 2FA requis.';
+}
+
+/// CAPTCHA site key for registration, injected at build time via
+/// `--dart-define=TURNSTILE_SITE_KEY=...`. Empty = CAPTCHA disabled on mobile
+/// (matches the backend, which skips the check when CAPTCHA_SECRET is unset).
+const String turnstileSiteKey = String.fromEnvironment('TURNSTILE_SITE_KEY');

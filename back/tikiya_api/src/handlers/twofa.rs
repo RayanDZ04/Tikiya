@@ -30,6 +30,24 @@ pub fn build_totp(secret_b32: &str, account: &str) -> Result<TOTP, ApiError> {
 }
 
 #[derive(Serialize)]
+pub struct StatusResponse {
+    pub enabled: bool,
+}
+
+/// GET /me/2fa/status — whether 2FA is currently active for the user.
+pub async fn status(
+    State(state): State<AppState>,
+    auth: AuthUser,
+) -> Result<Json<StatusResponse>, ApiError> {
+    let enabled: bool =
+        sqlx::query_scalar("SELECT totp_enabled FROM users WHERE id = $1")
+            .bind(auth.user_id)
+            .fetch_one(&state.db.pool)
+            .await?;
+    Ok(Json(StatusResponse { enabled }))
+}
+
+#[derive(Serialize)]
 pub struct SetupResponse {
     /// otpauth:// URL to load into an authenticator app (render as QR client-side).
     pub otpauth_url: String,

@@ -11,6 +11,7 @@ pub fn router() -> Router<AppState> {
         .route("/me/email", put(change_email))
         .route("/me/username", put(change_username))
         .route("/me/export", get(export_me))
+        .route("/me/2fa/status", get(twofa::status))
         .route("/me/2fa/setup", post(twofa::setup))
         .route("/me/2fa/enable", post(twofa::enable))
         .route("/me/2fa/disable", post(twofa::disable))

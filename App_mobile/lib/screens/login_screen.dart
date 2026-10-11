@@ -33,6 +33,83 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /// Prompts for the 6-digit TOTP code and retries login with it.
+  Future<void> _promptTotpAndLogin(BuildContext context) async {
+    final codeController = TextEditingController();
+    final code = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: Text(
+          'Vérification en deux étapes',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700, color: bleuProfon),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Entrez le code à 6 chiffres de votre application d\'authentification.',
+              style: GoogleFonts.montserrat(fontSize: 13, color: grisFonce),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: codeController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              autofocus: true,
+              style: GoogleFonts.montserrat(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 8,
+              ),
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                counterText: '',
+                hintText: '••••••',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: bleuCyan, width: 2),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Annuler', style: GoogleFonts.montserrat(color: grisFonce)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: bleuCyan, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(ctx, codeController.text.trim()),
+            child: Text('Valider', style: GoogleFonts.montserrat(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+
+    if (!context.mounted) return;
+    if (code == null || code.isEmpty) return; // cancelled
+
+    try {
+      await _auth.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        totpCode: code,
+      );
+      if (!context.mounted) return;
+      _showStyledSnack(context, context.l10n.connected);
+      Navigator.pushReplacementNamed(context, '/');
+    } catch (_) {
+      // At this point the password was already accepted (we got 2FA_REQUIRED),
+      // so any failure here is a wrong/expired code.
+      if (!context.mounted) return;
+      _showStyledSnack(context, 'Code incorrect ou expiré, réessayez.', bg: const Color(0xFFB00020));
+    }
+  }
+
   void _showStyledSnack(BuildContext context, String message, {Color bg = bleuProfon}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -178,6 +255,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       );
                                       _showStyledSnack(context, l10n.connected);
                                       Navigator.pushReplacementNamed(context, '/');
+                                    } on TwoFactorRequiredException catch (_) {
+                                      await _promptTotpAndLogin(context);
                                     } on EmailNotVerifiedException catch (_) {
                                       // Email not verified → offer to re-register (backend will replace unverified account)
                                       ScaffoldMessenger.of(context).showSnackBar(

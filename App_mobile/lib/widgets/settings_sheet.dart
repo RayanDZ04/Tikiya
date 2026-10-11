@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../l10n/l10n.dart';
+import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../services/session_store.dart';
 
@@ -101,6 +104,16 @@ class _SettingsSheet extends StatelessWidget {
               _showChangeUsernameSheet(context);
             },
           ),
+          const SizedBox(height: 12),
+          _SettingsTile(
+            icon: Icons.shield_outlined,
+            title: 'Vérification en deux étapes',
+            subtitle: 'Protégez votre compte avec un code (2FA)',
+            onTap: () {
+              Navigator.pop(context);
+              _show2faSheet(context);
+            },
+          ),
           const SizedBox(height: 8),
         ],
       ),
@@ -197,7 +210,6 @@ class _ChangeEmailSheet extends StatefulWidget {
 
 class _ChangeEmailSheetState extends State<_ChangeEmailSheet> {
   static const Color bleuProfond = Color(0xFF0B1C3E);
-  static const Color bleuCyan = Color(0xFF00ACC1);
 
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
@@ -503,8 +515,6 @@ class _ChangeUsernameSheet extends StatefulWidget {
 }
 
 class _ChangeUsernameSheetState extends State<_ChangeUsernameSheet> {
-  static const Color bleuProfond = Color(0xFF0B1C3E);
-
   final _formKey = GlobalKey<FormState>();
   final _usernameCtrl = TextEditingController();
   bool _loading = false;
@@ -592,6 +602,256 @@ class _ChangeUsernameSheetState extends State<_ChangeUsernameSheet> {
       ),
     );
   }
+}
+
+// ─── Two-factor (2FA) sheet ───────────────────────────────────────────────────
+void _show2faSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (_) => const _TwoFactorSheet(),
+  );
+}
+
+class _TwoFactorSheet extends StatefulWidget {
+  const _TwoFactorSheet();
+  @override
+  State<_TwoFactorSheet> createState() => _TwoFactorSheetState();
+}
+
+class _TwoFactorSheetState extends State<_TwoFactorSheet> {
+  static const Color bleuProfond = Color(0xFF0B1C3E);
+  static const Color bleuCyan = Color(0xFF00ACC1);
+
+  final _auth = AuthService();
+  final _codeCtrl = TextEditingController();
+
+  bool _loading = true; // initial status check
+  bool _enabled = false;
+  bool _busy = false;
+  String? _error;
+  bool _success = false;
+
+  // Setup data (when enabling)
+  String? _secret;
+  String? _otpauthUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatus();
+  }
+
+  @override
+  void dispose() {
+    _codeCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadStatus() async {
+    try {
+      final enabled = await _auth.twoFactorEnabled();
+      if (!mounted) return;
+      setState(() { _enabled = enabled; _loading = false; });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _error = e.toString(); _loading = false; });
+    }
+  }
+
+  Future<void> _startSetup() async {
+    setState(() { _busy = true; _error = null; });
+    try {
+      final data = await _auth.setup2fa();
+      if (!mounted) return;
+      setState(() {
+        _secret = data['secret'] as String?;
+        _otpauthUrl = data['otpauth_url'] as String?;
+        _busy = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _error = e.toString(); _busy = false; });
+    }
+  }
+
+  Future<void> _confirmEnable() async {
+    final code = _codeCtrl.text.trim();
+    if (code.isEmpty) { setState(() => _error = 'Entrez le code à 6 chiffres.'); return; }
+    setState(() { _busy = true; _error = null; });
+    try {
+      await _auth.enable2fa(code);
+      if (!mounted) return;
+      setState(() { _success = true; _busy = false; });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _error = e.toString(); _busy = false; });
+    }
+  }
+
+  Future<void> _disable() async {
+    final code = _codeCtrl.text.trim();
+    if (code.isEmpty) { setState(() => _error = 'Entrez un code pour confirmer.'); return; }
+    setState(() { _busy = true; _error = null; });
+    try {
+      await _auth.disable2fa(code);
+      if (!mounted) return;
+      setState(() { _success = true; _enabled = false; _busy = false; });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _error = e.toString(); _busy = false; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        child: _success
+            ? _SuccessBanner(
+                message: _enabled
+                    ? 'Vérification en deux étapes activée.'
+                    : 'Vérification en deux étapes désactivée.',
+                onDone: () => Navigator.pop(context),
+              )
+            : _buildBody(),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SheetHandle(),
+        const SizedBox(height: 20),
+        _SheetTitle(icon: Icons.shield_outlined, title: 'Vérification en deux étapes'),
+        const SizedBox(height: 20),
+        if (_loading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(child: CircularProgressIndicator(color: bleuCyan)),
+          )
+        else if (_enabled)
+          ..._buildDisableFlow()
+        else if (_secret == null)
+          ..._buildIntro()
+        else
+          ..._buildEnableFlow(),
+        if (_error != null) ...[
+          const SizedBox(height: 12),
+          _ErrorBanner(message: _error!),
+        ],
+      ],
+    );
+  }
+
+  List<Widget> _buildIntro() => [
+        Text(
+          'Ajoutez une couche de sécurité : un code temporaire sera demandé à chaque connexion, en plus de votre mot de passe.',
+          style: GoogleFonts.montserrat(fontSize: 13, color: bleuProfond.withValues(alpha: 0.6)),
+        ),
+        const SizedBox(height: 20),
+        _SubmitButton(label: 'Activer la 2FA', loading: _busy, onPressed: _startSetup),
+      ];
+
+  List<Widget> _buildEnableFlow() => [
+        Text(
+          '1. Scannez ce QR code avec votre application d\'authentification (Google Authenticator, Authy…).',
+          style: GoogleFonts.montserrat(fontSize: 13, color: bleuProfond.withValues(alpha: 0.6)),
+        ),
+        const SizedBox(height: 16),
+        if (_otpauthUrl != null)
+          Center(
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: bleuProfond.withValues(alpha: 0.1)),
+              ),
+              child: QrImageView(
+                data: _otpauthUrl!,
+                version: QrVersions.auto,
+                size: 180,
+                backgroundColor: Colors.white,
+              ),
+            ),
+          ),
+        const SizedBox(height: 14),
+        Text(
+          'Ou entrez cette clé manuellement :',
+          style: GoogleFonts.montserrat(fontSize: 12, color: bleuProfond.withValues(alpha: 0.5)),
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: _secret ?? ''));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Clé copiée'), duration: Duration(seconds: 1)),
+            );
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SelectableText(
+                    _secret ?? '',
+                    style: GoogleFonts.robotoMono(fontSize: 13, color: bleuProfond, letterSpacing: 1),
+                  ),
+                ),
+                const Icon(Icons.copy, size: 16, color: bleuCyan),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          '2. Entrez le code à 6 chiffres affiché :',
+          style: GoogleFonts.montserrat(fontSize: 13, color: bleuProfond.withValues(alpha: 0.6)),
+        ),
+        const SizedBox(height: 8),
+        _FormField(
+          controller: _codeCtrl,
+          label: 'CODE',
+          hint: '000000',
+          icon: Icons.pin_outlined,
+          keyboardType: TextInputType.number,
+        ),
+        const SizedBox(height: 20),
+        _SubmitButton(label: 'Confirmer et activer', loading: _busy, onPressed: _confirmEnable),
+      ];
+
+  List<Widget> _buildDisableFlow() => [
+        Text(
+          'La 2FA est active. Pour la désactiver, entrez un code de votre application d\'authentification.',
+          style: GoogleFonts.montserrat(fontSize: 13, color: bleuProfond.withValues(alpha: 0.6)),
+        ),
+        const SizedBox(height: 16),
+        _FormField(
+          controller: _codeCtrl,
+          label: 'CODE',
+          hint: '000000',
+          icon: Icons.pin_outlined,
+          keyboardType: TextInputType.number,
+        ),
+        const SizedBox(height: 20),
+        _SubmitButton(label: 'Désactiver la 2FA', loading: _busy, onPressed: _disable),
+      ];
 }
 
 // ─── Shared small widgets ─────────────────────────────────────────────────────
